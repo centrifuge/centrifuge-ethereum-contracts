@@ -11,12 +11,11 @@ function createRandomByte32() {
 contract("Witness", function (accounts) {
     const version = createRandomByte32()
     const nextVersion = createRandomByte32()
-    const signature = createRandomByte32()
-    console.log("Dest/Sig:", nextVersion, signature)
-        it("should write a signature to the chain", async function  () {
+    const merkleRoot = createRandomByte32()
+    it("should write a merkle root to the chain", async function  () {
         let witness = await Witness.deployed()
         
-        await witness.witnessDocument(version, nextVersion, signature, {from:accounts[0]}).then(function (tx) {
+        await witness.witnessDocument(version, merkleRoot, {from:accounts[0]}).then(function (tx) {
             assert.equal(tx.receipt.status, 1)
             return tx
         }).catch(function (e) {
@@ -24,28 +23,18 @@ contract("Witness", function (accounts) {
         })
         
         let response = await witness.getWitness.call(version, {from: accounts[0]})
-        assert.equal(signature, response[0])
-        assert.equal(nextVersion, response[1])
+        assert.equal(merkleRoot, response[0])
 
-        // Try overwriting an existing signature
-        await witness.witnessDocument(version, nextVersion, signature.substr(2), {from:accounts[0]}).then(function (tx) {
+        // Try overwriting an existing merkleRoot
+        await witness.witnessDocument(version, merkleRoot.substr(2), {from:accounts[0]}).then(function (tx) {
             throw "Transaction should not succeed"
         }).catch(function (e) {
             assert.equal(e.message, "VM Exception while processing transaction: revert")
         })
 
-        // Ensure signature hasn't changed
+        // Ensure merkleRoot hasn't changed
         response = await witness.getWitness.call(version, {from: accounts[0]})
-        assert.equal(signature, response[0])
-        assert.equal(nextVersion, response[1]) 
-
-        // Try reusing an existing nextVersion
-        const newVersion = createRandomByte32()
-        await witness.witnessDocument(newVersion, nextVersion, signature.substr(2), {from:accounts[0]}).then(function (tx) {
-            throw "Transaction should not succeed"
-        }).catch(function (e) {
-            assert.equal(e.message, "VM Exception while processing transaction: revert")
-        })
+        assert.equal(merkleRoot, response[0])
 
         // TODO: Check blocktime
     })
