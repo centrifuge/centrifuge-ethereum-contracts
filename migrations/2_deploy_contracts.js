@@ -1,5 +1,5 @@
-var Witness = artifacts.require("Witness");
+var AnchorRegistry = artifacts.require("AnchorRegistry");
 
 module.exports = function(deployer) {
-  deployer.deploy(Witness);
+  deployer.deploy(AnchorRegistry);
 };
