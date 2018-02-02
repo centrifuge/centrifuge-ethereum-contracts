@@ -1,14 +1,33 @@
 pragma solidity ^0.4.17;
+import 'zeppelin-solidity/contracts/ownership/Ownable.sol';
 
-contract AnchorRegistry {
-    mapping (bytes32 => bytes32[2]) public anchors;
+contract AnchorRegistry is Ownable {
+	event AnchorRegistered(bytes32 identifier, bytes32 rootHash, bytes32 timestamp, uint anchorSchemaVersion);
 
-    function registerAnchor (bytes32 identifier, bytes32 merkleRoot) public {
-        require(anchors[identifier][0] == 0x0);
-        anchors[identifier] = [merkleRoot, bytes32(now)];
+    struct Anchor {
+        bytes32 identifier;
+        bytes32 merkleRoot;
+        bytes32 timestamp;
+        uint schemaVersion;
     }
 
-    function getAnchorById (bytes32 identifier) public view returns(bytes32[2]) {
-        return anchors[identifier];
+    mapping (bytes32 => Anchor) public anchors;
+
+    function registerAnchor (bytes32 identifier, bytes32 merkleRoot, uint anchorSchemaVersion) public {
+        require(anchors[identifier].identifier == 0x0);
+
+        bytes32 timeStamp = bytes32(now);
+
+        anchors[identifier] = Anchor(identifier, merkleRoot, timeStamp, anchorSchemaVersion);
+        AnchorRegistered(identifier, merkleRoot, timeStamp, anchorSchemaVersion);
+    }
+
+    function getAnchorById (bytes32 identifier) public view returns(bytes32, bytes32, bytes32, uint) {
+        return (
+            anchors[identifier].identifier, 
+            anchors[identifier].merkleRoot, 
+            anchors[identifier].timestamp, 
+            anchors[identifier].schemaVersion
+            );
     }
 }
