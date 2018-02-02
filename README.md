@@ -1,3 +1,9 @@
+<p align="center">
+  <a href="https://travis-ci.com/CentrifugeInc/centrifuge-ethereum-contracts"><img src="https://travis-ci.com/CentrifugeInc/centrifuge-ethereum-contracts.svg?token=bsfbw2zXLuaTvhVTDXMh&branch=master" /></a>
+  <br>
+</p>
+
+
 Running it
 ==========
 ```bash
