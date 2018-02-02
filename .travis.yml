@@ -1,0 +1,21 @@
+dist: trusty
+sudo: required
+group: beta
+language: node_js
+node_js:
+  - "8"
+
+cache:
+  directories:
+    - node_modules
+
+before_install:
+  - npm install -g truffle@4.0.4
+  - npm install -g ethereumjs-testrpc@6.0.1
+
+before_script:
+  - truffle version
+
+script:
+  - npm run testrpc-m &
+  - truffle test

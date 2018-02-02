@@ -1,8 +1,18 @@
 Running it
 ==========
-* Install truffle globally: `npm install -g truffle`
-* Run testrpc: `npm run testrpc-m`
-* Run tests: `npm run re-test`
+```bash
+# install truffle globally on the machine
+npm install -g truffle
+
+# install the repo dependencies
+npm install 
+
+# run testrpc with fixed mnmonic
+npm run testrpc-m
+
+# to continuously run tests, if you so choose
+npm run re-test
+```
 
 
 How to build go bindings
