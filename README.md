@@ -9,7 +9,7 @@ How to build go bindings
 ========================
 To create a go binding for abi run the `abigen` script first:
 ```
-$GOPATH/bin/abigen --abi abi/Witness.abi  --pkg "witness" --type EthereumWitness --out centrifuge/goContracts/witness_contract.go
+$GOPATH/bin/abigen --abi abi/Witness.abi  --pkg "witness" --type EthereumWitness --out centrifuge/witness/witnessContract.go
 ```
 
 The abigen script unfortunately doesn't have the right go imports, therefore you need to add the following imports to the binding:
