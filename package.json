@@ -4,7 +4,12 @@
     "re-test": "nodemon /usr/local/bin/truffle test"
   },
   "nodemonConfig": {
-    "ignore": ["docs/*"],
+    "ignore": [
+      "docs/*"
+    ],
     "delay": "500"
+  },
+  "dependencies": {
+    "zeppelin-solidity": "^1.3.0"
   }
 }
