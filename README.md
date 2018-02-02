@@ -1,3 +1,8 @@
+CI Status
+==========
+[![Build Status](https://travis-ci.com/CentrifugeInc/centrifuge-ethereum-contracts.svg?token=bsfbw2zXLuaTvhVTDXMh&branch=master)](https://travis-ci.com/CentrifugeInc/centrifuge-ethereum-contracts)
+
+
 Running it
 ==========
 ```bash
