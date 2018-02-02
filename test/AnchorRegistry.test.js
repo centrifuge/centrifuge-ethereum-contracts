@@ -40,7 +40,12 @@ contract("AnchorRegistry", function (accounts) {
             })
 
             let response = await anchorRegistry.getAnchorById.call(identifier, callOptions)
+            assert.equal(identifier, response[0])
             assert.equal(merkleRoot, response[1])
+            //TODO test on timestamp validity for now testing only for value to be set
+            // assert.equal(timestampOfTransaction, response[2])
+            assert.notEqual(0, response[2]) 
+            assert.equal(ANCHOR_SCHEMA_VERSION, response[3])
         })
 
 
@@ -66,6 +71,18 @@ contract("AnchorRegistry", function (accounts) {
             // Ensure merkleRoot hasn't changed
             response = await anchorRegistry.getAnchorById.call(identifier, callOptions)
             assert.equal(merkleRoot, response[1])
+        })
+
+
+        it("should return an empty anchor for wrong identifier", async function () {
+            const { identifier, nextidentifier, merkleRoot, anchorRegistry, callOptions } = await getBasicTestNeeds(accounts);
+            const notExistingAnchorId = createRandomByte32();
+
+            let response = await anchorRegistry.getAnchorById.call(notExistingAnchorId, callOptions)
+            assert.equal("0x0000000000000000000000000000000000000000000000000000000000000000", response[0])
+            assert.equal("0x0000000000000000000000000000000000000000000000000000000000000000", response[1])
+            assert.equal("0x0000000000000000000000000000000000000000000000000000000000000000", response[2]) 
+            assert.equal(0, response[3])            
         })
     })
 })
