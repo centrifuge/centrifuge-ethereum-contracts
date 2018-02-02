@@ -23,6 +23,8 @@ contract AnchorRegistry is Ownable {
         require(merkleRoot != 0x0000000000000000000000000000000000000000000000000000000000000000);
         
         // not allowing "null"
+        // some clients will translate a *null* to a string containing "null" 
+        // reject this to prevent coding errors on the user side
         require(identifier != 0x6e756c6c00000000000000000000000000000000000000000000000000000000);
         require(merkleRoot != 0x6e756c6c00000000000000000000000000000000000000000000000000000000);
 
