@@ -3,7 +3,6 @@ import 'zeppelin-solidity/contracts/ownership/Ownable.sol';
 
 contract AnchorRegistry is Ownable {
 	event AnchorRegistered(bytes32 identifier, bytes32 rootHash, bytes32 timestamp, uint anchorSchemaVersion);
-    event RegisteringAnchor(bytes32 identifier, bytes32 rootHash, bytes32 timestamp, uint anchorSchemaVersion);
 
     struct Anchor {
         bytes32 identifier;
@@ -15,9 +14,7 @@ contract AnchorRegistry is Ownable {
     mapping (bytes32 => Anchor) public anchors;
 
     function registerAnchor (bytes32 identifier, bytes32 merkleRoot, uint anchorSchemaVersion) public {
-        bytes32 timeStamp = bytes32(now);
-        RegisteringAnchor(identifier, merkleRoot, timeStamp, anchorSchemaVersion);
-        
+               
         //not allowing to write to an existing anchor
         require(anchors[identifier].identifier == 0x0);
 
@@ -31,7 +28,7 @@ contract AnchorRegistry is Ownable {
 
         require(anchorSchemaVersion > 0);
 
-        
+        bytes32 timeStamp = bytes32(now);
 
         anchors[identifier] = Anchor(identifier, merkleRoot, timeStamp, anchorSchemaVersion);
         AnchorRegistered(identifier, merkleRoot, timeStamp, anchorSchemaVersion);
