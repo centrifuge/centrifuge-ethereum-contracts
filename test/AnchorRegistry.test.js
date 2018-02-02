@@ -1,14 +1,9 @@
+const createRandomByte32 = require('./tools/random').createRandomByte32;
+
 var AnchorRegistry = artifacts.require("AnchorRegistry");
 
 const ANCHOR_SCHEMA_VERSION = 1;
 
-function createRandomByte32() {
-    let identifier = '';
-    for (var i = 0; i < 64; i++) {
-        identifier += Math.floor(Math.random() * 16).toString(16)
-    }
-    return '0x' + identifier
-}
 
 let deployedAnchorRegistry;
 
