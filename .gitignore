@@ -10,5 +10,8 @@ __generated__
 !.vscode/snippets
 !.vscode/settings.json
 
+# GoLand IDE
+.idea
+
 # node
 node_modules/

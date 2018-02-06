@@ -1,8 +1,8 @@
 {
   "scripts": {
-    "test": "scripts/test.sh",
+    "test": "truffle test",
     "testrpc-m": "testrpc --gasLimit 4712388 -p 9545 -m \"tumble gas embody bright agree pony smoke laptop index sight shallow hungry\"",
-    "re-test": "nodemon /usr/local/bin/truffle test"
+    "re-test": "nodemon truffle test"
   },
   "nodemonConfig": {
     "ignore": [
