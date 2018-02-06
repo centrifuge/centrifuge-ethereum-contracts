@@ -1,9 +1,9 @@
 pragma solidity ^0.4.17;
-import 'zeppelin-solidity/contracts/ownership/Ownable.sol';
+
 import './Identity.sol';
 import './IdentityRegistry.sol';
 
-contract IdentityFactory is Ownable {
+contract IdentityFactory {
   event IdentityCreated(bytes32 centrifugeId, address identity);
 
   address registry;
@@ -12,7 +12,7 @@ contract IdentityFactory is Ownable {
     registry = _registry;
   }
 
-  function createIdentity(bytes32 _centrifugeId) public returns(address) {
+  function createIdentity(bytes32 _centrifugeId) public {
     require(_centrifugeId != 0x0);
     IdentityRegistry identityRegistry = IdentityRegistry(registry);
     // Require that the centrifugeId is not already registered in the IdentityRegistry
@@ -24,8 +24,6 @@ contract IdentityFactory is Ownable {
     IdentityCreated(_centrifugeId, identity);
 
     identityRegistry.registerIdentity(_centrifugeId, identity);
-
-    return identity;
   }
 
 }

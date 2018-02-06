@@ -1,7 +1,6 @@
 pragma solidity ^0.4.17;
-import 'zeppelin-solidity/contracts/ownership/Ownable.sol';
 
-contract IdentityRegistry is Ownable {
+contract IdentityRegistry {
   event IdentityRegistered(bytes32 centrifugeId, address identity);
   event IdentityUpdated(bytes32 centrifugeId, address identity);
 
@@ -35,6 +34,7 @@ contract IdentityRegistry is Ownable {
   }
 
   function updateIdentityAddress(bytes32 _centrifugeId, address _identity) onlyIdentityOwner(_centrifugeId) public {
+    require(_centrifugeId != 0x0);
     require(_identity != 0x0);
     identityRegistry[_centrifugeId].identity = _identity;
     IdentityUpdated(_centrifugeId, _identity);

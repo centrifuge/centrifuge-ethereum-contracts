@@ -55,7 +55,7 @@ contract("Identity", function (accounts) {
       let peerToPeerId = createRandomByte32();
 
       await identityRecord.addKey(peerToPeerId, keyType).then(function(tx){
-        assertEvent(tx, "KeyRegistered", {key: peerToPeerId, keyType: keyType});
+        assertEvent(tx, "KeyRegistered", {key: peerToPeerId, kType: keyType});
       });
 
       await identityRecord.getKeysByType.call(keyType).then(function(result){
@@ -95,7 +95,7 @@ contract("Identity", function (accounts) {
       let peerToPeerId = createRandomByte32();
 
       await identityRecord.addKey(peerToPeerId, keyType).then(function(tx){
-        assertEvent(tx, "KeyRegistered", {key: peerToPeerId, keyType: keyType});
+        assertEvent(tx, "KeyRegistered", {key: peerToPeerId, kType: keyType});
       });
 
       await identityRecord.getKeysByType.call(keyType).then(function(result){
@@ -104,7 +104,7 @@ contract("Identity", function (accounts) {
 
       let newPeerToPeerId = createRandomByte32();
       await identityRecord.addKey(newPeerToPeerId, keyType).then(function(tx){
-        assertEvent(tx, "KeyRegistered", {key: newPeerToPeerId, keyType: keyType});
+        assertEvent(tx, "KeyRegistered", {key: newPeerToPeerId, kType: keyType});
       });
 
       await identityRecord.getKeysByType.call(keyType).then(function(result){

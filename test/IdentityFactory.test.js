@@ -13,7 +13,7 @@ contract("IdentityFactory", function (accounts) {
 
   before(async function () {
     identityRegistryContract = await IdentityRegistry.deployed();
-    identityFactoryContract = await IdentityFactory.new(identityRegistryContract.address);
+    identityFactoryContract = await IdentityFactory.deployed();
   });
 
   describe("Create Identity", async function () {
