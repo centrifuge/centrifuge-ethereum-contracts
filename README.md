@@ -9,11 +9,17 @@ Running it
 # install truffle globally on the machine
 npm install -g truffle
 
+# install nodemon globally on the machine
+npm install -g nodemon
+
 # install the repo dependencies
 npm install 
 
 # run testrpc with fixed mnmonic
 npm run testrpc-m
+
+# to run tests
+npm run test
 
 # to continuously run tests, if you so choose
 npm run re-test
