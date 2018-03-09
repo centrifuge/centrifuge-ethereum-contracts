@@ -11,7 +11,7 @@ module.exports = {
         host: "localhost",
         port: 9545,
         network_id: "*", // Match any network id
-        from: "0x838f7dca284eb69a9c489fe09c31cff37defdeca",
+        from: "0x45b9c4798999ffa52e1ff1efce9d3e45819e4158",
         gas: 4712388
       },
       rinkeby: {
