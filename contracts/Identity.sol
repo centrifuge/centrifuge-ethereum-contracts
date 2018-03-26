@@ -7,7 +7,7 @@ contract Identity is Ownable {
 
   bytes32 public centrifugeId;
 
-  mapping(uint => bytes32[]) keys; // Indexed by Type to keys 1 (PeerToPeerID), 2 (SignatureID)
+  mapping(uint => bytes32[]) keys; // Indexed by Type to keys 1 (PeerToPeerID), 2 (EncryptionKey)
 
   function Identity(bytes32 _centrifugeId) public {
     require(_centrifugeId != 0x0);

@@ -4,7 +4,7 @@ import './Identity.sol';
 import './IdentityRegistry.sol';
 
 contract IdentityFactory {
-  event IdentityCreated(bytes32 centrifugeId, address identity);
+  event IdentityCreated(bytes32 indexed centrifugeId, address identity);
 
   address registry;
 
@@ -21,9 +21,9 @@ contract IdentityFactory {
     Identity identity = new Identity(_centrifugeId);
     identity.transferOwnership(msg.sender);
 
-    IdentityCreated(_centrifugeId, identity);
-
     identityRegistry.registerIdentity(_centrifugeId, identity);
+
+    IdentityCreated(_centrifugeId, identity);
   }
 
 }

@@ -1,8 +1,8 @@
 pragma solidity ^0.4.17;
 
 contract IdentityRegistry {
-  event IdentityRegistered(bytes32 centrifugeId, address identity);
-  event IdentityUpdated(bytes32 centrifugeId, address identity);
+  event IdentityRegistered(bytes32 indexed centrifugeId, address identity);
+  event IdentityUpdated(bytes32 indexed centrifugeId, address identity);
 
   /**
    * owner -> The owner of the identity, only owners can update their own identities
