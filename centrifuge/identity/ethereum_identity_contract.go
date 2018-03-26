@@ -16,7 +16,7 @@ import (
 )
 
 // EthereumIdentityContractABI is the input ABI used to generate the binding from.
-const EthereumIdentityContractABI = "[{\"constant\":true,\"inputs\":[{\"name\":\"_key\",\"type\":\"bytes32\"},{\"name\":\"_kType\",\"type\":\"uint256\"}],\"name\":\"centrifugeId\",\"outputs\":[{\"name\":\"\",\"type\":\"bytes32\"}],\"payable\":false,\"stateMutability\":\"view\",\"type\":\"function\"},{\"constant\":true,\"inputs\":[{\"name\":\"_kType\",\"type\":\"uint256\"}],\"name\":\"getKeysByType\",\"outputs\":[{\"name\":\"\",\"type\":\"bytes32[2][]\"}],\"payable\":false,\"stateMutability\":\"view\",\"type\":\"function\"},{\"constant\":false,\"inputs\":[{\"name\":\"_key\",\"type\":\"bytes32[2]\"},{\"name\":\"_kType\",\"type\":\"uint256\"}],\"name\":\"addKey\",\"outputs\":[{\"name\":\"\",\"type\":\"bytes32[]\"}],\"payable\":false,\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"constant\":true,\"inputs\":[],\"name\":\"owner\",\"outputs\":[{\"name\":\"\",\"type\":\"address\"}],\"payable\":false,\"stateMutability\":\"view\",\"type\":\"function\"},{\"constant\":false,\"inputs\":[{\"name\":\"newOwner\",\"type\":\"address\"}],\"name\":\"transferOwnership\",\"outputs\":[],\"payable\":false,\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"name\":\"_centrifugeId\",\"type\":\"bytes32\"}],\"payable\":false,\"stateMutability\":\"nonpayable\",\"type\":\"constructor\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":false,\"name\":\"kType\",\"type\":\"uint256\"},{\"indexed\":false,\"name\":\"key\",\"type\":\"bytes32[2]\"}],\"name\":\"KeyRegistered\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"name\":\"previousOwner\",\"type\":\"address\"},{\"indexed\":true,\"name\":\"newOwner\",\"type\":\"address\"}],\"name\":\"OwnershipTransferred\",\"type\":\"event\"}]"
+const EthereumIdentityContractABI = "[{\"constant\":false,\"inputs\":[{\"name\":\"_key\",\"type\":\"bytes32\"},{\"name\":\"_kType\",\"type\":\"uint256\"}],\"name\":\"addKey\",\"outputs\":[],\"payable\":false,\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"constant\":true,\"inputs\":[],\"name\":\"centrifugeId\",\"outputs\":[{\"name\":\"\",\"type\":\"bytes32\"}],\"payable\":false,\"stateMutability\":\"view\",\"type\":\"function\"},{\"constant\":true,\"inputs\":[{\"name\":\"_kType\",\"type\":\"uint256\"}],\"name\":\"getKeysByType\",\"outputs\":[{\"name\":\"\",\"type\":\"bytes32[]\"}],\"payable\":false,\"stateMutability\":\"view\",\"type\":\"function\"},{\"constant\":true,\"inputs\":[],\"name\":\"owner\",\"outputs\":[{\"name\":\"\",\"type\":\"address\"}],\"payable\":false,\"stateMutability\":\"view\",\"type\":\"function\"},{\"constant\":false,\"inputs\":[{\"name\":\"newOwner\",\"type\":\"address\"}],\"name\":\"transferOwnership\",\"outputs\":[],\"payable\":false,\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"name\":\"_centrifugeId\",\"type\":\"bytes32\"}],\"payable\":false,\"stateMutability\":\"nonpayable\",\"type\":\"constructor\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"name\":\"kType\",\"type\":\"uint256\"},{\"indexed\":true,\"name\":\"key\",\"type\":\"bytes32\"}],\"name\":\"KeyRegistered\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"name\":\"previousOwner\",\"type\":\"address\"},{\"indexed\":true,\"name\":\"newOwner\",\"type\":\"address\"}],\"name\":\"OwnershipTransferred\",\"type\":\"event\"}]"
 
 // EthereumIdentityContract is an auto generated Go binding around an Ethereum contract.
 type EthereumIdentityContract struct {
@@ -160,38 +160,38 @@ func (_EthereumIdentityContract *EthereumIdentityContractTransactorRaw) Transact
 	return _EthereumIdentityContract.Contract.contract.Transact(opts, method, params...)
 }
 
-// CentrifugeId is a free data retrieval call binding the contract method 0xe8ec0c89.
+// CentrifugeId is a free data retrieval call binding the contract method 0x41a43c38.
 //
-// Solidity: function centrifugeId(_key bytes32, _kType uint256) constant returns(bytes32)
-func (_EthereumIdentityContract *EthereumIdentityContractCaller) CentrifugeId(opts *bind.CallOpts, _key [32]byte, _kType *big.Int) ([32]byte, error) {
+// Solidity: function centrifugeId() constant returns(bytes32)
+func (_EthereumIdentityContract *EthereumIdentityContractCaller) CentrifugeId(opts *bind.CallOpts) ([32]byte, error) {
 	var (
 		ret0 = new([32]byte)
 	)
 	out := ret0
-	err := _EthereumIdentityContract.contract.Call(opts, out, "centrifugeId", _key, _kType)
+	err := _EthereumIdentityContract.contract.Call(opts, out, "centrifugeId")
 	return *ret0, err
 }
 
-// CentrifugeId is a free data retrieval call binding the contract method 0xe8ec0c89.
+// CentrifugeId is a free data retrieval call binding the contract method 0x41a43c38.
 //
-// Solidity: function centrifugeId(_key bytes32, _kType uint256) constant returns(bytes32)
-func (_EthereumIdentityContract *EthereumIdentityContractSession) CentrifugeId(_key [32]byte, _kType *big.Int) ([32]byte, error) {
-	return _EthereumIdentityContract.Contract.CentrifugeId(&_EthereumIdentityContract.CallOpts, _key, _kType)
+// Solidity: function centrifugeId() constant returns(bytes32)
+func (_EthereumIdentityContract *EthereumIdentityContractSession) CentrifugeId() ([32]byte, error) {
+	return _EthereumIdentityContract.Contract.CentrifugeId(&_EthereumIdentityContract.CallOpts)
 }
 
-// CentrifugeId is a free data retrieval call binding the contract method 0xe8ec0c89.
+// CentrifugeId is a free data retrieval call binding the contract method 0x41a43c38.
 //
-// Solidity: function centrifugeId(_key bytes32, _kType uint256) constant returns(bytes32)
-func (_EthereumIdentityContract *EthereumIdentityContractCallerSession) CentrifugeId(_key [32]byte, _kType *big.Int) ([32]byte, error) {
-	return _EthereumIdentityContract.Contract.CentrifugeId(&_EthereumIdentityContract.CallOpts, _key, _kType)
+// Solidity: function centrifugeId() constant returns(bytes32)
+func (_EthereumIdentityContract *EthereumIdentityContractCallerSession) CentrifugeId() ([32]byte, error) {
+	return _EthereumIdentityContract.Contract.CentrifugeId(&_EthereumIdentityContract.CallOpts)
 }
 
 // GetKeysByType is a free data retrieval call binding the contract method 0x41cbfc7b.
 //
-// Solidity: function getKeysByType(_kType uint256) constant returns(bytes32[2][])
-func (_EthereumIdentityContract *EthereumIdentityContractCaller) GetKeysByType(opts *bind.CallOpts, _kType *big.Int) ([2][32]byte, error) {
+// Solidity: function getKeysByType(_kType uint256) constant returns(bytes32[])
+func (_EthereumIdentityContract *EthereumIdentityContractCaller) GetKeysByType(opts *bind.CallOpts, _kType *big.Int) ([][32]byte, error) {
 	var (
-		ret0 = new([2][32]byte)
+		ret0 = new([][32]byte)
 	)
 	out := ret0
 	err := _EthereumIdentityContract.contract.Call(opts, out, "getKeysByType", _kType)
@@ -200,15 +200,15 @@ func (_EthereumIdentityContract *EthereumIdentityContractCaller) GetKeysByType(o
 
 // GetKeysByType is a free data retrieval call binding the contract method 0x41cbfc7b.
 //
-// Solidity: function getKeysByType(_kType uint256) constant returns(bytes32[2][])
-func (_EthereumIdentityContract *EthereumIdentityContractSession) GetKeysByType(_kType *big.Int) ([2][32]byte, error) {
+// Solidity: function getKeysByType(_kType uint256) constant returns(bytes32[])
+func (_EthereumIdentityContract *EthereumIdentityContractSession) GetKeysByType(_kType *big.Int) ([][32]byte, error) {
 	return _EthereumIdentityContract.Contract.GetKeysByType(&_EthereumIdentityContract.CallOpts, _kType)
 }
 
 // GetKeysByType is a free data retrieval call binding the contract method 0x41cbfc7b.
 //
-// Solidity: function getKeysByType(_kType uint256) constant returns(bytes32[2][])
-func (_EthereumIdentityContract *EthereumIdentityContractCallerSession) GetKeysByType(_kType *big.Int) ([2][32]byte, error) {
+// Solidity: function getKeysByType(_kType uint256) constant returns(bytes32[])
+func (_EthereumIdentityContract *EthereumIdentityContractCallerSession) GetKeysByType(_kType *big.Int) ([][32]byte, error) {
 	return _EthereumIdentityContract.Contract.GetKeysByType(&_EthereumIdentityContract.CallOpts, _kType)
 }
 
@@ -238,24 +238,24 @@ func (_EthereumIdentityContract *EthereumIdentityContractCallerSession) Owner() 
 	return _EthereumIdentityContract.Contract.Owner(&_EthereumIdentityContract.CallOpts)
 }
 
-// AddKey is a paid mutator transaction binding the contract method 0x8610b0d1.
+// AddKey is a paid mutator transaction binding the contract method 0x4103ef4c.
 //
-// Solidity: function addKey(_key bytes32[2], _kType uint256) returns(bytes32[])
-func (_EthereumIdentityContract *EthereumIdentityContractTransactor) AddKey(opts *bind.TransactOpts, _key [2][32]byte, _kType *big.Int) (*types.Transaction, error) {
+// Solidity: function addKey(_key bytes32, _kType uint256) returns()
+func (_EthereumIdentityContract *EthereumIdentityContractTransactor) AddKey(opts *bind.TransactOpts, _key [32]byte, _kType *big.Int) (*types.Transaction, error) {
 	return _EthereumIdentityContract.contract.Transact(opts, "addKey", _key, _kType)
 }
 
-// AddKey is a paid mutator transaction binding the contract method 0x8610b0d1.
+// AddKey is a paid mutator transaction binding the contract method 0x4103ef4c.
 //
-// Solidity: function addKey(_key bytes32[2], _kType uint256) returns(bytes32[])
-func (_EthereumIdentityContract *EthereumIdentityContractSession) AddKey(_key [2][32]byte, _kType *big.Int) (*types.Transaction, error) {
+// Solidity: function addKey(_key bytes32, _kType uint256) returns()
+func (_EthereumIdentityContract *EthereumIdentityContractSession) AddKey(_key [32]byte, _kType *big.Int) (*types.Transaction, error) {
 	return _EthereumIdentityContract.Contract.AddKey(&_EthereumIdentityContract.TransactOpts, _key, _kType)
 }
 
-// AddKey is a paid mutator transaction binding the contract method 0x8610b0d1.
+// AddKey is a paid mutator transaction binding the contract method 0x4103ef4c.
 //
-// Solidity: function addKey(_key bytes32[2], _kType uint256) returns(bytes32[])
-func (_EthereumIdentityContract *EthereumIdentityContractTransactorSession) AddKey(_key [2][32]byte, _kType *big.Int) (*types.Transaction, error) {
+// Solidity: function addKey(_key bytes32, _kType uint256) returns()
+func (_EthereumIdentityContract *EthereumIdentityContractTransactorSession) AddKey(_key [32]byte, _kType *big.Int) (*types.Transaction, error) {
 	return _EthereumIdentityContract.Contract.AddKey(&_EthereumIdentityContract.TransactOpts, _key, _kType)
 }
 
@@ -350,28 +350,46 @@ func (it *EthereumIdentityContractKeyRegisteredIterator) Close() error {
 // EthereumIdentityContractKeyRegistered represents a KeyRegistered event raised by the EthereumIdentityContract contract.
 type EthereumIdentityContractKeyRegistered struct {
 	KType *big.Int
-	Key   [2][32]byte
+	Key   [32]byte
 	Raw   types.Log // Blockchain specific contextual infos
 }
 
-// FilterKeyRegistered is a free log retrieval operation binding the contract event 0x71f48c75efa1c36bac9ccabf0fe23be91f9343c255f26bd528459be85e15878c.
+// FilterKeyRegistered is a free log retrieval operation binding the contract event 0xf45ca858c8bbe25c93f4ceefe73db33816426cb24fe5b73ff350e236b76005db.
 //
-// Solidity: event KeyRegistered(kType uint256, key bytes32[2])
-func (_EthereumIdentityContract *EthereumIdentityContractFilterer) FilterKeyRegistered(opts *bind.FilterOpts) (*EthereumIdentityContractKeyRegisteredIterator, error) {
+// Solidity: event KeyRegistered(kType indexed uint256, key indexed bytes32)
+func (_EthereumIdentityContract *EthereumIdentityContractFilterer) FilterKeyRegistered(opts *bind.FilterOpts, kType []*big.Int, key [][32]byte) (*EthereumIdentityContractKeyRegisteredIterator, error) {
 
-	logs, sub, err := _EthereumIdentityContract.contract.FilterLogs(opts, "KeyRegistered")
+	var kTypeRule []interface{}
+	for _, kTypeItem := range kType {
+		kTypeRule = append(kTypeRule, kTypeItem)
+	}
+	var keyRule []interface{}
+	for _, keyItem := range key {
+		keyRule = append(keyRule, keyItem)
+	}
+
+	logs, sub, err := _EthereumIdentityContract.contract.FilterLogs(opts, "KeyRegistered", kTypeRule, keyRule)
 	if err != nil {
 		return nil, err
 	}
 	return &EthereumIdentityContractKeyRegisteredIterator{contract: _EthereumIdentityContract.contract, event: "KeyRegistered", logs: logs, sub: sub}, nil
 }
 
-// WatchKeyRegistered is a free log subscription operation binding the contract event 0x71f48c75efa1c36bac9ccabf0fe23be91f9343c255f26bd528459be85e15878c.
+// WatchKeyRegistered is a free log subscription operation binding the contract event 0xf45ca858c8bbe25c93f4ceefe73db33816426cb24fe5b73ff350e236b76005db.
 //
-// Solidity: event KeyRegistered(kType uint256, key bytes32[2])
-func (_EthereumIdentityContract *EthereumIdentityContractFilterer) WatchKeyRegistered(opts *bind.WatchOpts, sink chan<- *EthereumIdentityContractKeyRegistered) (event.Subscription, error) {
+// Solidity: event KeyRegistered(kType indexed uint256, key indexed bytes32)
+func (_EthereumIdentityContract *EthereumIdentityContractFilterer) WatchKeyRegistered(opts *bind.WatchOpts, sink chan<- *EthereumIdentityContractKeyRegistered, kType []*big.Int, key [][32]byte) (event.Subscription, error) {
 
-	logs, sub, err := _EthereumIdentityContract.contract.WatchLogs(opts, "KeyRegistered")
+	var kTypeRule []interface{}
+	for _, kTypeItem := range kType {
+		kTypeRule = append(kTypeRule, kTypeItem)
+	}
+	var keyRule []interface{}
+	for _, keyItem := range key {
+		keyRule = append(keyRule, keyItem)
+	}
+
+	logs, sub, err := _EthereumIdentityContract.contract.WatchLogs(opts, "KeyRegistered", kTypeRule, keyRule)
 	if err != nil {
 		return nil, err
 	}

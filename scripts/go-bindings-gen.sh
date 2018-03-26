@@ -6,6 +6,7 @@ TARGETDIR=${1:-centrifuge}
 contracts=( "anchor.AnchorRegistry" "identity.Identity" "identity.IdentityRegistry" "identity.IdentityFactory" )
 
 echo "Building ABI Json files"
+rm -Rf build/contracts
 truffle compile
 mkdir -p abi
 
