@@ -1,0 +1,91 @@
+[
+  {
+    "constant": false,
+    "inputs": [
+      {
+        "name": "_centrifugeId",
+        "type": "bytes32"
+      },
+      {
+        "name": "_identity",
+        "type": "address"
+      }
+    ],
+    "name": "updateIdentityAddress",
+    "outputs": [],
+    "payable": false,
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "constant": false,
+    "inputs": [
+      {
+        "name": "_centrifugeId",
+        "type": "bytes32"
+      },
+      {
+        "name": "_identity",
+        "type": "address"
+      }
+    ],
+    "name": "registerIdentity",
+    "outputs": [],
+    "payable": false,
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "constant": true,
+    "inputs": [
+      {
+        "name": "_centrifugeId",
+        "type": "bytes32"
+      }
+    ],
+    "name": "getIdentityByCentrifugeId",
+    "outputs": [
+      {
+        "name": "",
+        "type": "address"
+      }
+    ],
+    "payable": false,
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": true,
+        "name": "centrifugeId",
+        "type": "bytes32"
+      },
+      {
+        "indexed": false,
+        "name": "identity",
+        "type": "address"
+      }
+    ],
+    "name": "IdentityRegistered",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": true,
+        "name": "centrifugeId",
+        "type": "bytes32"
+      },
+      {
+        "indexed": false,
+        "name": "identity",
+        "type": "address"
+      }
+    ],
+    "name": "IdentityUpdated",
+    "type": "event"
+  }
+]

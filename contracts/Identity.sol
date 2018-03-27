@@ -3,11 +3,11 @@ pragma solidity ^0.4.17;
 import 'zeppelin-solidity/contracts/ownership/Ownable.sol';
 
 contract Identity is Ownable {
-  event KeyRegistered(uint kType, bytes32 key);
+  event KeyRegistered(uint indexed kType, bytes32 indexed key);
 
   bytes32 public centrifugeId;
 
-  mapping(uint => bytes32[]) keys; // Indexed by Type to keys 1 (PeerToPeerID), 2 (SignatureID)
+  mapping(uint => bytes32[]) keys; // Indexed by Type to keys 1 (PeerToPeerID), 2 (EncryptionKey)
 
   function Identity(bytes32 _centrifugeId) public {
     require(_centrifugeId != 0x0);
