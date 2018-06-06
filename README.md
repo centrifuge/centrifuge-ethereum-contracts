@@ -12,9 +12,6 @@ npm install -g truffle
 # install nodemon globally on the machine
 npm install -g nodemon
 
-# install ganache-cli globally on the machine
-npm install -g ganache-cli@6.1.0
-
 # install the repo dependencies
 npm install 
 
