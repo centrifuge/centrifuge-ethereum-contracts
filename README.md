@@ -1,10 +1,10 @@
 CI Status
-==========
+---------
 [![Build Status](https://travis-ci.com/CentrifugeInc/centrifuge-ethereum-contracts.svg?token=bsfbw2zXLuaTvhVTDXMh&branch=master)](https://travis-ci.com/CentrifugeInc/centrifuge-ethereum-contracts)
 
 
 Running it
-==========
+----------
 ```bash
 # install truffle globally on the machine
 npm install -g truffle
@@ -25,20 +25,45 @@ npm run test
 npm run re-test
 ```
 
+Migrate Smart Contracts against Integration Environment
+-------------------------------------------------------
 
-How to build go bindings
-========================
-To create a go binding for abi run the `abigen` script first:
+Follow instructions under https://github.com/CentrifugeInc/go-centrifuge/blob/master/README.md to deploy a local light node that bootstraps from the remote node.
+As soon as the local proxy node is running, and synced:
+* Copy `migrateAccount.json` file to your $ETH_DATADIR/$NETWORK_ID/keystore
+* Unlock migrate account `personal.unlockAccount("0x45b9c4798999ffa52e1ff1efce9d3e45819e4158", "INPUT_PWD", 500)`
+* Perform Truffle migrate `truffle migrate -f 2 --network "integration"`
+* Update Addresses and ABIs under `./deployments/integration.json`
+
+
+Migrate Smart Contracts against Rinkeby Environment
+---------------------------------------------------
+
+Follow instructions under https://github.com/CentrifugeInc/go-centrifuge/blob/master/README.md to deploy a local light Rinkeby node.
+As soon as the local proxy node is running:
+* Unlock migrate account `personal.unlockAccount("0x44a0579754d6c94e7bb2c26bfa7394311cc50ccb", "INPUT_PWD", 500)`
+* Perform Truffle migrate `truffle migrate -f 2 --network "rinkeby"`
+* Update Addresses and ABIs under `./deployments/rinkeby.json`
+
+
+Released ABIs + Addresses
+-------------------------
+
+We keep track of the released ABIs and their respective deployed addresses as part of the repository.
+
+Every environment will have its own `json` file that contains the following format:
 ```
-$GOPATH/bin/abigen --abi abi/Witness.abi  --pkg "witness" --type EthereumWitness --out centrifuge/witness/witnessContract.go
+{
+  "contracts": {
+    "ContractName": {
+      "abi": ABI map,
+      "address": "0x94d04e16e8e39b7f6a825689ce52aa60f68069cc"
+    },
+    ...
+  }
+}
 ```
 
-The abigen script unfortunately doesn't have the right go imports, therefore you need to add the following imports to the binding:
+We will take advantage of git revision/version control of our smart contracts deployed. 
+Master branch always refer to latest, while tags/branches will refer to specific releases.
 
-```
-	"github.com/ethereum/go-ethereum/accounts/abi"
-	"github.com/ethereum/go-ethereum/accounts/abi/bind"
-	"github.com/ethereum/go-ethereum/common"
-	"github.com/ethereum/go-ethereum/core/types"
-
-```
