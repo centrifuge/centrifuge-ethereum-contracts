@@ -1,7 +1,7 @@
 {
   "scripts": {
     "test": "truffle test",
-    "testrpc-m": "ganache-cli --gasLimit 4712388 -p 8545 -m \"tumble gas embody bright agree pony smoke laptop index sight shallow hungry\"",
+    "testrpc-m": "testrpc --gasLimit 4712388 -p 8545 -m \"tumble gas embody bright agree pony smoke laptop index sight shallow hungry\"",
     "re-test": "nodemon truffle test"
   },
   "nodemonConfig": {

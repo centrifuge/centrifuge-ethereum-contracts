@@ -11,7 +11,7 @@ cache:
 
 before_install:
   - npm install -g truffle@4.0.4
-  - npm install -g ganache-cli@6.1.0
+  - npm install -g ethereumjs-testrpc@6.0.1
 
 before_script:
   - truffle version
