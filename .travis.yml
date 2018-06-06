@@ -3,7 +3,7 @@ sudo: required
 group: beta
 language: node_js
 node_js:
-  - "8"
+  - "9"
 
 cache:
   directories:
@@ -11,7 +11,7 @@ cache:
 
 before_install:
   - npm install -g truffle@4.0.4
-  - npm install -g ethereumjs-testrpc@6.0.1
+  - npm install -g ganache-cli@6.1.0
 
 before_script:
   - truffle version
