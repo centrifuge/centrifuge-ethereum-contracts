@@ -29,9 +29,17 @@ Migrate Smart Contracts against Integration Environment
 -------------------------------------------------------
 
 Follow instructions under https://github.com/CentrifugeInc/go-centrifuge/blob/master/README.md to deploy a local light node that bootstraps from the remote node.
-As soon as the local proxy node is running, and synced:
+As soon as the local node is running, and synced:
 * Copy `migrateAccount.json` file to your $ETH_DATADIR/$NETWORK_ID/keystore
-* Unlock migrate account `personal.unlockAccount("0x45b9c4798999ffa52e1ff1efce9d3e45819e4158", "INPUT_PWD", 500)`
+* Unlock migrate account:
+  * Binary run:
+    ```
+    geth attach http://localhost:9545 --exec "personal.unlockAccount('0x45b9c4798999ffa52e1ff1efce9d3e45819e4158', 'Ee9NECgnUymYygyJpbNWdf+d', 500)"
+    ```
+  * Docker run:
+     ```
+     docker run -it --net=host --entrypoint "/geth" centrifugeio/cent-geth:latest attach http://localhost:9545 --exec "personal.unlockAccount('0x45b9c4798999ffa52e1ff1efce9d3e45819e4158', 'Ee9NECgnUymYygyJpbNWdf+d', 500)"
+     ```
 * Perform Truffle migrate `truffle migrate -f 2 --network "integration"`
 * Update Addresses and ABIs under `./deployments/integration.json`
 
@@ -41,7 +49,15 @@ Migrate Smart Contracts against Rinkeby Environment
 
 Follow instructions under https://github.com/CentrifugeInc/go-centrifuge/blob/master/README.md to deploy a local light Rinkeby node.
 As soon as the local proxy node is running:
-* Unlock migrate account `personal.unlockAccount("0x44a0579754d6c94e7bb2c26bfa7394311cc50ccb", "INPUT_PWD", 500)`
+* Unlock migrate account:
+  * Binary run:
+    ```
+    geth attach http://localhost:9545 --exec "personal.unlockAccount('0x44a0579754d6c94e7bb2c26bfa7394311cc50ccb', 'INPUT_PWD', 500)"
+    ```
+  * Docker run:
+     ```
+     docker run -it --net=host --entrypoint "/geth" centrifugeio/cent-geth:latest attach http://localhost:9545 --exec "personal.unlockAccount('0x44a0579754d6c94e7bb2c26bfa7394311cc50ccb', 'INPUT_PWD', 500)"
+     ```
 * Perform Truffle migrate `truffle migrate -f 2 --network "rinkeby"`
 * Update Addresses and ABIs under `./deployments/rinkeby.json`
 
