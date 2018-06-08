@@ -25,6 +25,8 @@ npm run test
 npm run re-test
 ```
 
+*Migrate script will run only all migrations under the 2 prefix, keep that in mind if adding a new prefix contract migration*
+
 Migrate Smart Contracts against Integration Environment
 -------------------------------------------------------
 
