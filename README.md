@@ -67,6 +67,7 @@ Every environment will have its own `json` file that contains the following form
   "contracts": {
     "ContractName": {
       "abi": ABI map,
+      "bytecode": "...",
       "address": "0x94d04e16e8e39b7f6a825689ce52aa60f68069cc"
     },
     ...
