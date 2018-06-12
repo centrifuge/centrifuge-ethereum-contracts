@@ -3,7 +3,7 @@
 local_dir="$(dirname "$0")"
 
 usage() {
-  echo "Usage: $0 env[integration|rinkeby]"
+  echo "Usage: $0 env[local|integration|rinkeby]"
   exit 1
 }
 
@@ -12,7 +12,7 @@ then
   usage
 fi
 
-if [[ ! "$1" =~ ^(integration|rinkeby)$ ]]; then
+if [[ ! "$1" =~ ^(local|integration|rinkeby)$ ]]; then
     echo "Environment [${1}] not allowed"
     usage
 fi
@@ -24,19 +24,20 @@ then
 fi
 
 ANCHOR_REGISTRY_ABI=`cat $local_dir/../build/contracts/AnchorRegistry.json | jq '.abi' | tr -d '\n'`
-ANCHOR_REGISTRY_BYTECODE=`cat $local_dir/../build/contracts/AnchorRegistry.json | jq '.bytecode' | tr -d '\n'`
+ANCHOR_REGISTRY_BYTECODE=`cat $local_dir/../build/contracts/AnchorRegistry.json | jq '.deployedBytecode' | tr -d '\n'`
 ANCHOR_REGISTRY_ADDRESS=`cat $local_dir/../build/contracts/AnchorRegistry.json | jq --arg NETWORK_ID "${NETWORK_ID}" '.networks[$NETWORK_ID].address' | tr -d '\n'`
 
 IDENTITY_REGISTRY_ABI=`cat $local_dir/../build/contracts/IdentityRegistry.json | jq '.abi' | tr -d '\n'`
-IDENTITY_REGISTRY_BYTECODE=`cat $local_dir/../build/contracts/IdentityRegistry.json | jq '.bytecode' | tr -d '\n'`
+IDENTITY_REGISTRY_BYTECODE=`cat $local_dir/../build/contracts/IdentityRegistry.json | jq '.deployedBytecode' | tr -d '\n'`
 IDENTITY_REGISTRY_ADDRESS=`cat $local_dir/../build/contracts/IdentityRegistry.json | jq --arg NETWORK_ID "${NETWORK_ID}" '.networks[$NETWORK_ID].address' | tr -d '\n'`
 
 IDENTITY_FACTORY_ABI=`cat $local_dir/../build/contracts/IdentityFactory.json | jq '.abi' | tr -d '\n'`
-IDENTITY_FACTORY_BYTECODE=`cat $local_dir/../build/contracts/IdentityFactory.json | jq '.bytecode' | tr -d '\n'`
+IDENTITY_FACTORY_BYTECODE=`cat $local_dir/../build/contracts/IdentityFactory.json | jq '.deployedBytecode' | tr -d '\n'`
 IDENTITY_FACTORY_ADDRESS=`cat $local_dir/../build/contracts/IdentityFactory.json | jq --arg NETWORK_ID "${NETWORK_ID}" '.networks[$NETWORK_ID].address' | tr -d '\n'`
 
 IDENTITY_ABI=`cat $local_dir/../build/contracts/Identity.json | jq '.abi' | tr -d '\n'`
-IDENTITY_BYTECODE=`cat $local_dir/../build/contracts/Identity.json | jq '.bytecode' | tr -d '\n'`
+IDENTITY_BYTECODE=`cat $local_dir/../build/contracts/Identity.json | jq '.deployedBytecode' | tr -d '\n'`
+
 
 cat >$local_dir/../deployments/${1}.json <<EOF
 {
