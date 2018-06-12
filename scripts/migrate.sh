@@ -33,6 +33,4 @@ if [ $? -ne 0 ]; then
   exit 1
 fi
 
-if [[ "$1" != "local" ]]; then
-  $local_dir/generateEnvFile.sh ${1}
-fi
+$local_dir/generateEnvFile.sh ${1}
