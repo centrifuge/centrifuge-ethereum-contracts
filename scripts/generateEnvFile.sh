@@ -1,9 +1,13 @@
 #!/usr/bin/env bash
 
-local_dir="$(dirname "$0")"
+if [ -z ${CENT_ETHEREUM_CONTRACTS_DIR} ]; then
+    local_dir="$(dirname "$0")"
+else
+    local_dir="${CENT_ETHEREUM_CONTRACTS_DIR}/scripts"
+fi
 
 usage() {
-  echo "Usage: $0 env[local|integration|rinkeby]"
+  echo "Usage: ${local_dir} env[local|integration|rinkeby]"
   exit 1
 }
 
@@ -12,8 +16,9 @@ then
   usage
 fi
 
-if [[ ! "$1" =~ ^(local|integration|rinkeby)$ ]]; then
-    echo "Environment [${1}] not allowed"
+ETH_ENV=${1}
+if [[ ! "${ETH_ENV}" =~ ^(local|integration|rinkeby)$ ]]; then
+    echo "Environment [${ETH_ENV}] not allowed"
     usage
 fi
 
@@ -22,6 +27,8 @@ if [[ "$1" = "rinkeby" ]];
 then
   NETWORK_ID=4
 fi
+
+echo "Generating ethereum deployment file for env [${NETWORK_ID}] and env [${ETH_ENV}]"
 
 ANCHOR_REGISTRY_ABI=`cat $local_dir/../build/contracts/AnchorRegistry.json | jq '.abi' | tr -d '\n'`
 ANCHOR_REGISTRY_BYTECODE=`cat $local_dir/../build/contracts/AnchorRegistry.json | jq '.deployedBytecode' | tr -d '\n'`
@@ -39,7 +46,7 @@ IDENTITY_ABI=`cat $local_dir/../build/contracts/Identity.json | jq '.abi' | tr -
 IDENTITY_BYTECODE=`cat $local_dir/../build/contracts/Identity.json | jq '.deployedBytecode' | tr -d '\n'`
 
 
-cat >$local_dir/../deployments/${1}.json <<EOF
+cat >$local_dir/../deployments/${ETH_ENV}.json <<EOF
 {
   "contracts": {
     "AnchorRegistry": {
