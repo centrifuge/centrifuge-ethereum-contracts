@@ -1,9 +1,13 @@
 #!/usr/bin/env bash
 
-local_dir="$(dirname "$0")"
+if [ -z ${CENT_ETHEREUM_CONTRACTS_DIR} ]; then
+    local_dir="$(dirname "$0")"
+else
+    local_dir="${CENT_ETHEREUM_CONTRACTS_DIR}/scripts"
+fi
 
 usage() {
-  echo "Usage: $0 env[local|integration|rinkeby]"
+  echo "Usage: ${local_dir} env[local|integration|rinkeby]"
   exit 1
 }
 
