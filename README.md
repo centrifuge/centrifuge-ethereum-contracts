@@ -7,10 +7,10 @@ Running it
 ----------
 ```bash
 # install truffle globally on the machine
-npm install -g truffle
+npm install -g truffle@4.1.13
 
-# install nodemon globally on the machine
-npm install -g nodemon
+# install ganache-cli globally on the machine
+npm install -g ganache-cli@6.1.6
 
 # install the repo dependencies
 npm install 
