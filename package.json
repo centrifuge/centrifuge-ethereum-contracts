@@ -1,8 +1,8 @@
 {
   "scripts": {
     "test": "truffle test",
-    "testrpc-m": "testrpc --gasLimit 4712388 -p 8545 -m \"tumble gas embody bright agree pony smoke laptop index sight shallow hungry\"",
-    "re-test": "nodemon truffle test"
+    "testrpc-m": "ganache-cli --gasLimit 4712388 -p 8545 -m \"tumble gas embody bright agree pony smoke laptop index sight shallow hungry\"",
+    "re-test": "nodemon --exec 'truffle test'"
   },
   "nodemonConfig": {
     "ignore": [
@@ -12,5 +12,8 @@
   },
   "dependencies": {
     "zeppelin-solidity": "1.8.0"
+  },
+  "devDependencies": {
+    "nodemon": "1.18.3"
   }
 }

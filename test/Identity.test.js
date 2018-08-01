@@ -31,7 +31,7 @@ contract("Identity", function (accounts) {
       await Identity.new(centrifugeId).then(function () {
         assert.fail(0, 0, "Should not be able to create with null centrifuge id")
       }).catch(function (e) {
-        assert.equal(e.message, "Cannot convert undefined or null to object")
+        assert.equal(e.message, "Identity contract constructor expected 1 arguments, received 0")
       });
 
       centrifugeId = "";
