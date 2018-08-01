@@ -12,14 +12,6 @@ contract AnchorRegistry is Ownable {
 
     mapping (bytes32 => Anchor) public anchors;
 
-    mapping (uint256 => uint256) public preCommitSigningRoot;
-    mapping (uint256 => uint256) public preCommitSender;
-    mapping (uint256 => uint256) public preCommitExpirationBlock;
-
-
-    mapping (uint256 => uint256) public commitRoot;
-
-
     function registerAnchor (bytes32 identifier, bytes32 merkleRoot, uint anchorSchemaVersion) public {
                
         //not allowing to write to an existing anchor
