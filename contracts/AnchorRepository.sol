@@ -24,10 +24,7 @@ contract AnchorRepository  {
     mapping (uint => Anchor) public commits;
 
 
-    mapping (uint256 => uint256) public commitDocumentRoot;
-
-
-    function getExpirationLegth() return (uint256) {
+    function getExpirationLegth() returns (uint256) {
         return 15;
     }
 
