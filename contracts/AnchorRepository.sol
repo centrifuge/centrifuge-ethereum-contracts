@@ -19,7 +19,7 @@ contract AnchorRepository  {
         uint expirationBlock;
     }
 
-    mapping (uint => PreCommit) public preCommits;
+    mapping (uint => PreAnchor) public preCommits;
 
     mapping (uint => Anchor) public commits;
 
