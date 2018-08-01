@@ -74,12 +74,12 @@ contract AnchorRepository  {
 
     }
 
-    function getAnchorById (bytes32 _anchorId) public view returns(uint256, uint256, uint256, uint256) {
+    function getAnchorById (uint256 _anchorId) public view returns(uint256, uint256, uint256, uint256) {
         return (
-            anchors[identifier]._anchorId,
-            anchors[identifier]._documentRoot,
-            anchors[identifier].timestamp,
-            anchors[identifier].centrifugeId
+            commits[_anchorId]._anchorId,
+            commits[_anchorId]._documentRoot,
+            commits[_anchorId].timestamp,
+            commits[_anchorId].centrifugeId
             );
     }
 }
