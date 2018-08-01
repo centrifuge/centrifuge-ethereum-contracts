@@ -6,22 +6,22 @@ contract AnchorRepository  {
 	event AnchorPreCommited(address indexed from, uint256 indexed identifier, uint256 indexed singningRoot, uint256 centId, uint256 timestamp);
 
     struct Anchor {
-        uint id;
-        uint documentRoot;
-        uint timestamp;
-        uint centrifugeId;
+        uint256 id;
+        uint256 documentRoot;
+        uint256 timestamp;
+        uint256 centrifugeId;
     }
 
     struct PreAnchor {
-        uint anchodId;
-        uint signatureRoot;
-        uint centrifugeId;
-        uint expirationBlock;
+        uint256 anchodId;
+        uint256 signatureRoot;
+        uint256 centrifugeId;
+        uint256 expirationBlock;
     }
 
-    mapping (uint => PreAnchor) public preCommits;
+    mapping (uint256 => PreAnchor) public preCommits;
 
-    mapping (uint => Anchor) public commits;
+    mapping (uint256 => Anchor) public commits;
 
 
     function preCommit (uint256 _anchorId, uint256 _singningRoot, uint256 _centrifugeId) external payable {
@@ -41,7 +41,7 @@ contract AnchorRepository  {
            return (preCommits[_anchorId].expirationBlock != 0x0 && preCommits[_anchorId].expirationBlock < block.number);
     }
 
-    function commit (uint256 _anchorId, uint256 _documentRoot, uint _centrifugeId) external payable {
+    function commit (uint256 _anchorId, uint256 _documentRoot, uint256 _centrifugeId) external payable {
         // in order to commit we must insure a pre commit has been done before
         require(hasValidPreCommit(_anchorId) == true);
 
@@ -61,7 +61,7 @@ contract AnchorRepository  {
         require(_anchorId != 0x6e756c6c00000000000000000000000000000000000000000000000000000000);
         require(_documentRoot != 0x6e756c6c00000000000000000000000000000000000000000000000000000000);
 
-        uint timestamp = now;
+        uint256 timestamp = now;
         commits[_anchorId] = Anchor(_anchorId, _documentRoot, timestamp, _centrifugeId);
         emit AnchorCommited(msg.sender, _anchorId, _documentRoot, timestamp, _centrifugeId);
 
