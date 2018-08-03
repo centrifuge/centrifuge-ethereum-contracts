@@ -12,7 +12,7 @@ contract AnchorRepository  {
     }
 
     struct PreAnchor {
-        uint256 anchodId;
+        uint256 anchorId;
         uint256 signatureRoot;
         address sender;
         uint32 expirationBlock;
@@ -39,7 +39,7 @@ contract AnchorRepository  {
 
         // TODO check if msg.sender is authorized to act on behalf of the centrifugeIdå
 
-        preCommits[_anchorId] = PreAnchor( _singningRoot, msg.sender, _anchorId, uint32(block.number) + getExpirationLeght());
+        preCommits[_anchorId] = PreAnchor( _anchorId ,_singningRoot, msg.sender , uint32(block.number) + getExpirationLeght());
         emit AnchorPreCommitted(msg.sender, _anchorId, _singningRoot, now );
     }
 
