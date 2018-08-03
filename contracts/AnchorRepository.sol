@@ -24,7 +24,7 @@ contract AnchorRepository  {
 
 
     // Returns the number of blocks that a precommit is valid
-    function getExpirationLeght() internal pure returns (uint32) {
+    function getExpirationLength() internal pure returns (uint32) {
         return 15;
     }
 
@@ -39,7 +39,7 @@ contract AnchorRepository  {
 
         // TODO check if msg.sender is authorized to act on behalf of the centrifugeIdå
 
-        preCommits[_anchorId] = PreAnchor( _anchorId ,_singningRoot, msg.sender , uint32(block.number) + getExpirationLeght());
+        preCommits[_anchorId] = PreAnchor( _anchorId ,_singningRoot, msg.sender , uint32(block.number) + getExpirationLength());
         emit AnchorPreCommitted(msg.sender, _anchorId, _singningRoot, now );
     }
 
