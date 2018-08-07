@@ -4,7 +4,7 @@ import  'openzeppelin-solidity/contracts/MerkleProof.sol';
 
 contract AnchorRepository  {
 
-	event AnchorCommitted(address indexed from, uint256 indexed anchorId, uint256 indexed documentRoot, uint256 centrifugeId, uint256 timestamp);
+	event AnchorCommitted(address indexed from, uint256 indexed anchorId, uint256  documentRoot, indexed uint256 centrifugeId, uint256 timestamp);
 	event AnchorPreCommitted(address indexed from, uint256 indexed _anchorId, uint32 timestamp);
 
     struct Anchor {
@@ -13,7 +13,7 @@ contract AnchorRepository  {
     }
 
     struct PreAnchor {
-        uint256 signatureRoot;
+        uint256 signingRoot;
         address sender;
         uint32 expirationBlock;
     }
@@ -24,18 +24,18 @@ contract AnchorRepository  {
 
     uint32 constant internal expirationLength = 15;
 
-    function preCommit (uint256 _anchorId, uint256 _singningRoot) external payable {
+    function preCommit (uint256 _anchorId, uint256 _signingRoot) external payable {
 
         // not allowing empty string
         require(_anchorId != 0x0);
-        require(_singningRoot != 0x0);
+        require(_signingRoot != 0x0);
 
         // do not allow a precommit if there is already a valid one in place
         require(hasValidPreCommit(_anchorId) == false);
 
         // TODO check if msg.sender is authorized to act on behalf of the centrifugeId, Check Signature
 
-        preCommits[_anchorId] = PreAnchor( _singningRoot, msg.sender , uint32(block.number) + expirationLength);
+        preCommits[_anchorId] = PreAnchor( _signingRoot, msg.sender , uint32(block.number) + expirationLength);
         emit AnchorPreCommitted(msg.sender, _anchorId, uint32(now) );
     }
 
@@ -45,7 +45,7 @@ contract AnchorRepository  {
     }
 
 
-    function commit (uint256 _anchorId, uint128 _centrifugeId, uint256 _documentRoot, bytes32[] _proof) external payable {
+    function commit (uint256 _anchorId, uint128 _centrifugeId, uint256 _documentRoot, bytes32[] _signatures) external payable {
 
         // not allowing empty string
         require(_anchorId != 0x0);
@@ -63,7 +63,7 @@ contract AnchorRepository  {
 
          // TODO check if msg.sender is authorized to act on behalf of the centrifugeId, Check Signature
 
-        require(MerkleProof.verifyProof(_proof, bytes32(_documentRoot), bytes32(preCommits[_anchorId].signatureRoot)));
+        require(MerkleProof.verifyProof(_signatures, bytes32(_documentRoot), bytes32(preCommits[_anchorId].signingRoot)));
 
         commits[_anchorId] = Anchor(_documentRoot, uint32(now));
         emit AnchorCommitted(msg.sender, _anchorId, _documentRoot,  _centrifugeId, uint32(now));
