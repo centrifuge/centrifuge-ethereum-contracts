@@ -1,3 +1,10 @@
+// openzeppelin has a bunch of good helpers for testing and they need to be compiled to with babel as they use es2015 import.
+// TODO remove babel dependency when updating to v1.12.0 as they are not using babel anymore
+require("babel-register")({
+    ignore: /node_modules\/(?!openzeppelin-solidity)/
+});
+require('babel-polyfill');
+
 module.exports = {
     networks: {
       development: {

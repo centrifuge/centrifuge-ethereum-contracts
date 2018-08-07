@@ -8,7 +8,7 @@ contract IdentityFactory {
 
   address registry;
 
-  function IdentityFactory(address _registry) public {
+  constructor(address _registry) public {
     registry = _registry;
   }
 
@@ -23,7 +23,7 @@ contract IdentityFactory {
 
     identityRegistry.registerIdentity(_centrifugeId, identity);
 
-    IdentityCreated(_centrifugeId, identity);
+    emit IdentityCreated(_centrifugeId, identity);
   }
 
 }

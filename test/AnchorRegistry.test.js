@@ -98,7 +98,7 @@ contract("AnchorRegistry", function (accounts) {
             })
 
             // Ensure merkleRoot hasn't changed
-            response = await anchorRegistry.getAnchorById.call(identifier, callOptions)
+            const response = await anchorRegistry.getAnchorById.call(identifier, callOptions)
             assert.equal(merkleRoot, response[1])
         })
 
