@@ -17,11 +17,10 @@ async function getBasicTestNeeds(accounts) {
 
     return {
         anchorId: createRandomByte(32),
-        nextAnchorId: createRandomByte(8),
         signingRoot,
         documentRoot,
         proof,
-        centrifugeId: createRandomByte(8),
+        centrifugeId: createRandomByte(6),
         anchorRepository: deployedAnchorRepository,
         callOptions: {from: accounts[0]}
     }
@@ -276,7 +275,10 @@ contract("AnchorRepository", function (accounts) {
 
             let response = await anchorRepository.getAnchorById.call(anchorId, callOptions);
             assert.equal(anchorId, web3.toHex(response[0]));
-            assert.equal(documentRoot, web3.toHex(response[1]));
+
+            //solidity removes leading 0 from hexes in conversins
+            //Make sure that the test do not fail because of that
+            assert.equal(web3.toHex(web3.toBigNumber(documentRoot)), web3.toHex(response[1]));
             //assert.equal(centrifugeId, web3.toHex(response[2]));
             assert.notEqual(0, response[2].toNumber());
         })

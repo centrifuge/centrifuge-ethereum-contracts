@@ -4,7 +4,7 @@ import  'openzeppelin-solidity/contracts/MerkleProof.sol';
 
 contract AnchorRepository  {
 
-	event AnchorCommitted(address indexed from, uint256 indexed anchorId, uint256  documentRoot, indexed uint256 centrifugeId, uint256 timestamp);
+	event AnchorCommitted(address indexed from, uint256 indexed anchorId,  uint48 indexed centrifugeId,  uint256  documentRoot, uint32 timestamp);
 	event AnchorPreCommitted(address indexed from, uint256 indexed _anchorId, uint32 timestamp);
 
     struct Anchor {
@@ -45,7 +45,7 @@ contract AnchorRepository  {
     }
 
 
-    function commit (uint256 _anchorId, uint128 _centrifugeId, uint256 _documentRoot, bytes32[] _signatures) external payable {
+    function commit (uint256 _anchorId, uint48 _centrifugeId, uint256 _documentRoot, bytes32[] _signatures) external payable {
 
         // not allowing empty string
         require(_anchorId != 0x0);
@@ -66,11 +66,11 @@ contract AnchorRepository  {
         require(MerkleProof.verifyProof(_signatures, bytes32(_documentRoot), bytes32(preCommits[_anchorId].signingRoot)));
 
         commits[_anchorId] = Anchor(_documentRoot, uint32(now));
-        emit AnchorCommitted(msg.sender, _anchorId, _documentRoot,  _centrifugeId, uint32(now));
+        emit AnchorCommitted(msg.sender, _anchorId, _centrifugeId , _documentRoot, uint32(now));
 
     }
 
-   function getAnchorById (uint256 _anchorId) public view returns(uint256 anchorId, uint256 docuemntRoot, uint256 timestamp) {
+   function getAnchorById (uint256 _anchorId) public view returns(uint256 anchorId, uint256 docuemntRoot, uint32 timestamp) {
            return (
                _anchorId,
                commits[_anchorId].documentRoot,
