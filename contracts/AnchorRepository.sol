@@ -70,7 +70,7 @@ contract AnchorRepository  {
 
     }
 
-   function getAnchorById (uint256 _anchorId) public view returns(uint256 anchorId, uint256 docuemntRoot, uint32 timestamp) {
+   function getAnchorById (uint256 _anchorId) public view returns(uint256 anchorId, uint256 documentRoot, uint32 timestamp) {
            return (
                _anchorId,
                commits[_anchorId].documentRoot,
