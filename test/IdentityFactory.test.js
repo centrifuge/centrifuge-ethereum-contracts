@@ -1,6 +1,7 @@
 const createRandomByte32 = require('./tools/random').createRandomByte32;
 const assertEvent = require('./tools/contractEvents').assertEvent;
 const getEventValue = require('./tools/contractEvents').getEventValue;
+const shouldRevert = require('./tools/assertTx').shouldRevert;
 
 let IdentityFactory = artifacts.require("IdentityFactory");
 let IdentityRegistry = artifacts.require("IdentityRegistry");
@@ -47,30 +48,17 @@ contract("IdentityFactory", function (accounts) {
         assert.equal(result, createdAddress, "Get Identity should return same as created one");
       });
 
-      await identityFactoryContract.createIdentity(centrifugeId, { from: accounts[1] }).then(function () {
-        assert.fail(0, 0, "Should not be able to create identity if already centrifugeId already exists")
-      }).catch(function (e) {
-        assert.equal(e.message, "VM Exception while processing transaction: revert")
-      });
+      await shouldRevert(identityFactoryContract.createIdentity(centrifugeId, { from: accounts[1] }));
 
     });
 
     it("should not register identity if arguments malformed", async function () {
       let centrifugeId = "";
 
-      await identityFactoryContract.createIdentity(centrifugeId).then(function () {
-        assert.fail(0, 0, "Should not be able to create identity if arguments malformed")
-      }).catch(function (e) {
-        assert.equal(e.message, "VM Exception while processing transaction: revert")
-      });
+      await shouldRevert(identityFactoryContract.createIdentity(centrifugeId));
 
       centrifugeId = 0x0;
-      await identityFactoryContract.createIdentity(centrifugeId).then(function () {
-        assert.fail(0, 0, "Should not be able to create identity if arguments malformed")
-      }).catch(function (e) {
-        assert.equal(e.message, "VM Exception while processing transaction: revert")
-      });
-
+      await shouldRevert(identityFactoryContract.createIdentity(centrifugeId));
     });
 
   });

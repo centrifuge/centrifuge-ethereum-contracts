@@ -1,5 +1,8 @@
 const createRandomByte32 = require('./tools/random').createRandomByte32;
 const assertEvent = require('./tools/contractEvents').assertEvent;
+const shouldRevert = require('./tools/assertTx').shouldRevert;
+const shouldSucceed = require('./tools/assertTx').shouldSucceed;
+const shouldReturnWithMessage = require('./tools/assertTx').shouldReturnWithMessage;
 
 let Identity = artifacts.require("Identity");
 let identityRecord;
@@ -21,26 +24,13 @@ contract("Identity", function (accounts) {
     it("should not create identity if centrifugeId is 0x0, null, empty", async function () {
       let centrifugeId = 0x0;
 
-      await Identity.new(centrifugeId).then(function () {
-        assert.fail(0, 0, "Should not be able to create with 0x0 centrifuge id")
-      }).catch(function (e) {
-        assert.equal(e.message, "VM Exception while processing transaction: revert")
-      });
+      await shouldRevert(Identity.new(centrifugeId));
 
       centrifugeId = null;
-      await Identity.new(centrifugeId).then(function () {
-        assert.fail(0, 0, "Should not be able to create with null centrifuge id")
-      }).catch(function (e) {
-        assert.equal(e.message, "Identity contract constructor expected 1 arguments, received 0")
-      });
+      await shouldReturnWithMessage(Identity.new(centrifugeId),"Identity contract constructor expected 1 arguments, received 0");
 
       centrifugeId = "";
-      await Identity.new(centrifugeId).then(function () {
-        assert.fail(0, 0, "Should not be able to create with empty centrifuge id")
-      }).catch(function (e) {
-        assert.equal(e.message, "VM Exception while processing transaction: revert")
-      });
-
+      await shouldRevert(Identity.new(centrifugeId));
     });
 
   });
@@ -65,14 +55,10 @@ contract("Identity", function (accounts) {
     });
 
     it("should not add a key if type is < 1", async function () {
-      let keyType = 0;
-      let peerToPeerId = createRandomByte32();
+        let keyType = 0;
+        let peerToPeerId = createRandomByte32();
 
-      await identityRecord.addKey(peerToPeerId, keyType).then(function () {
-        assert.fail(0, 0, "Should not be able to add key with 0 value")
-      }).catch(function (e) {
-        assert.equal(e.message, "VM Exception while processing transaction: revert")
-      });
+        await shouldRevert(identityRecord.addKey(peerToPeerId, keyType));
     });
 
     it("should return 0x0 if key not found", async function () {
