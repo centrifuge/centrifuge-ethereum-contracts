@@ -1,4 +1,4 @@
-const createRandomByte32 = require('./tools/random').createRandomByte32;
+const createRandomByte = require('./tools/random').createRandomByte;
 const assertEvent = require('./tools/contractEvents').assertEvent;
 const shouldRevert = require('./tools/assertTx').shouldRevert;
 const shouldSucceed = require('./tools/assertTx').shouldSucceed;
@@ -12,10 +12,10 @@ contract("Identity", function (accounts) {
   describe("Identity Creation", async function () {
 
     it("should create identity", async function () {
-      let centrifugeId = createRandomByte32();
+      let centrifugeId = createRandomByte(6);
 
       let instance = await Identity.new(centrifugeId);
-      let readCentrifugeId = await instance.centrifugeId.call();
+      let readCentrifugeId = web3.toHex(await instance.centrifugeId.call());
 
       assert.equal(accounts[0], await instance.owner.call(), "The owner of the contract should be the owner address.");
       assert.equal(readCentrifugeId, centrifugeId, "The centrifugeId stored should be the same as passed.");
@@ -37,12 +37,12 @@ contract("Identity", function (accounts) {
 
   describe("Adding/Retrieving Keys", async function () {
     before(async function () {
-      identityRecord = await Identity.new(createRandomByte32());
+      identityRecord = await Identity.new(createRandomByte(6));
     });
 
     it("should add and retrieve same key", async function () {
       let keyType = 1;
-      let peerToPeerId = createRandomByte32();
+      let peerToPeerId = createRandomByte(32);
 
       await identityRecord.addKey(peerToPeerId, keyType).then(function(tx){
         assertEvent(tx, "KeyRegistered", {key: peerToPeerId, kType: keyType});
@@ -56,7 +56,7 @@ contract("Identity", function (accounts) {
 
     it("should not add a key if type is < 1", async function () {
         let keyType = 0;
-        let peerToPeerId = createRandomByte32();
+        let peerToPeerId = createRandomByte(32);
 
         await shouldRevert(identityRecord.addKey(peerToPeerId, keyType));
     });
@@ -73,12 +73,12 @@ contract("Identity", function (accounts) {
 
   describe("Updating/Retrieving Keys", async function () {
     before(async function () {
-      identityRecord = await Identity.new(createRandomByte32());
+      identityRecord = await Identity.new(createRandomByte(32));
     });
 
     it("should update and retrieve new key", async function () {
       let keyType = 1;
-      let peerToPeerId = createRandomByte32();
+      let peerToPeerId = createRandomByte(32);
 
       await identityRecord.addKey(peerToPeerId, keyType).then(function(tx){
         assertEvent(tx, "KeyRegistered", {key: peerToPeerId, kType: keyType});
@@ -88,7 +88,7 @@ contract("Identity", function (accounts) {
         assert.equal(result[0], peerToPeerId, "Get Key should return peerToPeer key stored");
       });
 
-      let newPeerToPeerId = createRandomByte32();
+      let newPeerToPeerId = createRandomByte(32);
       await identityRecord.addKey(newPeerToPeerId, keyType).then(function(tx){
         assertEvent(tx, "KeyRegistered", {key: newPeerToPeerId, kType: keyType});
       });

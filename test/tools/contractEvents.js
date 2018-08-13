@@ -4,7 +4,12 @@ module.exports = {
       let item = result.logs[log];
       if (item.event === event) {
         for (let key in keys) {
-          assert.equal(item.args[key], keys[key], "Keys should match");
+          let value = item.args[key];
+          if(value && value instanceof web3.BigNumber) {
+            value = web3.toHex(value);
+
+          }
+          assert.equal(value, keys[key], "Keys should match");
         }
         break;
       }

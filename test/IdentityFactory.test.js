@@ -1,4 +1,4 @@
-const createRandomByte32 = require('./tools/random').createRandomByte32;
+const createRandomByte = require('./tools/random').createRandomByte;
 const assertEvent = require('./tools/contractEvents').assertEvent;
 const getEventValue = require('./tools/contractEvents').getEventValue;
 const shouldRevert = require('./tools/assertTx').shouldRevert;
@@ -19,7 +19,7 @@ contract("IdentityFactory", function (accounts) {
 
   describe("Create Identity", async function () {
     it("should register identity and transfer ownership", async function () {
-      let centrifugeId = createRandomByte32();
+      let centrifugeId = createRandomByte(6);
 
       let createdAddress;
       await identityFactoryContract.createIdentity(centrifugeId, { from: accounts[1] }).then(function(tx) {
@@ -35,7 +35,7 @@ contract("IdentityFactory", function (accounts) {
     });
 
     it("should register identity once", async function () {
-      let centrifugeId = createRandomByte32();
+      let centrifugeId = createRandomByte(6);
 
       let createdAddress;
       await identityFactoryContract.createIdentity(centrifugeId, { from: accounts[1] }).then(function(tx) {

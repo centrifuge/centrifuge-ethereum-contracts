@@ -1,4 +1,4 @@
-const createRandomByte32 = require('./tools/random').createRandomByte32;
+const createRandomByte = require('./tools/random').createRandomByte;
 const assertEvent = require('./tools/contractEvents').assertEvent;
 const shouldRevert = require('./tools/assertTx').shouldRevert;
 
@@ -14,7 +14,7 @@ contract("IdentityRegistry", function (accounts) {
   describe("Register Identity", async function () {
 
     it("should register identity", async function () {
-      let centrifugeId = createRandomByte32();
+      let centrifugeId = createRandomByte(6);
       let contractAddress = 0xd78703537f7b70ff465dd7afeb4118c0560a678c;
 
       await identityRegistryContract.registerIdentity(centrifugeId, contractAddress).then(function(tx){
@@ -42,7 +42,7 @@ contract("IdentityRegistry", function (accounts) {
     });
 
     it("should not register identity if centrifugeId already exists", async function () {
-      let centrifugeId = createRandomByte32();
+      let centrifugeId = createRandomByte(6);
       let contractAddress = 0xd78703537f7b70ff465dd7afeb4118c0560a678c;
 
       await identityRegistryContract.registerIdentity(centrifugeId, contractAddress).then(function(tx){
@@ -58,7 +58,7 @@ contract("IdentityRegistry", function (accounts) {
   describe("Update Identity Address", async function () {
 
     it("should update identity address with same owner", async function () {
-      let centrifugeId = createRandomByte32();
+      let centrifugeId = createRandomByte(6);
       let contractAddress = 0xd78703537f7b70ff465dd7afeb4118c0560a678c;
 
       await identityRegistryContract.registerIdentity(centrifugeId, contractAddress).then(function(tx){
@@ -73,7 +73,7 @@ contract("IdentityRegistry", function (accounts) {
     });
 
     it("should not update identity address with different owner", async function () {
-      let centrifugeId = createRandomByte32();
+      let centrifugeId = createRandomByte(6);
       let contractAddress = 0xd78703537f7b70ff465dd7afeb4118c0560a678c;
 
       await identityRegistryContract.registerIdentity(centrifugeId, contractAddress, { from: accounts[0] }).then(function(tx){
@@ -86,7 +86,7 @@ contract("IdentityRegistry", function (accounts) {
     });
 
     it("should not update identity with malformed arguments", async function () {
-      let centrifugeId = createRandomByte32();
+      let centrifugeId = createRandomByte(6);
       let contractAddress = 0x0;
 
       await shouldRevert(identityRegistryContract.updateIdentityAddress(centrifugeId, contractAddress));
@@ -98,7 +98,7 @@ contract("IdentityRegistry", function (accounts) {
   describe("Retrieve Identity Address", async function () {
 
     it("should retrieve identity address from centrifuge id by anyone", async function () {
-      let centrifugeId = createRandomByte32();
+      let centrifugeId = createRandomByte(6);
       let contractAddress = 0xd78703537f7b70ff465dd7afeb4118c0560a678c;
 
       await identityRegistryContract.registerIdentity(centrifugeId, contractAddress, { from: accounts[0] }).then(function(tx){
@@ -111,7 +111,7 @@ contract("IdentityRegistry", function (accounts) {
     });
 
     it("should return 0x0 if identity not found", async function () {
-      let centrifugeId = createRandomByte32();
+      let centrifugeId = createRandomByte(6);
 
       await identityRegistryContract.getIdentityByCentrifugeId.call(centrifugeId).then(function(result){
         assert.equal(result, 0x0, "not found identity should return 0x0")
