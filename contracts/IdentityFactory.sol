@@ -1,4 +1,4 @@
-pragma solidity ^0.4.17;
+pragma solidity ^0.4.24;
 
 import './Identity.sol';
 import './IdentityRegistry.sol';

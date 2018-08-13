@@ -1,4 +1,4 @@
-pragma solidity ^0.4.17;
+pragma solidity ^0.4.24;
 
 contract IdentityRegistry {
   event IdentityRegistered(bytes32 indexed centrifugeId, address identity);

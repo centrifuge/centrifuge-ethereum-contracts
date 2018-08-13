@@ -1,11 +1,11 @@
-pragma solidity ^0.4.17;
+pragma solidity ^0.4.24;
 
-import  'openzeppelin-solidity/contracts/MerkleProof.sol';
+import 'openzeppelin-solidity/contracts/MerkleProof.sol';
 
-contract AnchorRepository  {
+contract AnchorRepository {
 
-	event AnchorCommitted(address indexed from, uint256 indexed anchorId,  uint48 indexed centrifugeId,  uint256  documentRoot, uint32 timestamp);
-	event AnchorPreCommitted(address indexed from, uint256 indexed _anchorId, uint32 timestamp);
+    event AnchorCommitted(address indexed from, uint256 indexed anchorId, uint48 indexed centrifugeId, uint256 documentRoot, uint32 timestamp);
+    event AnchorPreCommitted(address indexed from, uint256 indexed _anchorId, uint32 timestamp);
 
     struct Anchor {
         uint256 documentRoot;
@@ -18,13 +18,13 @@ contract AnchorRepository  {
         uint32 expirationBlock;
     }
 
-    mapping (uint256 => PreAnchor) public preCommits;
+    mapping(uint256 => PreAnchor) public preCommits;
 
-    mapping (uint256 => Anchor) public commits;
+    mapping(uint256 => Anchor) public commits;
 
     uint32 constant internal expirationLength = 15;
 
-    function preCommit (uint256 _anchorId, uint256 _signingRoot) external payable {
+    function preCommit(uint256 _anchorId, uint256 _signingRoot) external payable {
 
         // not allowing empty string
         require(_anchorId != 0x0);
@@ -35,17 +35,17 @@ contract AnchorRepository  {
 
         // TODO check if msg.sender is authorized to act on behalf of the centrifugeId, Check Signature
 
-        preCommits[_anchorId] = PreAnchor( _signingRoot, msg.sender , uint32(block.number) + expirationLength);
-        emit AnchorPreCommitted(msg.sender, _anchorId, uint32(now) );
+        preCommits[_anchorId] = PreAnchor(_signingRoot, msg.sender, uint32(block.number) + expirationLength);
+        emit AnchorPreCommitted(msg.sender, _anchorId, uint32(now));
     }
 
     // Check if there is a valid precommit for an anchorID
     function hasValidPreCommit(uint256 _anchorId) public view returns (bool) {
-           return (preCommits[_anchorId].expirationBlock != 0x0 && preCommits[_anchorId].expirationBlock > block.number);
+        return (preCommits[_anchorId].expirationBlock != 0x0 && preCommits[_anchorId].expirationBlock > block.number);
     }
 
 
-    function commit (uint256 _anchorId, uint48 _centrifugeId, uint256 _documentRoot, bytes32[] _signatures) external payable {
+    function commit(uint256 _anchorId, uint48 _centrifugeId, uint256 _documentRoot, bytes32[] _signatures) external payable {
 
         // not allowing empty string
         require(_anchorId != 0x0);
@@ -61,20 +61,20 @@ contract AnchorRepository  {
         // check that the precommit has been initiated by same sender
         require(preCommits[_anchorId].sender == msg.sender);
 
-         // TODO check if msg.sender is authorized to act on behalf of the centrifugeId, Check Signature
+        // TODO check if msg.sender is authorized to act on behalf of the centrifugeId, Check Signature
 
         require(MerkleProof.verifyProof(_signatures, bytes32(_documentRoot), bytes32(preCommits[_anchorId].signingRoot)));
 
         commits[_anchorId] = Anchor(_documentRoot, uint32(now));
-        emit AnchorCommitted(msg.sender, _anchorId, _centrifugeId , _documentRoot, uint32(now));
+        emit AnchorCommitted(msg.sender, _anchorId, _centrifugeId, _documentRoot, uint32(now));
 
     }
 
-   function getAnchorById (uint256 _anchorId) public view returns(uint256 anchorId, uint256 documentRoot, uint32 timestamp) {
-           return (
-               _anchorId,
-               commits[_anchorId].documentRoot,
-               commits[_anchorId].timestamp
-               );
-       }
+    function getAnchorById(uint256 _anchorId) public view returns (uint256 anchorId, uint256 documentRoot, uint32 timestamp) {
+        return (
+        _anchorId,
+        commits[_anchorId].documentRoot,
+        commits[_anchorId].timestamp
+        );
+    }
 }
