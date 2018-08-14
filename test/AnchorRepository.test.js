@@ -153,8 +153,7 @@ contract("AnchorRepository", function (accounts) {
             //solidity removes leading 0 from hexes in conversins
             //Make sure that the test do not fail because of that
             assert.equal(web3.toHex(web3.toBigNumber(documentRoot)), web3.toHex(response[1]));
-            //assert.equal(centrifugeId, web3.toHex(response[2]));
-            assert.notEqual(0, response[2].toNumber());
+            assert.equal(accounts[0], response[2]);
         })
 
         it("should return an empty anchor for wrong anchorId", async function () {
@@ -164,8 +163,8 @@ contract("AnchorRepository", function (accounts) {
             let response = await anchorRepository.getAnchorById.call(notExistingAnchorId, callOptions);
             assert.equal(notExistingAnchorId, web3.toHex(response[0]));
             assert.equal(0, response[1].toNumber());
-           // assert.equal(0, response[2].toNumber());
-            assert.equal(0, response[2].toNumber());
+            assert.equal('0x0000000000000000000000000000000000000000', response[2]);
+
         })
 
     })

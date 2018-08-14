@@ -4,12 +4,11 @@ import 'openzeppelin-solidity/contracts/MerkleProof.sol';
 
 contract AnchorRepository {
 
-    event AnchorCommitted(address indexed from, uint256 indexed anchorId, uint48 indexed centrifugeId, uint256 documentRoot, uint32 timestamp);
-    event AnchorPreCommitted(address indexed from, uint256 indexed _anchorId, uint32 timestamp);
+    event AnchorCommitted(address indexed from, uint256 indexed anchorId, uint48 indexed centrifugeId, uint256 documentRoot, uint32 blockHeight);
+    event AnchorPreCommitted(address indexed from, uint256 indexed anchorId, uint32 blockHeight);
 
     struct Anchor {
         uint256 documentRoot;
-        uint32 timestamp;
     }
 
     struct PreAnchor {
@@ -36,7 +35,7 @@ contract AnchorRepository {
         // TODO check if msg.sender is authorized to act on behalf of the centrifugeId, Check Signature
 
         preCommits[_anchorId] = PreAnchor(_signingRoot, msg.sender, uint32(block.number) + expirationLength);
-        emit AnchorPreCommitted(msg.sender, _anchorId, uint32(now));
+        emit AnchorPreCommitted(msg.sender, _anchorId, uint32(block.number));
     }
 
     // Check if there is a valid precommit for an anchorID
@@ -65,16 +64,16 @@ contract AnchorRepository {
 
         require(MerkleProof.verifyProof(_signatures, bytes32(_documentRoot), bytes32(preCommits[_anchorId].signingRoot)));
 
-        commits[_anchorId] = Anchor(_documentRoot, uint32(now));
-        emit AnchorCommitted(msg.sender, _anchorId, _centrifugeId, _documentRoot, uint32(now));
+        commits[_anchorId] = Anchor(_documentRoot);
+        emit AnchorCommitted(msg.sender, _anchorId, _centrifugeId, _documentRoot, uint32(block.number));
 
     }
 
-    function getAnchorById(uint256 _anchorId) public view returns (uint256 anchorId, uint256 documentRoot, uint32 timestamp) {
+    function getAnchorById(uint256 _anchorId) public view returns (uint256 anchorId, uint256 documentRoot , address sender) {
         return (
         _anchorId,
         commits[_anchorId].documentRoot,
-        commits[_anchorId].timestamp
+        preCommits[_anchorId].sender
         );
     }
 }
