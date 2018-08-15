@@ -34,72 +34,21 @@ contract("Identity", function (accounts) {
     });
 
   });
-
-  describe("Adding/Retrieving Keys", async function () {
-    before(async function () {
-      identityRecord = await Identity.new(createRandomByte(6));
-    });
-
-    it("should add and retrieve same key", async function () {
-      let keyType = 1;
-      let peerToPeerId = createRandomByte(32);
-
-      await identityRecord.addKey(peerToPeerId, keyType).then(function(tx){
-        assertEvent(tx, "KeyRegistered", {key: peerToPeerId, kType: keyType});
+  
+  describe("Should Validate a signature", async function () {
+      before(async function () {
+          identityRecord = await Identity.new(createRandomByte(6));
       });
-
-      await identityRecord.getKeysByType.call(keyType).then(function(result){
-        assert.equal(result[0], peerToPeerId, "Get Key should return peerToPeer key stored");
-      });
-
-    });
-
-    it("should not add a key if type is < 1", async function () {
-        let keyType = 0;
-        let peerToPeerId = createRandomByte(32);
-
-        await shouldRevert(identityRecord.addKey(peerToPeerId, keyType));
-    });
-
-    it("should return 0x0 if key not found", async function () {
-      let keyType = 0;
-
-      await identityRecord.getKeysByType.call(keyType).then(function (result) {
-        assert.equal(result, 0x0, "not found key should return 0x0")
-      });
-    });
-
-  });
-
-  describe("Updating/Retrieving Keys", async function () {
-    before(async function () {
-      identityRecord = await Identity.new(createRandomByte(32));
-    });
-
-    it("should update and retrieve new key", async function () {
-      let keyType = 1;
-      let peerToPeerId = createRandomByte(32);
-
-      await identityRecord.addKey(peerToPeerId, keyType).then(function(tx){
-        assertEvent(tx, "KeyRegistered", {key: peerToPeerId, kType: keyType});
-      });
-
-      await identityRecord.getKeysByType.call(keyType).then(function(result){
-        assert.equal(result[0], peerToPeerId, "Get Key should return peerToPeer key stored");
-      });
-
-      let newPeerToPeerId = createRandomByte(32);
-      await identityRecord.addKey(newPeerToPeerId, keyType).then(function(tx){
-        assertEvent(tx, "KeyRegistered", {key: newPeerToPeerId, kType: keyType});
-      });
-
-      await identityRecord.getKeysByType.call(keyType).then(function(result){
-        assert.equal(result[0], peerToPeerId, "Get Key should not return peerToPeer key stored");
-        assert.equal(result[1], newPeerToPeerId, "Second Key should be newPeerToPeer key stored");
-      });
-
-    });
-
-  });
+    it("should validate a signature", async function(){
+      await identityRecord.addKey(accounts[1],[3]);
+      const toSign = createRandomByte(32);
+      console.log(accounts);
+      const signature = await web3.eth.sign(accounts[1],toSign);
+      const isSignatureValid = await identityRecord.isSignatureValid(toSign, accounts[1] , signature);
+      console.log(isSignatureValid);
+      assert.equal(isSignatureValid, true);
+    })
+      
+  })
 
 });
