@@ -42,10 +42,8 @@ contract("Identity", function (accounts) {
     it("should validate a signature", async function(){
       await identityRecord.addKey(accounts[1],[3]);
       const toSign = createRandomByte(32);
-      console.log(accounts);
       const signature = await web3.eth.sign(accounts[1],toSign);
       const isSignatureValid = await identityRecord.isSignatureValid(toSign, accounts[1] , signature);
-      console.log(isSignatureValid);
       assert.equal(isSignatureValid, true);
     })
       
