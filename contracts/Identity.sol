@@ -1,6 +1,6 @@
-pragma solidity ^0.4.17;
+pragma solidity ^0.4.24;
 
-import 'zeppelin-solidity/contracts/ownership/Ownable.sol';
+import 'openzeppelin-solidity/contracts/ownership/Ownable.sol';
 
 contract Identity is Ownable {
   event KeyRegistered(uint indexed kType, bytes32 indexed key);
@@ -9,7 +9,7 @@ contract Identity is Ownable {
 
   mapping(uint => bytes32[]) keys; // Indexed by Type to keys 1 (PeerToPeerID), 2 (EncryptionKey)
 
-  function Identity(bytes32 _centrifugeId) public {
+   constructor(bytes32 _centrifugeId) public {
     require(_centrifugeId != 0x0);
     centrifugeId = _centrifugeId;
   }
@@ -19,7 +19,7 @@ contract Identity is Ownable {
 
     keys[_kType].push(_key);
 
-    KeyRegistered(_kType, _key);
+    emit KeyRegistered(_kType, _key);
   }
 
   function getKeysByType(uint _kType) public view returns(bytes32[]) {

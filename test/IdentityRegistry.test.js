@@ -1,5 +1,6 @@
 const createRandomByte32 = require('./tools/random').createRandomByte32;
 const assertEvent = require('./tools/contractEvents').assertEvent;
+const shouldRevert = require('./tools/assertTx').shouldRevert;
 
 let IdentityRegistry = artifacts.require("IdentityRegistry");
 
@@ -26,29 +27,17 @@ contract("IdentityRegistry", function (accounts) {
       let centrifugeId = "";
       let contractAddress = "";
 
-      await identityRegistryContract.registerIdentity(centrifugeId, contractAddress).then(function () {
-        assert.fail(0, 0, "Should not be able to register identity with malformed arguments");
-      }).catch(function (e) {
-        assert.equal(e.message, "VM Exception while processing transaction: revert");
-      });
+      await shouldRevert(identityRegistryContract.registerIdentity(centrifugeId, contractAddress));
 
       centrifugeId = 0x0;
       contractAddress = 0x0;
 
-      await identityRegistryContract.registerIdentity(centrifugeId, contractAddress).then(function () {
-        assert.fail(0, 0, "Should not be able to register identity with malformed arguments");
-      }).catch(function (e) {
-        assert.equal(e.message, "VM Exception while processing transaction: revert");
-      });
+      await shouldRevert(identityRegistryContract.registerIdentity(centrifugeId, contractAddress));
 
       centrifugeId = null;
       contractAddress = 0x0;
 
-      await identityRegistryContract.registerIdentity(centrifugeId, contractAddress).then(function () {
-        assert.fail(0, 0, "Should not be able to register identity with malformed arguments");
-      }).catch(function (e) {
-        assert.equal(e.message, "VM Exception while processing transaction: revert");
-      });
+      await shouldRevert(identityRegistryContract.registerIdentity(centrifugeId, contractAddress));
 
     });
 
@@ -60,11 +49,7 @@ contract("IdentityRegistry", function (accounts) {
         assertEvent(tx, "IdentityRegistered", {centrifugeId: centrifugeId, identity: contractAddress});
       });
 
-      await identityRegistryContract.registerIdentity(centrifugeId, contractAddress).then(function () {
-        assert.fail(0, 0, "Should not be able to register identity if already exists")
-      }).catch(function (e) {
-        assert.equal(e.message, "VM Exception while processing transaction: revert")
-      });
+      await shouldRevert(identityRegistryContract.registerIdentity(centrifugeId, contractAddress));
 
     });
 
@@ -96,11 +81,7 @@ contract("IdentityRegistry", function (accounts) {
       });
 
       let newContractAddress = 0xd78703537f7b70ff465dd7afeb4118c0560a6669;
-      await identityRegistryContract.updateIdentityAddress(centrifugeId, newContractAddress, { from: accounts[1] }).then(function () {
-        assert.fail(0, 0, "Should not be able to update entry that does not belong to owner")
-      }).catch(function (e) {
-        assert.equal(e.message, "VM Exception while processing transaction: revert")
-      });
+      await shouldRevert(identityRegistryContract.updateIdentityAddress(centrifugeId, newContractAddress, { from: accounts[1] }));
 
     });
 
@@ -108,11 +89,7 @@ contract("IdentityRegistry", function (accounts) {
       let centrifugeId = createRandomByte32();
       let contractAddress = 0x0;
 
-      await identityRegistryContract.updateIdentityAddress(centrifugeId, contractAddress).then(function () {
-        assert.fail(0, 0, "Should not be able to update identity with identity as 0x0")
-      }).catch(function (e) {
-        assert.equal(e.message, "VM Exception while processing transaction: revert")
-      });
+      await shouldRevert(identityRegistryContract.updateIdentityAddress(centrifugeId, contractAddress));
 
     });
 

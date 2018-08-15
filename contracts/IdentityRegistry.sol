@@ -1,4 +1,4 @@
-pragma solidity ^0.4.17;
+pragma solidity ^0.4.24;
 
 contract IdentityRegistry {
   event IdentityRegistered(bytes32 indexed centrifugeId, address identity);
@@ -30,14 +30,14 @@ contract IdentityRegistry {
     require(_identity != 0x0);
     require(identityRegistry[_centrifugeId].owner == 0x0);
     identityRegistry[_centrifugeId] = IdentityItem(msg.sender, _identity);
-    IdentityRegistered(_centrifugeId, _identity);
+    emit IdentityRegistered(_centrifugeId, _identity);
   }
 
   function updateIdentityAddress(bytes32 _centrifugeId, address _identity) onlyIdentityOwner(_centrifugeId) public {
     require(_centrifugeId != 0x0);
     require(_identity != 0x0);
     identityRegistry[_centrifugeId].identity = _identity;
-    IdentityUpdated(_centrifugeId, _identity);
+    emit IdentityUpdated(_centrifugeId, _identity);
   }
 
   function getIdentityByCentrifugeId(bytes32 _centrifugeId) public view returns(address) {
