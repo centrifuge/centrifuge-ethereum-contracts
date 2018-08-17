@@ -30,8 +30,13 @@ contract KeyManager is Ownable {
         require(_key != 0x0);
         // purpose must not be greater then 0
         require(_purpose > 0);
-        //Can not add purpose to revoked keys
+        // Can not add purpose to revoked keys
         require(keys[_key].revokedAt == 0);
+
+        // Enforce that ETH_MESSAGE_AUTH can only be addresses of 20 bytes
+        if(_purpose == ETH_MESSAGE_AUTH && bytes32(bytes20(_key)) != _key) {
+            revert();
+        }
 
         if (!keyHasPurpose(_key, _purpose)) {
             keys[_key].purposes.push(_purpose);

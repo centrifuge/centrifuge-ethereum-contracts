@@ -42,7 +42,7 @@ contract("Identity", function (accounts) {
             identityRecord = await Identity.new(createRandomByte(6));
         });
         it("should validate a web3 signature", async function(){
-            await identityRecord.addMultiPurposeKey(accounts[1],[ETH_MESSAGE_AUTH]);
+            await identityRecord.addKey(accounts[1],ETH_MESSAGE_AUTH);
             const toSign = createRandomByte(32);
             const signature = await web3.eth.sign(accounts[1],toSign);
             const isSignatureValid = await identityRecord.isSignatureValid(toSign, accounts[1] , signature);
