@@ -18,7 +18,7 @@ contract("IdentityRegistry", function (accounts) {
       let contractAddress = 0xd78703537f7b70ff465dd7afeb4118c0560a678c;
 
       await identityRegistryContract.registerIdentity(centrifugeId, contractAddress).then(function(tx){
-        assertEvent(tx, "IdentityRegistered", {centrifugeId: centrifugeId, identity: contractAddress});
+        assertEvent(tx, "IdentityRegistered", {centrifugeId: centrifugeId, identity: contractAddress},{centrifugeId:(value) => web3.toHex(value)});
       });
 
     });
@@ -46,7 +46,7 @@ contract("IdentityRegistry", function (accounts) {
       let contractAddress = 0xd78703537f7b70ff465dd7afeb4118c0560a678c;
 
       await identityRegistryContract.registerIdentity(centrifugeId, contractAddress).then(function(tx){
-        assertEvent(tx, "IdentityRegistered", {centrifugeId: centrifugeId, identity: contractAddress});
+        assertEvent(tx, "IdentityRegistered", {centrifugeId: centrifugeId, identity: contractAddress}, {centrifugeId:(value) => web3.toHex(value)});
       });
 
       await shouldRevert(identityRegistryContract.registerIdentity(centrifugeId, contractAddress));
@@ -62,12 +62,12 @@ contract("IdentityRegistry", function (accounts) {
       let contractAddress = 0xd78703537f7b70ff465dd7afeb4118c0560a678c;
 
       await identityRegistryContract.registerIdentity(centrifugeId, contractAddress).then(function(tx){
-        assertEvent(tx, "IdentityRegistered", {centrifugeId: centrifugeId, identity: contractAddress});
+        assertEvent(tx, "IdentityRegistered", {centrifugeId: centrifugeId, identity: contractAddress},{centrifugeId:(value) => web3.toHex(value)});
       });
 
       let newContractAddress = 0xd78703537f7b70ff465dd7afeb4118c0560a6669;
       await identityRegistryContract.updateIdentityAddress(centrifugeId, newContractAddress).then(function(tx){
-        assertEvent(tx, "IdentityUpdated", {centrifugeId: centrifugeId, identity: newContractAddress});
+        assertEvent(tx, "IdentityUpdated", {centrifugeId: centrifugeId, identity: newContractAddress},{centrifugeId:(value) => web3.toHex(value)});
       });
 
     });
@@ -77,7 +77,7 @@ contract("IdentityRegistry", function (accounts) {
       let contractAddress = 0xd78703537f7b70ff465dd7afeb4118c0560a678c;
 
       await identityRegistryContract.registerIdentity(centrifugeId, contractAddress, { from: accounts[0] }).then(function(tx){
-        assertEvent(tx, "IdentityRegistered", {centrifugeId: centrifugeId, identity: contractAddress});
+        assertEvent(tx, "IdentityRegistered", {centrifugeId: centrifugeId, identity: contractAddress}, {centrifugeId:(value) => web3.toHex(value)});
       });
 
       let newContractAddress = 0xd78703537f7b70ff465dd7afeb4118c0560a6669;
@@ -102,7 +102,7 @@ contract("IdentityRegistry", function (accounts) {
       let contractAddress = 0xd78703537f7b70ff465dd7afeb4118c0560a678c;
 
       await identityRegistryContract.registerIdentity(centrifugeId, contractAddress, { from: accounts[0] }).then(function(tx){
-        assertEvent(tx, "IdentityRegistered", {centrifugeId: centrifugeId, identity: contractAddress});
+        assertEvent(tx, "IdentityRegistered", {centrifugeId: centrifugeId, identity: contractAddress},{centrifugeId:(value) => web3.toHex(value)});
       });
 
       await identityRegistryContract.getIdentityByCentrifugeId.call(centrifugeId, { from: accounts[1] }).then(function(result){

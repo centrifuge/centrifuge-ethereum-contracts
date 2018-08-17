@@ -23,7 +23,7 @@ contract("IdentityFactory", function (accounts) {
 
       let createdAddress;
       await identityFactoryContract.createIdentity(centrifugeId, { from: accounts[1] }).then(function(tx) {
-        assertEvent(tx, "IdentityCreated", {centrifugeId: centrifugeId});
+        assertEvent(tx, "IdentityCreated", {centrifugeId: centrifugeId},{centrifugeId:(value) => web3.toHex(value)});
         assertEvent(tx, "OwnershipTransferred", {newOwner: accounts[1]});
         createdAddress = getEventValue(tx, "IdentityCreated", "identity");
       });
@@ -39,7 +39,7 @@ contract("IdentityFactory", function (accounts) {
 
       let createdAddress;
       await identityFactoryContract.createIdentity(centrifugeId, { from: accounts[1] }).then(function(tx) {
-        assertEvent(tx, "IdentityCreated", {centrifugeId: centrifugeId});
+        assertEvent(tx, "IdentityCreated", {centrifugeId: centrifugeId},{centrifugeId:(value) => web3.toHex(value)});
         assertEvent(tx, "OwnershipTransferred", {newOwner: accounts[1]});
         createdAddress = getEventValue(tx, "IdentityCreated", "identity");
       });

@@ -4,20 +4,18 @@ import 'openzeppelin-solidity/contracts/ownership/Ownable.sol';
 
 contract KeyManager is Ownable {
 
-    event KeyAdded(bytes32 indexed key, uint256[] purposes);
-    event KeyRevoked(bytes32 indexed key, uint256 revokedAt, uint256[] purposes);
+    event KeyAdded(bytes32 indexed key, uint256 purpose);
+    event KeyRevoked(bytes32 indexed key, uint256 revokedAt);
 
-    // used or KeyManagement.
-    // They can add and remoke keys
-    // They must be the address of the sender
-    uint256 constant internal MANAGEMENT_KEY = 1;
     // used for identifying a node
-    uint256 constant internal P2P_KEY = 2;
-    // used for signing messages
-    uint256 constant internal SIGNING_KEY = 3;
+    uint256 constant internal P2P_IDENTITY = 1;
+    // used for signing documents on the p2p layer.
+    uint256 constant internal P2P_SIGNATURE = 2;
+    // used for validating the author of a transaction
+    uint256 constant internal ETH_MESSAGE_AUTH = 3;
 
     struct Key {
-        uint256[] purposes; // e.g.,MANAGEMENT_KEY = 1, P2P_KEY = 2, SIGNING_KEY = 3, etc.
+        uint256[] purposes; // e.g., P2P_KEY = 1, SIGNING_KEY = 2, etc, MANAGEMENT_KEY = 3,
         uint256 revokedAt; // Block where key was revoked
     }
 
@@ -26,34 +24,55 @@ contract KeyManager is Ownable {
     mapping(uint256 => bytes32[]) keysByPurpose;
 
     // @param _key Hash of the public key to be added
-    // @param _purposes Array of purposes for the public key
-    function addKey(bytes32 _key, uint256[] _purposes) onlyManagementOrOwner public {
+    // @param _purpose Uint representing the purpose for the public key. Must be greater then 0
+    function addKey(bytes32 _key, uint256 _purpose) onlyOwner public {
         // key must have a value
         require(_key != 0x0);
+        // purpose must not be greater then 0
+        require(_purpose > 0);
+        //Can not add purpose to revoked keys
+        require(keys[_key].revokedAt == 0);
+
+        if (!keyHasPurpose(_key, _purpose)) {
+            keys[_key].purposes.push(_purpose);
+            keysByPurpose[_purpose].push(_key);
+            emit KeyAdded(_key, _purpose);
+        }
+    }
+
+    // @param _key Hash of the public key to be added
+    // @param _purposes Array of purposes for the public key. The array must not contain 0
+    function addMultiPurposeKey(bytes32 _key, uint256[] _purposes) onlyOwner public {
         // key must have at least one purpose
         require(_purposes.length > 0);
-
-        keys[_key] = Key(_purposes, 0);
         for (uint i = 0; i < _purposes.length; i++) {
-            keysByPurpose[_purposes[i]].push(_key);
+            addKey(_key, _purposes[i]);
         }
-        emit KeyAdded(_key, _purposes);
     }
 
     // Revokes a key
     //@param _key Hash of the public key to be revoked
-    function revokeKey(bytes32 _key) onlyManagementOrOwner public {
+    function revokeKey(bytes32 _key) onlyOwner public {
         // check if key exists
         require(keys[_key].purposes.length > 0);
 
         keys[_key].revokedAt = block.number;
-        emit KeyRevoked(_key, keys[_key].revokedAt, keys[_key].purposes);
+        emit KeyRevoked(_key, keys[_key].revokedAt);
     }
 
     // Retrive details about a key
     // @param key  Hash of public key
     // return Struct with hash of the key, purposes and revokedAt
     function getKey(bytes32 _key) public view returns (bytes32 key, uint256[] purposes, uint256 revokedAt) {
+        //if key does not exit retur  0x0 for the key
+        if (keys[_key].purposes.length == 0) {
+            return (
+            0,
+            keys[_key].purposes,
+            keys[_key].revokedAt
+            );
+        }
+
         return (
         _key,
         keys[_key].purposes,
@@ -84,9 +103,4 @@ contract KeyManager is Ownable {
         return keysByPurpose[_purpose];
     }
 
-    // Checks if the sender is the owner of the identity or a MANAGEMENT_KEY
-    modifier onlyManagementOrOwner() {
-        require(msg.sender == owner || keyHasPurpose(bytes32(msg.sender) << 96, MANAGEMENT_KEY));
-        _;
-    }
 }

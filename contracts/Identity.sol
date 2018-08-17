@@ -20,10 +20,10 @@ contract Identity is KeyManager {
     // @param _key Hash of public Signature Key that belongs to Identity
     // @param _signature Signed data
     function isSignatureValid(bytes32 _toSign, bytes32 _key, bytes _signature) public view returns (bool valid) {
-        if(!keyHasPurpose(_key, SIGNING_KEY) || keys[_key].revokedAt > 0) {
+        if(!keyHasPurpose(_key, ETH_MESSAGE_AUTH) || keys[_key].revokedAt > 0) {
             return false;
         }
-       return _key == (bytes32(keccak256(abi.encodePacked(ETH_PREFIX, _toSign)).recover(_signature)) << 96);
+       return address(bytes20(_key)) == _toSign.toEthSignedMessageHash().recover(_signature);
     }
 
 }
