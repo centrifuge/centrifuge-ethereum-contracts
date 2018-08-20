@@ -18,3 +18,4 @@ node_modules/
 
 # deployment
 deployments/local.json
+deployments/local-ganache.json
