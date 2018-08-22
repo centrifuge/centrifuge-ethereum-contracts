@@ -51,7 +51,7 @@ contract("KeyMananger", function (accounts) {
             assert.equal(0, response[2]);
         })
 
-        it("Should not allow a P2P_IDENTITY key to be a ETH_MESSAGE_AUTH becasue they have different length", async function () {
+        it("Should not allow a P2P_IDENTITY key to be a ETH_MESSAGE_AUTH because they have different length", async function () {
             const {identity, key} = await getBasicTestNeeds();
             await shouldRevert(identity.addMultiPurposeKey(key, [P2P_IDENTITY, ETH_MESSAGE_AUTH]));
         })

@@ -4,8 +4,8 @@ import 'openzeppelin-solidity/contracts/ownership/Ownable.sol';
 
 contract KeyManager is Ownable {
 
-    event KeyAdded(bytes32 indexed key, uint256 purpose);
-    event KeyRevoked(bytes32 indexed key, uint256 revokedAt);
+    event KeyAdded(bytes32 indexed key, uint256 indexed purpose);
+    event KeyRevoked(bytes32 indexed key, uint256 indexed revokedAt);
 
     // used for identifying a node
     uint256 constant internal P2P_IDENTITY = 1;
@@ -45,7 +45,7 @@ contract KeyManager is Ownable {
         }
     }
 
-    // @param _key Hash of the public key to be added
+    // @param _key the public key to be added
     // @param _purposes Array of purposes for the public key. The array must not contain 0
     function addMultiPurposeKey(bytes32 _key, uint256[] _purposes) onlyOwner public {
         // key must have at least one purpose
@@ -66,7 +66,7 @@ contract KeyManager is Ownable {
     }
 
     // Retrive details about a key
-    // @param key  Hash of public key
+    // @param key the public key
     // return Struct with hash of the key, purposes and revokedAt
     function getKey(bytes32 _key) public view returns (bytes32 key, uint256[] purposes, uint256 revokedAt) {
         //if key does not exit retur  0x0 for the key
