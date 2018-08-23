@@ -19,9 +19,9 @@ contract KeyManager is Ownable {
     // this has to mirror ETH key pairs in order to validate signatures with ecrecover
     uint256 constant internal ETH_MESSAGE_AUTH = 3;
 
-    // Because we use different types of key pairs. bytes32 public or bytes64 public a key can not have all 3 purposes
-    // at the same time. You can only do [P2P_IDENTITY,P2P_SIGNATURE] or [P2P_SIGNATURE,ETH_MESSAGE_AUTH]
-    // this is not enforced in the contract and it is up to client implementing the logic to handle this.
+    // Because we use different types of key pairs, bytes32 public or bytes64 public, a key can not have all 3 purposes
+    // at the same time. You can only do [P2P_IDENTITY, P2P_SIGNATURE] or [P2P_SIGNATURE, ETH_MESSAGE_AUTH].
+    // This is not enforced in the contract and it is up to client implementing the logic to handle this.
     struct Key {
         uint256[] purposes; // e.g., P2P_KEY = 1, SIGNING_KEY = 2, etc, MANAGEMENT_KEY = 3,
         uint256 revokedAt; // Block where key was revoked
