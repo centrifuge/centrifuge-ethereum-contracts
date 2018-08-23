@@ -32,16 +32,14 @@ contract KeyManager is Ownable {
     mapping(uint256 => bytes32[]) keysByPurpose;
 
     // @param _key bytes32 public key or keccak256 hash of the public key to be added
-    // @param _purpose Uint representing the purpose for the public key. Must be greater then 0
+    // @param _purpose Uint representing the purpose for the public key. Must be greater than 0
     function addKey(bytes32 _key, uint256 _purpose) onlyOwner public {
         // key must have a value
         require(_key != 0x0);
-        // purpose must not be greater then 0
+        // purpose must not be greater than 0
         require(_purpose > 0);
         // Can not add purpose to revoked keys
         require(keys[_key].revokedAt == 0);
-
-        // Enforce that ETH_MESSAGE_AUTH can only be a address of 20 bytes
 
         if (!keyHasPurpose(_key, _purpose)) {
             keys[_key].purposes.push(_purpose);
