@@ -4,7 +4,7 @@ import './Identity.sol';
 import './IdentityRegistry.sol';
 
 contract IdentityFactory {
-  event IdentityCreated(bytes32 indexed centrifugeId, address identity);
+  event IdentityCreated(uint48 indexed centrifugeId, address identity);
 
   address registry;
 
@@ -12,7 +12,7 @@ contract IdentityFactory {
     registry = _registry;
   }
 
-  function createIdentity(bytes32 _centrifugeId) public {
+  function createIdentity(uint48 _centrifugeId) public {
     require(_centrifugeId != 0x0);
     IdentityRegistry identityRegistry = IdentityRegistry(registry);
     // Require that the centrifugeId is not already registered in the IdentityRegistry

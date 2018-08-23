@@ -1,29 +1,26 @@
 pragma solidity ^0.4.24;
 
-import 'openzeppelin-solidity/contracts/ownership/Ownable.sol';
+import "./KeyManager.sol";
+import "openzeppelin-solidity/contracts/ECRecovery.sol";
 
-contract Identity is Ownable {
-  event KeyRegistered(uint indexed kType, bytes32 indexed key);
+contract Identity is KeyManager {
+    using ECRecovery for bytes32;
 
-  bytes32 public centrifugeId;
+    uint48 public centrifugeId;
 
-  mapping(uint => bytes32[]) keys; // Indexed by Type to keys 1 (PeerToPeerID), 2 (EncryptionKey)
+    constructor(uint48 _centrifugeId) public {
+        require(_centrifugeId != 0x0);
+        centrifugeId = _centrifugeId;
+    }
 
-   constructor(bytes32 _centrifugeId) public {
-    require(_centrifugeId != 0x0);
-    centrifugeId = _centrifugeId;
-  }
-
-  function addKey(bytes32 _key, uint _kType) onlyOwner public {
-    require(_kType > 0);
-
-    keys[_kType].push(_key);
-
-    emit KeyRegistered(_kType, _key);
-  }
-
-  function getKeysByType(uint _kType) public view returns(bytes32[]) {
-    return keys[_kType];
-  }
+    // @param _toSign Hash to be signed. Must be generated with abi.encodePacked(arg1, arg2, arg3)
+    // @param _key Address/Hash of public Signature Key that belongs to Identity
+    // @param _signature Signed data
+    function isSignatureValid(bytes32 _toSign, bytes32 _key, bytes _signature) public view returns (bool valid) {
+        if(!keyHasPurpose(_key, ETH_MESSAGE_AUTH) || keys[_key].revokedAt > 0) {
+            return false;
+        }
+       return address(bytes20(_key)) == _toSign.toEthSignedMessageHash().recover(_signature);
+    }
 
 }
