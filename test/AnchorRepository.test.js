@@ -113,10 +113,10 @@ contract("AnchorRepository", function (accounts) {
             await shouldRevert(anchorRepository.preCommit(anchorId, signingRoot, centrifugeId, publicKey, precommitSignature, callOptions));
         })
 
-        it("should not allow a commit without an existing precommit", async function () {
+        it("should allow a commit without an existing precommit", async function () {
             const {anchorId, documentRoot, centrifugeId, proof, publicKey, commitSignature, anchorRepository, callOptions} = await getBasicTestNeeds(accounts);
 
-            await shouldRevert(anchorRepository.commit(anchorId, documentRoot, centrifugeId, proof, publicKey, commitSignature, callOptions));
+            await shouldSucceed(anchorRepository.commit(anchorId, documentRoot, centrifugeId, proof, publicKey, commitSignature, callOptions));
         })
 
 
@@ -143,7 +143,7 @@ contract("AnchorRepository", function (accounts) {
 
 
 
-        it("should not allow committing an Anchor if the precommit singingRoot does belong to the documentRoot", async function () {
+        it("should not allow committing an Anchor if the precommit singingRoot does not belong to the documentRoot", async function () {
             const {anchorId, documentRoot, proof, centrifugeId, publicKey, commitSignature, anchorRepository, callOptions} = await getBasicTestNeeds(accounts);
             // Create another document
             const signingRoot = createRandomByte(32);

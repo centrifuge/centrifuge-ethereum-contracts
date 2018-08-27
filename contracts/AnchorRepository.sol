@@ -9,9 +9,7 @@ contract AnchorRepository {
     event AnchorCommitted(address indexed from, uint256 indexed anchorId, uint48 indexed centrifugeId, bytes32 documentRoot, uint32 blockHeight);
     event AnchorPreCommitted(address indexed from, uint256 indexed anchorId, uint32 blockHeight);
 
-    struct Anchor {
-        bytes32 documentRoot;
-    }
+
 
     struct PreAnchor {
         bytes32 signingRoot;
@@ -23,7 +21,7 @@ contract AnchorRepository {
     // store precommits
     mapping(uint256 => PreAnchor) public preCommits;
     // store commits
-    mapping(uint256 => Anchor) public commits;
+    mapping(uint256 => bytes32) public commits;
     // The number of blocks for which a precommit is valid
     uint32 constant internal expirationLength = 15;
 
@@ -67,21 +65,21 @@ contract AnchorRepository {
         require(_centrifugeId != 0x0);
 
         //not allowing to write to an existing anchor
-        require(commits[_anchorId].documentRoot == 0x0);
+        require(commits[_anchorId] == 0x0);
 
-        // in order to commit we must insure a pre commit has been done before
-        require(hasValidPreCommit(_anchorId) == true);
+        // Check if there is a precommit and enforce it
+        if(preCommits[_anchorId].expirationBlock != 0x0) {
+            require(hasValidPreCommit(_anchorId) == true);
+            require(MerkleProof.verifyProof(_documentSignatures, _documentRoot, preCommits[_anchorId].signingRoot));
+            // check that the precommit has the same _centrifugeId
+            require(preCommits[_anchorId].centrifugeId == _centrifugeId);
+        }
 
         // Construct the signed message and validate the _signature
         bytes32 message = keccak256(abi.encodePacked(_anchorId, _documentRoot, _centrifugeId));
         require(isSignatureValid(message, _centrifugeId, _pbKey, _signature));
 
-        // check that the precommit has the same _centrifugeId
-        require(preCommits[_anchorId].centrifugeId == _centrifugeId);
-
-        require(MerkleProof.verifyProof(_documentSignatures, _documentRoot, preCommits[_anchorId].signingRoot));
-
-        commits[_anchorId] = Anchor(_documentRoot);
+        commits[_anchorId] = _documentRoot;
         emit AnchorCommitted(msg.sender, _anchorId, _centrifugeId, _documentRoot, uint32(block.number));
 
     }
@@ -91,7 +89,7 @@ contract AnchorRepository {
     function getAnchorById(uint256 _anchorId) public view returns (uint256 anchorId, bytes32 documentRoot, uint48 centrifugeId) {
         return (
         _anchorId,
-        commits[_anchorId].documentRoot,
+        commits[_anchorId],
         preCommits[_anchorId].centrifugeId
         );
     }
