@@ -207,13 +207,23 @@ contract("AnchorRepository", function (accounts) {
             assert.isBelow(preCommitGas, preCommitMaxGas, `Gas Price for preCommit is to high`)
         })
 
+
+        it(`should have commit with no precommit gas cost less then  ${commitMaxGas}`, async function () {
+            const {anchorId, signingRoot, documentRoot, proof, centrifugeId, publicKey, precommitSignature, commitSignature, anchorRepository, callOptions} = await getBasicTestNeeds(accounts);
+
+            const commitGas = await anchorRepository.commit.estimateGas(anchorId, documentRoot, centrifugeId, proof, publicKey, commitSignature, callOptions);
+            console.log('Actual commit without precommit gas cost:', commitGas)
+
+            assert.isBelow(commitGas, commitMaxGas, 'Gas Price for commit must not exceed 80k');
+        })
+
         it(`should have commit gas cost less then  ${commitMaxGas}`, async function () {
             const {anchorId, signingRoot, documentRoot, proof, centrifugeId, publicKey, precommitSignature, commitSignature, anchorRepository, callOptions} = await getBasicTestNeeds(accounts);
 
             await shouldSucceed(anchorRepository.preCommit(anchorId, signingRoot,centrifugeId, publicKey, precommitSignature, callOptions));
 
             const commitGas = await anchorRepository.commit.estimateGas(anchorId, documentRoot, centrifugeId, proof, publicKey, commitSignature, callOptions);
-            console.log('Actual commit gas cost:', commitGas)
+            console.log('Actual commit with precommit gas cost:', commitGas)
 
             assert.isBelow(commitGas, commitMaxGas, 'Gas Price for commit must not exceed 80k');
         })
