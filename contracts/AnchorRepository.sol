@@ -31,21 +31,21 @@ contract AnchorRepository {
     // @param _signingRoot merkle tree for a document that does not contain the signatures
     // @param _centrifugeId Id for the Identity that wants to precommit
     // @param _signature Signed data
-    function preCommit(uint256 _anchorId, bytes32 _signingRoot, uint48 _centrifugeId,  bytes _signature,  uint256 expirationBlock) external payable {
+    function preCommit(uint256 _anchorId, bytes32 _signingRoot, uint48 _centrifugeId,  bytes _signature,  uint256 _expirationBlock) external payable {
 
         // not allowing empty string
         require(_anchorId != 0x0);
         require(_signingRoot != 0x0);
-        require(block.number <= expirationBlock && expirationBlock <= (block.number + expirationLength));
+        require(block.number <= _expirationBlock && _expirationBlock <= (block.number + expirationLength));
 
         // do not allow a precommit if there is already a valid one in place
         require(hasValidPreCommit(_anchorId) == false);
 
         // Construct the signed message and validate the _signature
-        bytes32 message = keccak256(abi.encodePacked(_anchorId, _signingRoot, _centrifugeId, expirationBlock));
+        bytes32 message = keccak256(abi.encodePacked(_anchorId, _signingRoot, _centrifugeId, _expirationBlock));
         require(isSignatureValid(message, _centrifugeId, _signature));
 
-        preCommits[_anchorId] = PreAnchor(_signingRoot, _centrifugeId, uint32(expirationBlock));
+        preCommits[_anchorId] = PreAnchor(_signingRoot, _centrifugeId, uint32(_expirationBlock));
         emit AnchorPreCommitted(msg.sender, _anchorId, uint32(block.number));
     }
 
