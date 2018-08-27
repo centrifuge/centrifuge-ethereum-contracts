@@ -70,63 +70,59 @@ contract("AnchorRepository", function (accounts) {
     describe("Committing an anchor", async function () {
 
         it("should only allow fully filled PreAnchors to be recorded", async function () {
-            const {anchorId, signingRoot, centrifugeId, publicKey, precommitSignature, anchorRepository, callOptions} = await getBasicTestNeeds(accounts);
+            const {anchorId, signingRoot, centrifugeId, precommitSignature, anchorRepository, callOptions} = await getBasicTestNeeds(accounts);
 
-            await shouldRevert(anchorRepository.preCommit("", signingRoot, centrifugeId, publicKey, precommitSignature, callOptions));
-            await shouldRevert(anchorRepository.preCommit(null, signingRoot, centrifugeId, publicKey, precommitSignature, callOptions));
-            await shouldRevert(anchorRepository.preCommit(anchorId, "", centrifugeId, publicKey, precommitSignature, callOptions));
-            await shouldRevert(anchorRepository.preCommit(anchorId, null, centrifugeId, publicKey, precommitSignature, callOptions))
-            await shouldRevert(anchorRepository.preCommit(anchorId, signingRoot, "", publicKey, precommitSignature, callOptions));
-            await shouldRevert(anchorRepository.preCommit(anchorId, signingRoot, null, publicKey, precommitSignature, callOptions));
-            await shouldRevert(anchorRepository.preCommit(anchorId, signingRoot, centrifugeId, "", precommitSignature, callOptions));
-            await shouldRevert(anchorRepository.preCommit(anchorId, signingRoot, centrifugeId, null, precommitSignature, callOptions));
-            await shouldRevert(anchorRepository.preCommit(anchorId, signingRoot, centrifugeId, publicKey, "", callOptions));
-            await shouldRevert(anchorRepository.preCommit(anchorId, signingRoot, centrifugeId, publicKey, null, callOptions));
+            await shouldRevert(anchorRepository.preCommit("", signingRoot, centrifugeId, precommitSignature, callOptions));
+            await shouldRevert(anchorRepository.preCommit(null, signingRoot, centrifugeId, precommitSignature, callOptions));
+            await shouldRevert(anchorRepository.preCommit(anchorId, "", centrifugeId, precommitSignature, callOptions));
+            await shouldRevert(anchorRepository.preCommit(anchorId, null, centrifugeId, precommitSignature, callOptions))
+            await shouldRevert(anchorRepository.preCommit(anchorId, signingRoot, "", precommitSignature, callOptions));
+            await shouldRevert(anchorRepository.preCommit(anchorId, signingRoot, null, precommitSignature, callOptions));
+            await shouldRevert(anchorRepository.preCommit(anchorId, signingRoot, centrifugeId, "", callOptions));
+            await shouldRevert(anchorRepository.preCommit(anchorId, signingRoot, centrifugeId, null, callOptions));
 
 
         })
 
 
         it("should only allow fully filled Anchors to be recorded", async function () {
-            const {anchorId, documentRoot, centrifugeId, proof, publicKey, commitSignature, anchorRepository, callOptions} = await getBasicTestNeeds(accounts);
+            const {anchorId, documentRoot, centrifugeId, proof, commitSignature, anchorRepository, callOptions} = await getBasicTestNeeds(accounts);
 
-            await shouldRevert(anchorRepository.commit("", centrifugeId, documentRoot, proof, publicKey, commitSignature, callOptions));
-            await shouldRevert(anchorRepository.commit(null, centrifugeId, documentRoot, proof, publicKey, commitSignature, callOptions));
-            await shouldRevert(anchorRepository.commit(anchorId, "", documentRoot, proof, publicKey, commitSignature, callOptions))
-            await shouldRevert(anchorRepository.commit(anchorId, null, documentRoot, proof, publicKey, commitSignature, callOptions));
-            await shouldRevert(anchorRepository.commit(anchorId, centrifugeId, "", proof, publicKey, commitSignature, callOptions));
-            await shouldRevert(anchorRepository.commit(anchorId, centrifugeId, null, proof, publicKey, commitSignature, callOptions));
-            await shouldReturnWithMessage(anchorRepository.commit(anchorId, centrifugeId, documentRoot, "", publicKey, commitSignature, callOptions), "value.forEach is not a function");
-            await shouldReturnWithMessage(anchorRepository.commit(anchorId, centrifugeId, documentRoot, null, publicKey, commitSignature, callOptions), "Cannot read property 'length' of null");
-            await shouldRevert(anchorRepository.commit(anchorId, centrifugeId, documentRoot, proof, "", commitSignature, callOptions));
-            await shouldRevert(anchorRepository.commit(anchorId, centrifugeId, documentRoot, proof, null, commitSignature, callOptions));
-            await shouldRevert(anchorRepository.commit(anchorId, centrifugeId, documentRoot, proof, publicKey, "", callOptions));
-            await shouldRevert(anchorRepository.commit(anchorId, centrifugeId, documentRoot, proof, publicKey, null, callOptions));
+            await shouldRevert(anchorRepository.commit("", centrifugeId, documentRoot, proof, commitSignature, callOptions));
+            await shouldRevert(anchorRepository.commit(null, centrifugeId, documentRoot, proof, commitSignature, callOptions));
+            await shouldRevert(anchorRepository.commit(anchorId, "", documentRoot, proof, commitSignature, callOptions))
+            await shouldRevert(anchorRepository.commit(anchorId, null, documentRoot, proof, commitSignature, callOptions));
+            await shouldRevert(anchorRepository.commit(anchorId, centrifugeId, "", proof, commitSignature, callOptions));
+            await shouldRevert(anchorRepository.commit(anchorId, centrifugeId, null, proof, commitSignature, callOptions));
+            await shouldReturnWithMessage(anchorRepository.commit(anchorId, centrifugeId, documentRoot, "", commitSignature, callOptions), "value.forEach is not a function");
+            await shouldReturnWithMessage(anchorRepository.commit(anchorId, centrifugeId, documentRoot, null, commitSignature, callOptions), "Cannot read property 'length' of null");
+            await shouldRevert(anchorRepository.commit(anchorId, centrifugeId, documentRoot, proof, "", callOptions));
+            await shouldRevert(anchorRepository.commit(anchorId, centrifugeId, documentRoot, proof, null, callOptions));
         })
 
 
         it("should not allow a preCommit if for an anchorId  already has a valid one", async function () {
 
-            const {anchorId, signingRoot, centrifugeId, publicKey, precommitSignature, anchorRepository, callOptions} = await getBasicTestNeeds(accounts);
+            const {anchorId, signingRoot, centrifugeId, precommitSignature, anchorRepository, callOptions} = await getBasicTestNeeds(accounts);
 
-            await shouldSucceed(anchorRepository.preCommit(anchorId, signingRoot, centrifugeId, publicKey, precommitSignature, callOptions));
-            await shouldRevert(anchorRepository.preCommit(anchorId, signingRoot, centrifugeId, publicKey, precommitSignature, callOptions));
+            await shouldSucceed(anchorRepository.preCommit(anchorId, signingRoot, centrifugeId, precommitSignature, callOptions));
+            await shouldRevert(anchorRepository.preCommit(anchorId, signingRoot, centrifugeId, precommitSignature, callOptions));
         })
 
         it("should allow a commit without an existing precommit", async function () {
-            const {anchorId, documentRoot, centrifugeId, proof, publicKey, commitSignature, anchorRepository, callOptions} = await getBasicTestNeeds(accounts);
+            const {anchorId, documentRoot, centrifugeId, proof, commitSignature, anchorRepository, callOptions} = await getBasicTestNeeds(accounts);
 
-            await shouldSucceed(anchorRepository.commit(anchorId, documentRoot, centrifugeId, proof, publicKey, commitSignature, callOptions));
+            await shouldSucceed(anchorRepository.commit(anchorId, documentRoot, centrifugeId, proof, commitSignature, callOptions));
         })
 
 
         it("should not allow committing an Anchor if the PreAnchor has expired ", async function () {
-            const {anchorId, signingRoot, documentRoot, proof, centrifugeId, publicKey, precommitSignature, commitSignature, anchorRepository, callOptions} = await getBasicTestNeeds(accounts);
+            const {anchorId, signingRoot, documentRoot, proof, centrifugeId, precommitSignature, commitSignature, anchorRepository, callOptions} = await getBasicTestNeeds(accounts);
 
 
-            await shouldSucceed(anchorRepository.preCommit(anchorId, signingRoot,centrifugeId, publicKey, precommitSignature, callOptions));
+            await shouldSucceed(anchorRepository.preCommit(anchorId, signingRoot,centrifugeId, precommitSignature, callOptions));
             await mineNBlocks(15);
-            await shouldRevert(anchorRepository.commit(anchorId, documentRoot, centrifugeId, proof, publicKey, commitSignature, callOptions));
+            await shouldRevert(anchorRepository.commit(anchorId, documentRoot, centrifugeId, proof, commitSignature, callOptions));
 
         })
 
@@ -137,29 +133,29 @@ contract("AnchorRepository", function (accounts) {
             const commitToSign = createSignatureMessage([anchorId, documentRoot, anotherCentrifugeId]);
             const commitSignature = await web3.eth.sign(publicKey, commitToSign);
 
-            await shouldSucceed(anchorRepository.preCommit(anchorId, signingRoot,centrifugeId, publicKey, precommitSignature, callOptions));
-            await shouldRevert(anchorRepository.commit(anchorId, documentRoot, anotherCentrifugeId, proof, publicKey, commitSignature, callOptions));
+            await shouldSucceed(anchorRepository.preCommit(anchorId, signingRoot,centrifugeId, precommitSignature, callOptions));
+            await shouldRevert(anchorRepository.commit(anchorId, documentRoot, anotherCentrifugeId, proof, commitSignature, callOptions));
         })
 
 
 
         it("should not allow committing an Anchor if the precommit singingRoot does not belong to the documentRoot", async function () {
-            const {anchorId, documentRoot, proof, centrifugeId, publicKey, commitSignature, anchorRepository, callOptions} = await getBasicTestNeeds(accounts);
+            const {anchorId, documentRoot, proof, centrifugeId, commitSignature,publicKey, anchorRepository, callOptions} = await getBasicTestNeeds(accounts);
             // Create another document
             const signingRoot = createRandomByte(32);
             const precommitToSign = createSignatureMessage([anchorId, signingRoot, deployedCentrifugeId]);
             const precommitSignature = await web3.eth.sign(publicKey, precommitToSign);
 
-            await shouldSucceed(anchorRepository.preCommit(anchorId, signingRoot,centrifugeId, publicKey, precommitSignature, callOptions));
-            await shouldRevert(anchorRepository.commit(anchorId, documentRoot, centrifugeId, proof, publicKey, commitSignature, callOptions))
+            await shouldSucceed(anchorRepository.preCommit(anchorId, signingRoot,centrifugeId, precommitSignature, callOptions));
+            await shouldRevert(anchorRepository.commit(anchorId, documentRoot, centrifugeId, proof, commitSignature, callOptions))
         })
 
         it("should not allow committing an Anchor with a valid PreAnchor that has been precommitted before", async function () {
-            const {anchorId, signingRoot, documentRoot, proof, centrifugeId, publicKey, precommitSignature, commitSignature, anchorRepository, callOptions} = await getBasicTestNeeds(accounts);
+            const {anchorId, signingRoot, documentRoot, proof, centrifugeId, precommitSignature, commitSignature, anchorRepository, callOptions} = await getBasicTestNeeds(accounts);
 
-            await shouldSucceed(anchorRepository.preCommit(anchorId, signingRoot, centrifugeId, publicKey, precommitSignature, callOptions));
-            await shouldSucceed(anchorRepository.commit(anchorId, documentRoot, centrifugeId, proof, publicKey, commitSignature, callOptions));
-            await shouldRevert(anchorRepository.commit(anchorId, documentRoot, centrifugeId, proof, publicKey, commitSignature, callOptions));
+            await shouldSucceed(anchorRepository.preCommit(anchorId, signingRoot, centrifugeId, precommitSignature, callOptions));
+            await shouldSucceed(anchorRepository.commit(anchorId, documentRoot, centrifugeId, proof, commitSignature, callOptions));
+            await shouldRevert(anchorRepository.commit(anchorId, documentRoot, centrifugeId, proof, commitSignature, callOptions));
 
         })
 
@@ -167,9 +163,9 @@ contract("AnchorRepository", function (accounts) {
         it("should commit an Anchor and retrieve the documentRoot", async function () {
 
 
-            const {anchorId, signingRoot, documentRoot, proof, centrifugeId, publicKey, precommitSignature, commitSignature, anchorRepository, callOptions} = await getBasicTestNeeds(accounts);
-            await shouldSucceed(anchorRepository.preCommit(anchorId, signingRoot, centrifugeId, publicKey, precommitSignature, callOptions));
-            await shouldSucceed(anchorRepository.commit(anchorId, documentRoot, centrifugeId, proof, publicKey, commitSignature, callOptions));
+            const {anchorId, signingRoot, documentRoot, proof, centrifugeId, precommitSignature, commitSignature, anchorRepository, callOptions} = await getBasicTestNeeds(accounts);
+            await shouldSucceed(anchorRepository.preCommit(anchorId, signingRoot, centrifugeId, precommitSignature, callOptions));
+            await shouldSucceed(anchorRepository.commit(anchorId, documentRoot, centrifugeId, proof, commitSignature, callOptions));
 
             let response = await anchorRepository.getAnchorById.call(anchorId, callOptions);
             assert.equal(anchorId, web3.toHex(response[0]));
@@ -200,29 +196,29 @@ contract("AnchorRepository", function (accounts) {
         const preCommitMaxGas = 95000;
         const commitMaxGas = 80000
         it(`should have preCommit gas cost less then ${preCommitMaxGas} `, async function () {
-            const {anchorId, signingRoot, centrifugeId, publicKey, precommitSignature, anchorRepository, callOptions} = await getBasicTestNeeds(accounts);
+            const {anchorId, signingRoot, centrifugeId, precommitSignature, anchorRepository, callOptions} = await getBasicTestNeeds(accounts);
 
-            const preCommitGas = await anchorRepository.preCommit.estimateGas(anchorId, signingRoot,centrifugeId, publicKey, precommitSignature, callOptions);
+            const preCommitGas = await anchorRepository.preCommit.estimateGas(anchorId, signingRoot,centrifugeId, precommitSignature, callOptions);
             console.log('Actual preCommit gas cost:', preCommitGas)
             assert.isBelow(preCommitGas, preCommitMaxGas, `Gas Price for preCommit is to high`)
         })
 
 
         it(`should have commit with no precommit gas cost less then  ${commitMaxGas}`, async function () {
-            const {anchorId, signingRoot, documentRoot, proof, centrifugeId, publicKey, precommitSignature, commitSignature, anchorRepository, callOptions} = await getBasicTestNeeds(accounts);
+            const {anchorId, signingRoot, documentRoot, proof, centrifugeId, precommitSignature, commitSignature, anchorRepository, callOptions} = await getBasicTestNeeds(accounts);
 
-            const commitGas = await anchorRepository.commit.estimateGas(anchorId, documentRoot, centrifugeId, proof, publicKey, commitSignature, callOptions);
+            const commitGas = await anchorRepository.commit.estimateGas(anchorId, documentRoot, centrifugeId, proof, commitSignature, callOptions);
             console.log('Actual commit without precommit gas cost:', commitGas)
 
             assert.isBelow(commitGas, commitMaxGas, 'Gas Price for commit must not exceed 80k');
         })
 
         it(`should have commit gas cost less then  ${commitMaxGas}`, async function () {
-            const {anchorId, signingRoot, documentRoot, proof, centrifugeId, publicKey, precommitSignature, commitSignature, anchorRepository, callOptions} = await getBasicTestNeeds(accounts);
+            const {anchorId, signingRoot, documentRoot, proof, centrifugeId, precommitSignature, commitSignature, anchorRepository, callOptions} = await getBasicTestNeeds(accounts);
 
-            await shouldSucceed(anchorRepository.preCommit(anchorId, signingRoot,centrifugeId, publicKey, precommitSignature, callOptions));
+            await shouldSucceed(anchorRepository.preCommit(anchorId, signingRoot,centrifugeId, precommitSignature, callOptions));
 
-            const commitGas = await anchorRepository.commit.estimateGas(anchorId, documentRoot, centrifugeId, proof, publicKey, commitSignature, callOptions);
+            const commitGas = await anchorRepository.commit.estimateGas(anchorId, documentRoot, centrifugeId, proof, commitSignature, callOptions);
             console.log('Actual commit with precommit gas cost:', commitGas)
 
             assert.isBelow(commitGas, commitMaxGas, 'Gas Price for commit must not exceed 80k');

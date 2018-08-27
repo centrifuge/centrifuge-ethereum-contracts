@@ -14,13 +14,12 @@ contract Identity is KeyManager {
     }
 
     // @param _toSign Hash to be signed. Must be generated with abi.encodePacked(arg1, arg2, arg3)
-    // @param _key Address/Hash of public Signature Key that belongs to Identity
     // @param _signature Signed data
-    function isSignatureValid(bytes32 _toSign, bytes32 _key, bytes _signature) public view returns (bool valid) {
-        if(!keyHasPurpose(_key, ETH_MESSAGE_AUTH) || keys[_key].revokedAt > 0) {
+    function isSignatureValid(bytes32 _toSign, bytes _signature) public view returns (bool valid) {
+        bytes32 pbKey = bytes32(_toSign.toEthSignedMessageHash().recover(_signature)) << 96;
+        if(!keyHasPurpose(pbKey, ETH_MESSAGE_AUTH) || keys[pbKey].revokedAt > 0) {
             return false;
         }
-       return address(bytes20(_key)) == _toSign.toEthSignedMessageHash().recover(_signature);
+       return true;
     }
-
 }
