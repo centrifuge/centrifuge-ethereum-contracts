@@ -8,7 +8,7 @@ contract AnchorRepository {
 
     event AnchorCommitted(address indexed from, uint256 indexed anchorId, uint48 indexed centrifugeId, bytes32 documentRoot, uint32 blockHeight);
     event AnchorPreCommitted(address indexed from, uint256 indexed anchorId, uint32 blockHeight);
-    
+
     struct PreAnchor {
         bytes32 signingRoot;
         uint48 centrifugeId;
@@ -21,7 +21,7 @@ contract AnchorRepository {
     // store commits
     mapping(uint256 => bytes32) public commits;
     // The number of blocks for which a precommit is valid
-    uint32 constant internal expirationLength = 15;
+    uint256 constant internal expirationLength = 15;
 
     constructor(address _identityRegistry) public {
         identityRegistry = _identityRegistry;
@@ -31,20 +31,21 @@ contract AnchorRepository {
     // @param _signingRoot merkle tree for a document that does not contain the signatures
     // @param _centrifugeId Id for the Identity that wants to precommit
     // @param _signature Signed data
-    function preCommit(uint256 _anchorId, bytes32 _signingRoot, uint48 _centrifugeId,  bytes _signature) external payable {
+    function preCommit(uint256 _anchorId, bytes32 _signingRoot, uint48 _centrifugeId,  bytes _signature,  uint256 expirationBlock) external payable {
 
         // not allowing empty string
         require(_anchorId != 0x0);
         require(_signingRoot != 0x0);
+        require(block.number <= expirationBlock && expirationBlock <= (block.number + expirationLength));
 
         // do not allow a precommit if there is already a valid one in place
         require(hasValidPreCommit(_anchorId) == false);
 
         // Construct the signed message and validate the _signature
-        bytes32 message = keccak256(abi.encodePacked(_anchorId, _signingRoot, _centrifugeId));
+        bytes32 message = keccak256(abi.encodePacked(_anchorId, _signingRoot, _centrifugeId, expirationBlock));
         require(isSignatureValid(message, _centrifugeId, _signature));
 
-        preCommits[_anchorId] = PreAnchor(_signingRoot, _centrifugeId, uint32(block.number) + expirationLength);
+        preCommits[_anchorId] = PreAnchor(_signingRoot, _centrifugeId, uint32(expirationBlock));
         emit AnchorPreCommitted(msg.sender, _anchorId, uint32(block.number));
     }
 
