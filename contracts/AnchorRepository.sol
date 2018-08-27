@@ -36,6 +36,7 @@ contract AnchorRepository {
         // not allowing empty string
         require(_anchorId != 0x0);
         require(_signingRoot != 0x0);
+        // Check if _expirationBlock is within the allowed limit
         require(block.number <= _expirationBlock && _expirationBlock <= (block.number + expirationLength));
 
         // do not allow a precommit if there is already a valid one in place
