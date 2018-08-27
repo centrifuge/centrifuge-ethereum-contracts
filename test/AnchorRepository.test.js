@@ -197,7 +197,7 @@ contract("AnchorRepository", function (accounts) {
 
     describe("check the gas cost for preCommit and commit", async function () {
 
-        const preCommitMaxGas = 94000;
+        const preCommitMaxGas = 95000;
         const commitMaxGas = 80000
         it(`should have preCommit gas cost less then ${preCommitMaxGas} `, async function () {
             const {anchorId, signingRoot, centrifugeId, publicKey, precommitSignature, anchorRepository, callOptions} = await getBasicTestNeeds(accounts);
