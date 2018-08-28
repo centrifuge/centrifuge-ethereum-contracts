@@ -12,10 +12,10 @@ contract KeyManager is Ownable {
     // key is bytes32 and must not be hashed because this is used for DHT
     uint256 constant internal P2P_IDENTITY = 1;
     // used to verify that the signatures on the p2p layer belong to an identity
-    // key can be bytes32 or a kecacck256 hash of a bytes64. It depends on the implementation.
+    // key can be bytes32 or a address of a bytes64. It depends on the implementation.
     uint256 constant internal P2P_SIGNATURE = 2;
     // used for validating the author of a transaction
-    // Eth uses a bytes64 public key and this should be a keccak256 of the key or an address
+    // Eth uses a bytes64 public key and this should be the corresponding address( the first 20 bytes from a  keccak256 of the key)
     // this has to mirror ETH key pairs in order to validate signatures with ecrecover
     uint256 constant internal ETH_MESSAGE_AUTH = 3;
 
