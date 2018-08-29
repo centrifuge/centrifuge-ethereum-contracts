@@ -53,9 +53,9 @@ contract AnchorRepository {
     // @param _anchorId Id for an Anchor.
     // @param _documentRoot merkle tree for a document that will be anchored/commited. It also contains the signatures
     // @param _centrifugeId Id for the Identity that wants to commit/anchor a document
-    // @param _documentSignatures Array containing the signatures. It is used to validate that the documentRoot containes the precommitted signingRoot
+    // @param _documentProofs Array containing the signatures. It is used to validate that the documentRoot containes the precommitted signingRoot
     // @param _signature Signed data
-    function commit(uint256 _anchorId, bytes32 _documentRoot, uint48 _centrifugeId, bytes32[] _documentSignatures, bytes _signature) external payable {
+    function commit(uint256 _anchorId, bytes32 _documentRoot, uint48 _centrifugeId, bytes32[] _documentProofs, bytes _signature) external payable {
 
         // not allowing empty string
         require(_anchorId != 0x0);
@@ -68,7 +68,7 @@ contract AnchorRepository {
         // Check if there is a precommit and enforce it
         if(preCommits[_anchorId].expirationBlock != 0x0) {
             require(hasValidPreCommit(_anchorId) == true);
-            require(MerkleProof.verifyProof(_documentSignatures, _documentRoot, preCommits[_anchorId].signingRoot));
+            require(MerkleProof.verifyProof(_documentProofs, _documentRoot, preCommits[_anchorId].signingRoot));
             // check that the precommit has the same _centrifugeId
             require(preCommits[_anchorId].centrifugeId == _centrifugeId);
         }
