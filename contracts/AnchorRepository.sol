@@ -53,7 +53,8 @@ contract AnchorRepository {
     // @param _anchorId Id for an Anchor.
     // @param _documentRoot merkle tree for a document that will be anchored/commited. It also contains the signatures
     // @param _centrifugeId Id for the Identity that wants to commit/anchor a document
-    // @param _documentProofs Array containing the signatures. It is used to validate that the documentRoot containes the precommitted signingRoot
+    // @param _documentProofs Array containing proofs for the document's signatures.
+    // The documentRoot must be a merkle tree constructed from the signingRoot plus all signatures
     // @param _signature Signed data
     function commit(uint256 _anchorId, bytes32 _documentRoot, uint48 _centrifugeId, bytes32[] _documentProofs, bytes _signature) external payable {
 
