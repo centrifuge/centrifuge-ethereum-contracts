@@ -18,7 +18,7 @@ async function getBasicTestNeeds() {
     };
 }
 
-contract("KeyMananger", function (accounts) {
+contract("KeyManager", function (accounts) {
 
 
     describe("Adding/Retrieving Keys", async function () {
@@ -198,4 +198,3 @@ contract("KeyMananger", function (accounts) {
     });
 
 })
-
