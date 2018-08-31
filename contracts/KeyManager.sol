@@ -15,7 +15,7 @@ contract KeyManager is Ownable {
     // key can be bytes32 or a address of a bytes64. It depends on the implementation.
     uint256 constant internal P2P_SIGNATURE = 2;
     // used for validating the author of a transaction
-    // Eth uses a bytes64 public key and this should be the corresponding address( the first 20 bytes from a  keccak256 of the key)
+    // Eth uses a bytes64 public key and this should be the corresponding address( the last 20 bytes from a  keccak256 of the key)
     // this has to mirror ETH key pairs in order to validate signatures with ecrecover
     uint256 constant internal ETH_MESSAGE_AUTH = 3;
 
