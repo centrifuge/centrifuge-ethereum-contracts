@@ -25,6 +25,20 @@ function createSignatureMessage(payloads) {
     return bufferToHex(keccak(Buffer.concat(buffers)));
 }
 
+function getDeterministCommitParameter(accounts) {
+    return {
+        anchorId: "0x154cc26833dec2f4ad7ead9d65f9ec968a1aa5efbf6fe762f8f2a67d18a2d9b1",
+        documentRoot: "0x65a35574f70281ae4d1f6c9f3adccd5378743f858c67a802a49a08ce185bc975",
+        proof: [ '0x5a02f3555c92e495fd9b0e790d9b18794160e8a2087a2bec9066cc2d533bc3cd',
+        '0x58b05c048002cc9e861250f2e467f3883e2660c04e7e8c66edaa55db11dbc52c' ],
+        centrifugeId: "0x1851943e76d2",
+        publicKey: authPublicKey,
+        commitSignature: "0xb4051d6d03c3bf39f4ec4ba949a91a358b0cacb4804b82ed2ba978d338f5e747770c00b63c8e50c1a7aa5ba629870b54c2068a56f8b43460aa47891c6635d36d01",
+        anchorRepository: deployedAnchorRepository,
+        callOptions: {from: accounts[0]}
+    }
+}
+
 async function getBasicTestNeeds(accounts) {
 
     const anchorId = createRandomByte(32);
@@ -43,7 +57,7 @@ async function getBasicTestNeeds(accounts) {
 
     const commitToSign = createSignatureMessage([anchorId, documentRoot, deployedCentrifugeId]);
     const commitSignature = await web3.eth.sign(authPublicKey, commitToSign);
-
+    
     return {
         anchorId,
         signingRoot,
@@ -214,8 +228,23 @@ contract("AnchorRepository", function (accounts) {
 
         })
 
-    })
+        it("should test commit transaction with deterministic parameter", async function () {
 
+            const testCentrifugeId = "0x1851943e76d2";
+            let testDeployedIdentity = await Identity.new(testCentrifugeId);
+            await deployedIdentityRegistry.registerIdentity(testCentrifugeId, testDeployedIdentity.address);
+            authPublicKey = accounts[1]
+            await testDeployedIdentity.addKey(authPublicKey, ETH_MESSAGE_AUTH)
+          
+            const {anchorId, documentRoot, proof, centrifugeId,  commitSignature, anchorRepository, callOptions} = getDeterministCommitParameter(accounts);
+            
+            await shouldSucceed(anchorRepository.commit(anchorId, documentRoot, centrifugeId, proof, commitSignature, callOptions));
+            let response = await anchorRepository.getAnchorById.call(anchorId, callOptions);
+            
+            assert.equal(anchorId, web3.toHex(response[0]));
+        })
+
+    })
     describe("check the gas cost for preCommit and commit", async function () {
 
         const preCommitMaxGas = 95000;
