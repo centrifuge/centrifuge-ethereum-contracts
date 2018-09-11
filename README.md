@@ -6,17 +6,12 @@ CI Status
 Running it
 ----------
 ```bash
-# install truffle globally on the machine
-npm install -g truffle@4.1.13
-
-# install ganache-cli globally on the machine
-npm install -g ganache-cli@6.1.6
 
 # install the repo dependencies
 npm install 
 
 # run testrpc with fixed mnmonic
-npm run testrpc-m
+npm run start-ganache
 
 # to run tests
 npm run test
