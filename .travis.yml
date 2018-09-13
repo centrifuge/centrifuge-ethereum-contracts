@@ -9,13 +9,9 @@ cache:
   directories:
     - node_modules
 
-before_install:
-  - npm install -g truffle@4.1.13
-  - npm install -g ganache-cli@6.1.6
-
 before_script:
   - truffle version
 
 script:
-  - npm run testrpc-m &
+  - npm run start-ganache &
   - truffle test

@@ -1,11 +1,11 @@
 {
   "name": "centrifuge-ethereum-contracts",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "scripts": {
     "test": "truffle test",
-    "testrpc-m": "ganache-cli --gasLimit 4712388 --networkId 99999 -p 8545 -m \"tumble gas embody bright agree pony smoke laptop index sight shallow hungry\"",
+    "start-ganache": "ganache-cli --gasLimit 4712388 --networkId 99999 -p 8545 -m \"tumble gas embody bright agree pony smoke laptop index sight shallow hungry\"",
     "re-test": "nodemon --exec 'truffle test'",
-    "migrate-local":"truffle migrate && ./scripts/generateEnvFile.sh local-ganache"
+    "migrate-local": "truffle migrate && ./scripts/generateEnvFile.sh local-ganache"
   },
   "nodemonConfig": {
     "ignore": [
@@ -25,6 +25,8 @@
     "babel-preset-stage-3": "^6.17.0",
     "babel-register": "^6.23.0",
     "ethereumjs-util": "^5.2.0",
-    "nodemon": "1.18.3"
+    "ganache-cli": "^6.1.8",
+    "nodemon": "1.18.3",
+    "truffle": "^4.1.14"
   }
 }
