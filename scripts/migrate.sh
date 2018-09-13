@@ -25,8 +25,11 @@ if [[ "$1" = "local" ]]; then
   NETWORK='localgeth'
 fi
 
+MIGRATE_ADDRESS=${MIGRATE_ADDRESS:-'0x89b0a86583c4444acfd71b463e0d3c55ae1412a5'}
+MIGRATE_PASSWORD=${MIGRATE_PASSWORD:-''}
+
 if [[ "$1" =~ ^(local|integration)$ ]]; then
-  docker run -it --net=host --entrypoint "/geth" centrifugeio/cent-geth:latest attach http://localhost:9545 --exec "personal.unlockAccount('0x45b9c4798999ffa52e1ff1efce9d3e45819e4158', 'Ee9NECgnUymYygyJpbNWdf+d', 500)"
+  docker run -it --net=host --entrypoint "/geth" centrifugeio/cent-geth:v0.1.0 attach http://localhost:9545 --exec "personal.unlockAccount('${MIGRATE_ADDRESS}', '${MIGRATE_PASSWORD}', 500)"
 fi
 
 rm -Rf $local_dir/../build
