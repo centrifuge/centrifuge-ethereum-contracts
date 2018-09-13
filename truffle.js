@@ -10,11 +10,11 @@ let account = process.env.MIGRATE_ADDRESS;
 
 module.exports = {
     networks: {
-      development: {
+      development: { // running against ganache + metamask default port
         host: "localhost",
         port: 8545,
         network_id: "*", // Match any network id
-        from: "0xd77c534aed04d7ce34cd425073a033db4fbe6a9d",
+        from: account,
         gas: 4712388
       },
       localgeth: {
@@ -22,13 +22,6 @@ module.exports = {
         port: 9545,
         network_id: "*", // Match any network id
         from: account,
-        gas: 4712388
-      },
-      integration: {
-        host: "localhost",
-        port: 9545,
-        network_id: "*", // Match any network id
-        from: "0x45b9c4798999ffa52e1ff1efce9d3e45819e4158",
         gas: 4712388
       },
       rinkeby: {
