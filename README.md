@@ -25,7 +25,7 @@ npm run re-test
 Migrate Smart Contracts against Integration Environment
 -------------------------------------------------------
 
-Follow instructions under https://github.com/CentrifugeInc/go-centrifuge/blob/master/README.md to deploy a local light node that bootstraps from the remote node.
+Follow instructions under https://github.com/centrifuge/go-centrifuge/blob/master/README.md to deploy a local light node that bootstraps from the remote node.
 As soon as the local node is running, and synced:
 * Copy `migrateAccount.json` file to your $ETH_DATADIR/$NETWORK_ID/keystore
 * Perform migration `./scripts/migrate.sh integration`
