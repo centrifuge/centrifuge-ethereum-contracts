@@ -26,22 +26,45 @@ contract IdentityRegistry {
   // Identified by centrifugeId
   mapping(uint48 => IdentityItem) identityRegistry;
 
-  function registerIdentity(uint48 _centrifugeId, address _identity) public {
+  function registerIdentity(
+    uint48 _centrifugeId,
+    address _identity
+  )
+  public
+  {
     require(_centrifugeId != 0x0);
     require(_identity != 0x0);
     require(identityRegistry[_centrifugeId].owner == 0x0);
+
     identityRegistry[_centrifugeId] = IdentityItem(msg.sender, _identity);
-    emit IdentityRegistered(_centrifugeId, _identity);
+    emit IdentityRegistered(
+      _centrifugeId,
+      _identity
+    );
   }
 
-  function updateIdentityAddress(uint48 _centrifugeId, address _identity) onlyIdentityOwner(_centrifugeId) public {
+  function updateIdentityAddress(
+    uint48 _centrifugeId,
+    address _identity
+  )
+  public
+  onlyIdentityOwner(_centrifugeId)
+  {
     require(_centrifugeId != 0x0);
     require(_identity != 0x0);
+
     identityRegistry[_centrifugeId].identity = _identity;
-    emit IdentityUpdated(_centrifugeId, _identity);
+    emit IdentityUpdated(
+      _centrifugeId,
+      _identity
+    );
   }
 
-  function getIdentityByCentrifugeId(uint48 _centrifugeId) public view returns(address) {
+  function getIdentityByCentrifugeId(uint48 _centrifugeId)
+  public
+  view
+  returns (address identity)
+  {
     return identityRegistry[_centrifugeId].identity;
   }
 
