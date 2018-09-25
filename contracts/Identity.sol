@@ -3,6 +3,7 @@ pragma solidity ^0.4.24;
 import "./KeyManager.sol";
 import "openzeppelin-solidity/contracts/ECRecovery.sol";
 
+
 contract Identity is KeyManager {
     using ECRecovery for bytes32;
 

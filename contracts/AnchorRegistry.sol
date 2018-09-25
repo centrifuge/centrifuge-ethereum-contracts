@@ -1,6 +1,7 @@
 pragma solidity ^0.4.24
 ;
-import 'openzeppelin-solidity/contracts/ownership/Ownable.sol';
+import "openzeppelin-solidity/contracts/ownership/Ownable.sol";
+
 
 contract AnchorRegistry is Ownable {
 	event AnchorRegistered(address indexed from, bytes32 indexed identifier, bytes32 indexed rootHash, bytes32 timestamp, uint anchorSchemaVersion);

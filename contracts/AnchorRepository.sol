@@ -1,8 +1,9 @@
 pragma solidity ^0.4.24;
 
-import 'openzeppelin-solidity/contracts/MerkleProof.sol';
-import './Identity.sol';
-import './IdentityRegistry.sol';
+import "openzeppelin-solidity/contracts/MerkleProof.sol";
+import "./Identity.sol";
+import "./IdentityRegistry.sol";
+
 
 contract AnchorRepository {
 

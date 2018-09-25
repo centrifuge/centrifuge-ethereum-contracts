@@ -1,5 +1,6 @@
 pragma solidity ^0.4.24;
 
+
 contract IdentityRegistry {
   event IdentityRegistered(uint48 indexed centrifugeId, address identity);
   event IdentityUpdated(uint48 indexed centrifugeId, address identity);
