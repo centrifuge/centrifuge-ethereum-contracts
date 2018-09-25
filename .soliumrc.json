@@ -11,7 +11,7 @@
     "uppercase": "off",
 
     "security/enforce-explicit-visibility": ["error"],
-    "security/no-block-members": ["warning"],
-    "security/no-inline-assembly": ["warning"]
+    "security/no-block-members": ["error"],
+    "security/no-inline-assembly": ["error"]
   }
 }
