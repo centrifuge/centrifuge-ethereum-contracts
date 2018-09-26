@@ -3,23 +3,34 @@ pragma solidity ^0.4.24;
 import "./KeyManager.sol";
 import "openzeppelin-solidity/contracts/ECRecovery.sol";
 
+
 contract Identity is KeyManager {
-    using ECRecovery for bytes32;
+  using ECRecovery for bytes32;
 
-    uint48 public centrifugeId;
+  uint48 public centrifugeId;
 
-    constructor(uint48 _centrifugeId) public {
-        require(_centrifugeId != 0x0);
-        centrifugeId = _centrifugeId;
+  constructor(uint48 _centrifugeId) public {
+    require(_centrifugeId != 0x0);
+    centrifugeId = _centrifugeId;
+  }
+
+  // @param _toSign Hash to be signed. Must be generated with abi.encodePacked(arg1, arg2, arg3)
+  // @param _signature Signed data
+  function isSignatureValid(
+    bytes32 _toSign,
+    bytes _signature
+  )
+  public
+  view
+  returns (bool valid)
+  {
+    bytes32 pbKey = bytes32(
+      _toSign.toEthSignedMessageHash().recover(_signature)
+    ) << 96; // Shift zeros to the end
+
+    if (!keyHasPurpose(pbKey, ETH_MESSAGE_AUTH) || keys[pbKey].revokedAt > 0) {
+      return false;
     }
-
-    // @param _toSign Hash to be signed. Must be generated with abi.encodePacked(arg1, arg2, arg3)
-    // @param _signature Signed data
-    function isSignatureValid(bytes32 _toSign, bytes _signature) public view returns (bool valid) {
-        bytes32 pbKey = bytes32(_toSign.toEthSignedMessageHash().recover(_signature)) << 96;
-        if(!keyHasPurpose(pbKey, ETH_MESSAGE_AUTH) || keys[pbKey].revokedAt > 0) {
-            return false;
-        }
-       return true;
-    }
+    return true;
+  }
 }
