@@ -1,0 +1,43 @@
+{
+  "document_identifier": "+Ej9Y2BU4hItX1sH8L2rumxyAeoGZ32bTVFtgyVIK/o=",
+  "document_root": "xmIqu/5P8NgPv/HHP6QnqzZ+z8aTB55mvbDYhylSbDY=",
+  "signing_root": "maN6WuPLXnHF8KoR9WfV0z9ZYDuse9K5YrPjEvSPND0=",
+  "data_root": "hkVglbeIxHVg2KCeo08/xJNEadjOdtGPQN7CxwMJMsk=",
+  "field_proofs": [
+    {
+      "property": "net_amount",
+      "value": "1501",
+      "salt": "OlS/tk0fl4X7wjmhQ35bHOjQkwoMhC9QyRIWJ9JO6Hk=",
+      "sortedHashes": [
+        "kZveXdoXgt64XvrxgdAU3WDy/UT505PHR8pf+M7LrRU=",
+        "es5VzEibBklxfwCJQwcJK3NN6MD/aIM36xF/K0t2kCY=",
+        "JPL3A9tsOL4YR633+LDgCzGZQRgGOmgkeQjh2aLabTM=",
+        "t7hfXq7e0Uy2J5NLzYPCiV3iW6Q1dM7O/Po4E0O/itI=",
+        "Zc1LQlleIJpQrzmLKkLrRD2V6tQMi/38UQaxtF97Dto=",
+        "1l0sGVUOIt6P8Uhwe4IX243LmPbhQ4f298ivXw8t39M=",
+        "koIQV9tvHufQoqoY25tJRsicbIaqWsCD5tntgrCvP0E=",
+        "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=",
+        "rw2sDv+nDpsH9MpCuWDyGEdVv4/NQgGB4MagEM99P0k=",
+        "9PU9WD/DH90l8ehEw4+O+inlR7abCfSoYhXIfOXLsMA="
+      ]
+    },
+    {
+      "property": "currency",
+      "value": "USD",
+      "salt": "hGIHTj9vAOdWjgl/Ka73pdyefAwyuAqYxeQnsNwPIJY=",
+      "sortedHashes": [
+        "209nDK3Nn8E3HBI3rf02yIGnNC9EC/7yurVR6mF7lxM=",
+        "k3QiKZCMclKFYXDPsLFQZqdDPmflF0qAmSSOiwJbuQ4=",
+        "nOyAm6XP346HkFrpXVMtQEO6Q5OCbjFziFrBe2XPabo=",
+        "t7hfXq7e0Uy2J5NLzYPCiV3iW6Q1dM7O/Po4E0O/itI=",
+        "Zc1LQlleIJpQrzmLKkLrRD2V6tQMi/38UQaxtF97Dto=",
+        "1l0sGVUOIt6P8Uhwe4IX243LmPbhQ4f298ivXw8t39M=",
+        "koIQV9tvHufQoqoY25tJRsicbIaqWsCD5tntgrCvP0E=",
+        "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=",
+        "rw2sDv+nDpsH9MpCuWDyGEdVv4/NQgGB4MagEM99P0k=",
+        "9PU9WD/DH90l8ehEw4+O+inlR7abCfSoYhXIfOXLsMA="
+      ]
+    }
+  ]
+}
+

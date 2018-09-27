@@ -1,6 +1,6 @@
 pragma solidity ^0.4.24;
 
-import "./KeyManager.sol";
+import "contracts/KeyManager.sol";
 import "openzeppelin-solidity/contracts/ECRecovery.sol";
 
 
