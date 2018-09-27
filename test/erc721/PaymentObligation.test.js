@@ -1,3 +1,5 @@
+import {shouldRevert} from "../tools/assertTx";
+
 const {bufferToHex, keccak, toBuffer} = require("ethereumjs-util");
 let PaymentObligation = artifacts.require("PaymentObligation");
 let UserMintableERC721 = artifacts.require("UserMintableERC721");
@@ -7,18 +9,9 @@ let Identity = artifacts.require("Identity");
 let proof = require('./proof.json');
 
 
-const shouldRevert = async (promise) => {
-    return await shouldReturnWithMessage(promise, "revert");
-}
 
-const shouldReturnWithMessage = async (promise, search) => {
-    try {
-        await promise;
-        assert.fail("Expected message not received");
-    } catch (error) {
-        const revertFound = error.message.search(search) >= 0;
-        assert(revertFound, `Expected "${search}", got ${error} instead`);
-    }
+const stringToByte32 = (str) => {
+    return '0x' + Buffer.from(str, 'utf8').toString('hex');
 }
 
 const base64ToHex = function (_base64String) {
@@ -42,9 +35,9 @@ const getValidProofHashes = function () {
      *
      */
     return [
-        base64ToHex("EUqfrgLuRdt+ot+3vI9qnCdybeYN3xwwe/MJVsCH2wc="),
-        base64ToHex("3hsHx/etwya5rcyIe3Avw2724ThyZl9pS4tMdybn05w="),
-        base64ToHex("zlt7lxQcvwpEfh17speU89j/J2xZdAYfSu/JDLujXqA=")
+        base64ToHex("JrxNtvtMwWnJMKh1OV6pqUkdBnrWt0u9qf+MShO6QcM="),
+        base64ToHex("hLEULVXQaL5hd4J7NooO8QptJ+AEICkIAOQyifGN3/g="),
+        base64ToHex("4YQrPgzU2NXdmlC8ycoMxEurnTHxCy8cjB42rPdvm2Q=")
     ];
 }
 
@@ -52,10 +45,6 @@ let deployedCentrifugeId = "0x24fe6555beb9";
 let deployedIdentity;
 let deployedIdentityRegistry;
 
-console.log(base64ToHex("JP5lVb65"));
-console.log(base64ToHex(proof.document_root));
-console.log(deployedCentrifugeId);
-console.log(toBuffer(deployedCentrifugeId).toString('base64'));
 
 contract("PaymentObligation", function (accounts) {
     before(async function () {
@@ -73,65 +62,82 @@ contract("PaymentObligation", function (accounts) {
 
     describe("mint", async function () {
 
-        it("should mint a token if the Merkle proof validates", async function () {
-            let documentIdentifer = "0xce5b7b97141cbf0a447e1d7bb29794f3d8ff276c5974061f4aefc90cbba35eaf";
-            //let validRootHash = '0xc6622abbfe4ff0d80fbff1c73fa427ab367ecfc693079e66bdb0d88729526c36'
-            let validRootHash = base64ToHex("Hl5ET0xMcnj18xrrQHw4BOfDT3n3K4Q4vmZfjO6TV0Q=");
+        it("should mint a token if the Merkle proofs validates", async function () {
+
+            let documentIdentifer = base64ToHex(proof.document_identifier);
+            let validRootHash = base64ToHex(proof.document_root);
+
             await this.anchorRegistry.setAnchorById(
                 documentIdentifer,
                 validRootHash
             );
 
-            let validProof = getValidProofHashes();
-
-            //root hash is 0x1e5e444f4c4c7278f5f31aeb407c3804e7c34f79f72b8438be665f8cee935744 in hex
-            let field = proof.field_proofs[1];
-            console.log(field.sortedHashes.map(item => base64ToHex(item)));
-            console.log(field.property)
-            console.log(field.value)
-            console.log(base64ToHex(field.salt))
-            console.log(validProof)
+            const tokenId = 1;
 
             await this.registry.mint(
-                "0x1",
-                1,
+                "0x3",
+                tokenId,
                 documentIdentifer,
                 validRootHash,
                 [
-                    '0x114a9fae02ee45db7ea2dfb7bc8f6a9c27726de60ddf1c307bf30956c087db07de1b07c7f7adc326b9adcc887b702fc36ef6e13872665f694b8b4c7726e7d39cce5b7b97141cbf0a447e1d7bb29794f3d8ff276c5974061f4aefc90cbba35ea0',
-                    '0x114a9fae02ee45db7ea2dfb7bc8f6a9c27726de60ddf1c307bf30956c087db07de1b07c7f7adc326b9adcc887b702fc36ef6e13872665f694b8b4c7726e7d39cce5b7b97141cbf0a447e1d7bb29794f3d8ff276c5974061f4aefc90cbba35ea0'
+                    stringToByte32(proof.field_proofs[0].value),
+                    stringToByte32(proof.field_proofs[1].value),
+                    stringToByte32(proof.field_proofs[2].value),
                 ],
-                ["Foo","Foo"],
-                [base64ToHex("UXfmxueEm0hxx9zzO21HQ5Bwg8Zg64lpQfq1y2r94ys="), base64ToHex("UXfmxueEm0hxx9zzO21HQ5Bwg8Zg64lpQfq1y2r94ys=")]
+                [
+                    base64ToHex(proof.field_proofs[0].salt),
+                    base64ToHex(proof.field_proofs[1].salt),
+                    base64ToHex(proof.field_proofs[2].salt),
+                ],
+                proof.field_proofs[0].sortedHashes.map(item => base64ToHex(item)),
+                proof.field_proofs[1].sortedHashes.map(item => base64ToHex(item)),
+                proof.field_proofs[2].sortedHashes.map(item => base64ToHex(item))
             );
 
+            let tokenDetails = await this.registry.getTokenDetails(tokenId);
+
+            assert.equal(tokenDetails[0],proof.field_proofs[0].value)
+            assert.equal(tokenDetails[1],proof.field_proofs[1].value)
+            assert.equal(tokenDetails[2],proof.field_proofs[2].value)
+            assert.equal(web3.toHex(tokenDetails[3]),documentIdentifer)
+            assert.equal(tokenDetails[4],validRootHash)
+        });
+
+        it("should not mint a token if the a Merkle proof fails", async function () {
+
+            let documentIdentifer = base64ToHex(proof.document_identifier);
+            let validRootHash = base64ToHex(proof.document_root);
+
+            await this.anchorRegistry.setAnchorById(
+                documentIdentifer,
+                validRootHash
+            );
+
+            const tokenId = 1;
+
+            await shouldRevert(this.registry.mint(
+                "0x3",
+                tokenId,
+                documentIdentifer,
+                validRootHash,
+                [
+                    stringToByte32("some random value"),
+                    stringToByte32(proof.field_proofs[1].value),
+                    stringToByte32(proof.field_proofs[2].value),
+                ],
+                [
+                    base64ToHex(proof.field_proofs[0].salt),
+                    base64ToHex(proof.field_proofs[1].salt),
+                    base64ToHex(proof.field_proofs[2].salt),
+                ],
+                proof.field_proofs[0].sortedHashes.map(item => base64ToHex(item)),
+                proof.field_proofs[1].sortedHashes.map(item => base64ToHex(item)),
+                proof.field_proofs[2].sortedHashes.map(item => base64ToHex(item))
+            ));
 
         });
 
-        /*it("should fail to mint a token if the Merkle proof does not validate", async function () {
-            let documentIdentifer = "0xce5b7b97141cbf0a447e1d7bb29794f3d8ff276c5974061f4aefc90cbba35eaf"
-            await this.anchorRegistry.setAnchorById(
-                documentIdentifer,
-                "0x1e5e444f4c4c7278f5f31aeb407c3804e7c34f79f72b8438be665f8cee935744"
-            );
 
-            let validProof = getValidProofHashes();
-
-            //root hash is 0x1e5e444f4c4c7278f5f31aeb407c3804e7c34f79f72b8438be665f8cee935744 in hex
-            let validRootHash = base64ToHex("Hl5ET0xMcnj18xrrQHw4BOfDT3n3K4Q4vmZfjO6TV0Q=");
-
-            await shouldRevert(
-                this.registry.mint(
-                    "0x1",
-                    1,
-                    documentIdentifer,
-                    validRootHash,
-                    validProof,
-                    "valueFAIL",
-                    "Foo",
-                    base64ToHex("UXfmxueEm0hxx9zzO21HQ5Bwg8Zg64lpQfq1y2r94ys=")
-                ));
-        });*/
     });
 
 

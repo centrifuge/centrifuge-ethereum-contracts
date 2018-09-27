@@ -15,7 +15,7 @@ contract UserMintableERC721 is ERC721Token {
   }
 
   // Mapping from token details to token ID
-  mapping (uint256 => OwnedAnchor) internal tokenDetails_;
+  mapping(uint256 => OwnedAnchor) internal tokenDetails_;
 
   /**
    * @dev Constructor function
@@ -62,14 +62,12 @@ contract UserMintableERC721 is ERC721Token {
   {
     AnchorRepository ar = AnchorRepository(anchorRegistry_);
 
-    ( uint256 identifier, bytes32 merkleRoot, ) = ar.getAnchorById(_anchorId);
-    if(
-      identifier != 0x0 &&
-      _anchorId == identifier &&
+    (uint256 identifier, bytes32 merkleRoot,) = ar.getAnchorById(_anchorId);
 
-      merkleRoot != 0x0 &&
-      _merkleRoot == merkleRoot
-    ){
+    if (
+      identifier != 0x0 &&
+      _anchorId == identifier && merkleRoot != 0x0 && _merkleRoot == merkleRoot
+    ) {
       return true;
     }
     return false;
@@ -91,7 +89,7 @@ contract UserMintableERC721 is ERC721Token {
   internal pure
   returns (bytes32)
   {
-    return keccak256(abi.encodePacked(_leafName, _leafValue, _leafSalt));
+    return sha256(abi.encodePacked(_leafName, _leafValue, _leafSalt));
   }
 
 
@@ -105,7 +103,7 @@ contract UserMintableERC721 is ERC721Token {
    * by the set up anchorRegistry.
    * @param _merkleRoot bytes32 The root hash of the merkle proof/doc
    */
-  function _mintMerkle(
+  function _mintWithAnchor(
     address _to,
     uint256 _tokenId,
     uint256 _anchorId,

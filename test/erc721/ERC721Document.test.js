@@ -1,21 +1,10 @@
-const {bufferToHex, keccak} = require("ethereumjs-util");
+import {shouldRevert} from "../tools/assertTx";
+
+const {bufferToHex, sha256} = require("ethereumjs-util");
 let UserMintableERC721 = artifacts.require("UserMintableERC721");
 let MockAnchorRegistry = artifacts.require("MockAnchorRepository");
 let MockUserMintableERC721 = artifacts.require("MockUserMintableERC721");
 
-const shouldRevert = async (promise) => {
-    return await shouldReturnWithMessage(promise, "revert");
-}
-
-const shouldReturnWithMessage = async (promise, search) => {
-    try {
-        await promise;
-        assert.fail("Expected message not received");
-    } catch (error) {
-        const revertFound = error.message.search(search) >= 0;
-        assert(revertFound, `Expected "${search}", got ${error} instead`);
-    }
-}
 
 const base64ToHex = function (_base64String) {
     return bufferToHex(Buffer.from(_base64String, "base64"));
@@ -26,20 +15,20 @@ const produceValidLeafHash = function (_leafName, _leafValue, _salt) {
     let leafValue = Buffer.from(_leafValue, "utf8");
     let salt = Buffer.from(_salt, "base64");
 
-    return bufferToHex(keccak(Buffer.concat([leafName, leafValue, salt])));
+    return bufferToHex(sha256(Buffer.concat([leafName, leafValue, salt])));
 };
 
 const getValidProofHashes = function () {
     /**
      * This is a proof coming from the precise-proofs library via
      * https://github.com/centrifuge/precise-proofs/blob/master/examples/simple.go
-     * using Keccak256 as the hashing algorithm
+     * using sha256 as the hashing algorithm
      *
      */
     return [
-        base64ToHex("EUqfrgLuRdt+ot+3vI9qnCdybeYN3xwwe/MJVsCH2wc="),
-        base64ToHex("3hsHx/etwya5rcyIe3Avw2724ThyZl9pS4tMdybn05w="),
-        base64ToHex("zlt7lxQcvwpEfh17speU89j/J2xZdAYfSu/JDLujXqA=")
+        base64ToHex("JrxNtvtMwWnJMKh1OV6pqUkdBnrWt0u9qf+MShO6QcM="),
+        base64ToHex("hLEULVXQaL5hd4J7NooO8QptJ+AEICkIAOQyifGN3/g="),
+        base64ToHex("4YQrPgzU2NXdmlC8ycoMxEurnTHxCy8cjB42rPdvm2Q=")
     ];
 }
 
@@ -117,7 +106,7 @@ contract("UserMintableERC721", function (accounts) {
 
             let leafName_ = "valueA";
             let leafValue_ = "Foo";
-            let salt_ = "UXfmxueEm0hxx9zzO21HQ5Bwg8Zg64lpQfq1y2r94ys=";
+            let salt_ = "aoXdxhE+aM2mhDyvNwoFT6pgcaM4wmdD+LunX0tPupw=";
 
             let validLeafHash = produceValidLeafHash(leafName_, leafValue_, salt_);
 
@@ -127,74 +116,19 @@ contract("UserMintableERC721", function (accounts) {
     });
 
 
-    /*describe("mintMerklePlainText", async function () {
-      it("should mint a token if the Merkle proof validates", async function () {
-        let documentIdentifer = "0xce5b7b97141cbf0a447e1d7bb29794f3d8ff276c5974061f4aefc90cbba35eaf"
-        await this.anchorRegistry.setAnchorById(
-            documentIdentifer,
-            "0x1e5e444f4c4c7278f5f31aeb407c3804e7c34f79f72b8438be665f8cee935744"
-        );
-
-        let validProof = getValidProofHashes();
-
-        //root hash is 0x1e5e444f4c4c7278f5f31aeb407c3804e7c34f79f72b8438be665f8cee935744 in hex
-        let validRootHash = base64ToHex("Hl5ET0xMcnj18xrrQHw4BOfDT3n3K4Q4vmZfjO6TV0Q=");
-
-        await this.registry.mintMerklePlainText(
-            "0x1",
-            1,
-            documentIdentifer,
-            validRootHash,
-            validProof,
-            "valueA",
-            "Foo",
-            base64ToHex("UXfmxueEm0hxx9zzO21HQ5Bwg8Zg64lpQfq1y2r94ys=")
-        );
-      });
-
-      it("should fail to mint a token if the Merkle proof does not validate", async function () {
-        let documentIdentifer = "0xce5b7b97141cbf0a447e1d7bb29794f3d8ff276c5974061f4aefc90cbba35eaf"
-        await this.anchorRegistry.setAnchorById(
-            documentIdentifer,
-            "0x1e5e444f4c4c7278f5f31aeb407c3804e7c34f79f72b8438be665f8cee935744"
-        );
-
-        let validProof = getValidProofHashes();
-
-        //root hash is 0x1e5e444f4c4c7278f5f31aeb407c3804e7c34f79f72b8438be665f8cee935744 in hex
-        let validRootHash = base64ToHex("Hl5ET0xMcnj18xrrQHw4BOfDT3n3K4Q4vmZfjO6TV0Q=");
-
-        await shouldRevert(
-          this.registry.mintMerklePlainText(
-            "0x1",
-            1,
-            documentIdentifer,
-            validRootHash,
-            validProof,
-            "valueFAIL",
-            "Foo",
-            base64ToHex("UXfmxueEm0hxx9zzO21HQ5Bwg8Zg64lpQfq1y2r94ys=")
-        ));
-      });
-    });*/
 
 
-    describe("mintMerkle", async function () {
+    describe("mintWithAnchor", async function () {
         it("should mint a token if the Merkle proof validates", async function () {
             let documentIdentifer = "0xce5b7b97141cbf0a447e1d7bb29794f3d8ff276c5974061f4aefc90cbba35eaf";
             let mockRegistry = await MockUserMintableERC721.new("ERC-721 Document Anchor", "TDA", this.anchorRegistry.address);
+            let validRootHash = base64ToHex("7fo13k/hjw+cCLT+SN4JdazaP2gMZ0jrhYtjKYL1C4M=");
             await this.anchorRegistry.setAnchorById(
                 documentIdentifer,
-                "0x1e5e444f4c4c7278f5f31aeb407c3804e7c34f79f72b8438be665f8cee935744"
+                validRootHash
             );
-
-            let validProof = getValidProofHashes();
-
-            //rooth has is 0x1e5e444f4c4c7278f5f31aeb407c3804e7c34f79f72b8438be665f8cee935744 in hex
-            let validRootHash = base64ToHex("Hl5ET0xMcnj18xrrQHw4BOfDT3n3K4Q4vmZfjO6TV0Q=");
-            let validLeaf = produceValidLeafHash("valueA", "Foo", "UXfmxueEm0hxx9zzO21HQ5Bwg8Zg64lpQfq1y2r94ys=");
-
-            await mockRegistry.mintMerkle.call(
+            
+            await mockRegistry.mintWithAnchor.call(
                 "0x1",
                 1,
                 documentIdentifer,
@@ -202,29 +136,6 @@ contract("UserMintableERC721", function (accounts) {
             )
         });
 
-
-       /* it("should fail minting a token if the Merkle proof does not validate against a leaf", async function () {
-            let documentIdentifer = "0xce5b7b97141cbf0a447e1d7bb29794f3d8ff276c5974061f4aefc90cbba35eaf";
-            let mockRegistry = await MockUserMintableERC721.new("ERC-721 Document Anchor", "TDA", this.anchorRegistry.address);
-            await this.anchorRegistry.setAnchorById(
-                documentIdentifer,
-                "0x1e5e444f4c4c7278f5f31aeb407c3804e7c34f79f72b8438be665f8cee935744"
-            );
-
-            let validProof = getValidProofHashes();
-
-            //root hash is 0x1e5e444f4c4c7278f5f31aeb407c3804e7c34f79f72b8438be665f8cee935744 in hex
-            let validRootHash = bufferToHex(Buffer.from("Hl5ET0xMcnj18xrrQHw4BOfDT3n3K4Q4vmZfjO6TV0Q=", "base64"));
-
-            let invalidLeaf = produceValidLeafHash("valueA", "INVALID VALUE", "UXfmxueEm0hxx9zzO21HQ5Bwg8Zg64lpQfq1y2r94ys=");
-
-            await shouldRevert(mockRegistry.mintMerkle(
-                "0x1",
-                1,
-                documentIdentifer,
-                validRootHash
-            ));
-        });*/
 
         it("should fail minting a token if the document idenfitier is not found", async function () {
             let documentIdentifer = "0xce5b7b97141cbf0a447e1d7bb29794f3d8ff276c5974061f4aefc90cbba35eaf";
@@ -237,12 +148,12 @@ contract("UserMintableERC721", function (accounts) {
             let validProof = getValidProofHashes();
 
             //root hash is 0x1e5e444f4c4c7278f5f31aeb407c3804e7c34f79f72b8438be665f8cee935744 in hex
-            let validRootHash = bufferToHex(Buffer.from("Hl5ET0xMcnj18xrrQHw4BOfDT3n3K4Q4vmZfjO6TV0Q=", "base64"));
-            let validLeaf = produceValidLeafHash("valueA", "Foo", "UXfmxueEm0hxx9zzO21HQ5Bwg8Zg64lpQfq1y2r94ys=");
+            let validRootHash = bufferToHex(Buffer.from("7fo13k/hjw+cCLT+SN4JdazaP2gMZ0jrhYtjKYL1C4M=", "base64"));
+            let validLeaf = produceValidLeafHash("valueA", "Foo", "aoXdxhE+aM2mhDyvNwoFT6pgcaM4wmdD+LunX0tPupw=");
 
             let invalidDocumentIdentifier = "0x93ab1b97141cbf0a447e1d7bb29794f3d8ff276c5974061f4aefc90cbba48afe"
 
-            await shouldRevert(mockRegistry.mintMerkle(
+            await shouldRevert(mockRegistry.mintWithAnchor(
                 "0x1",
                 1,
                 invalidDocumentIdentifier,

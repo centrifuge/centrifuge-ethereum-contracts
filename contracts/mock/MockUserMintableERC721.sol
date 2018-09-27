@@ -39,7 +39,7 @@ contract MockUserMintableERC721 is UserMintableERC721 {
     );
   }
 
-  function mintMerkle(
+  function mintWithAnchor(
     address _to,
     uint256 _tokenId,
     uint256 _anchorId,
@@ -47,7 +47,7 @@ contract MockUserMintableERC721 is UserMintableERC721 {
   )
   public
   {
-    super._mintMerkle(
+    super._mintWithAnchor(
       _to,
       _tokenId,
       _anchorId,
