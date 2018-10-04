@@ -1,9 +1,6 @@
 import {shouldRevert} from "../tools/assertTx";
-import {assertEvent, getEvents, getEventValue} from "../tools/contractEvents";
-
 const {bufferToHex, keccak, toBuffer} = require("ethereumjs-util");
 let PaymentObligation = artifacts.require("PaymentObligation");
-let UserMintableERC721 = artifacts.require("UserMintableERC721");
 let MockAnchorRegistry = artifacts.require("MockAnchorRepository");
 let IdentityRegistry = artifacts.require("IdentityRegistry");
 let Identity = artifacts.require("Identity");
@@ -18,28 +15,6 @@ const base64ToHex = function (_base64String) {
     return bufferToHex(Buffer.from(_base64String, "base64"));
 }
 
-const produceValidLeafHash = function (_leafName, _leafValue, _salt) {
-    let leafName = Buffer.from(_leafName, "utf8");
-    let leafValue = Buffer.from(_leafValue, "utf8");
-    let salt = Buffer.from(_salt, "base64");
-
-    return bufferToHex(keccak(Buffer.concat([leafName, leafValue, salt])));
-};
-
-
-const getValidProofHashes = function () {
-    /**
-     * This is a proof coming from the precise-proofs library via
-     * https://github.com/centrifuge/precise-proofs/blob/master/examples/simple.go
-     * using Keccak256 as the hashing algorithm
-     *
-     */
-    return [
-        base64ToHex("JrxNtvtMwWnJMKh1OV6pqUkdBnrWt0u9qf+MShO6QcM="),
-        base64ToHex("hLEULVXQaL5hd4J7NooO8QptJ+AEICkIAOQyifGN3/g="),
-        base64ToHex("4YQrPgzU2NXdmlC8ycoMxEurnTHxCy8cjB42rPdvm2Q=")
-    ];
-}
 
 let deployedCentrifugeId = "0x24fe6555beb9";
 let deployedIdentity;
