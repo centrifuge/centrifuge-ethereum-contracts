@@ -1346,14 +1346,6 @@ crypto-random-string@^1.0.0:
   version "1.0.0"
   resolved "https://registry.yarnpkg.com/crypto-random-string/-/crypto-random-string-1.0.0.tgz#a230f64f568310e1498009940790ec99545bca7e"
 
-darq-truffle@^4.1.4-next.10:
-  version "4.1.8"
-  resolved "https://registry.yarnpkg.com/darq-truffle/-/darq-truffle-4.1.8.tgz#4a841c7d74b3906b6d5291dbe8543ea82cef3b6c"
-  dependencies:
-    mocha "^4.1.0"
-    original-require "^1.0.1"
-    solc "0.4.24"
-
 dashdash@^1.12.0:
   version "1.14.1"
   resolved "https://registry.yarnpkg.com/dashdash/-/dashdash-1.14.1.tgz#853cfa0f7cbe2fed5de20326b8dd581035f6e2f0"
@@ -3259,7 +3251,7 @@ openzeppelin-solidity@1.11.0:
   version "1.11.0"
   resolved "https://registry.yarnpkg.com/openzeppelin-solidity/-/openzeppelin-solidity-1.11.0.tgz#f57a5e340aa45efd4a052f4bb514a7a619b0bbd0"
 
-original-require@1.0.1, original-require@^1.0.1:
+original-require@1.0.1:
   version "1.0.1"
   resolved "https://registry.yarnpkg.com/original-require/-/original-require-1.0.1.tgz#0f130471584cd33511c5ec38c8d59213f9ac5e20"
 

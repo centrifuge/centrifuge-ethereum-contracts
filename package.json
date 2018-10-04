@@ -30,7 +30,6 @@
     "babel-preset-stage-2": "^6.18.0",
     "babel-preset-stage-3": "^6.17.0",
     "babel-register": "^6.23.0",
-    "darq-truffle": "^4.1.4-next.10",
     "ethereumjs-util": "^5.2.0",
     "ganache-cli": "^6.1.8",
     "husky": "^1.0.0-rc.15",
