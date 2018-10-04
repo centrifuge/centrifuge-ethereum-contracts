@@ -7,10 +7,6 @@ let Identity = artifacts.require("Identity");
 let proof = require('./proof.json');
 
 
-const stringToByte32 = (str) => {
-    return str;
-}
-
 const base64ToHex = function (_base64String) {
     return bufferToHex(Buffer.from(_base64String, "base64"));
 }
@@ -63,18 +59,18 @@ contract("PaymentObligation", function (accounts) {
 
             let fields = [
                 [
-                    stringToByte32(proof.field_proofs[0].value),
+                    proof.field_proofs[0].value,
                     base64ToHex(proof.field_proofs[0].salt),
                     proof.field_proofs[0].sortedHashes.map(item => base64ToHex(item)),
                 ],
                 [
-                    stringToByte32(proof.field_proofs[1].value),
+                    proof.field_proofs[1].value,
                     base64ToHex(proof.field_proofs[1].salt),
                     proof.field_proofs[1].sortedHashes.map(item => base64ToHex(item)),
                 ],
 
                 [
-                    stringToByte32(proof.field_proofs[2].value),
+                    proof.field_proofs[2].value,
                     base64ToHex(proof.field_proofs[2].salt),
                     proof.field_proofs[2].sortedHashes.map(item => base64ToHex(item)),
                 ]
@@ -125,18 +121,18 @@ contract("PaymentObligation", function (accounts) {
             const tokenId = 1;
             let fields = [
                 [
-                    stringToByte32("Some Random value"),
+                    "Some Random value",
                     base64ToHex(proof.field_proofs[0].salt),
                     proof.field_proofs[0].sortedHashes.map(item => base64ToHex(item)),
                 ],
                 [
-                    stringToByte32(proof.field_proofs[1].value),
+                    proof.field_proofs[1].value,
                     base64ToHex(proof.field_proofs[1].salt),
                     proof.field_proofs[1].sortedHashes.map(item => base64ToHex(item)),
                 ],
 
                 [
-                    stringToByte32(proof.field_proofs[2].value),
+                    proof.field_proofs[2].value,
                     base64ToHex(proof.field_proofs[2].salt),
                     proof.field_proofs[2].sortedHashes.map(item => base64ToHex(item)),
                 ]
@@ -167,18 +163,18 @@ contract("PaymentObligation", function (accounts) {
             const tokenId = 1;
             let fields = [
                 [
-                    stringToByte32(proof.field_proofs[0].value),
+                    proof.field_proofs[0].value,
                     base64ToHex(proof.field_proofs[0].salt),
                     proof.field_proofs[0].sortedHashes.map(item => base64ToHex(item)),
                 ],
                 [
-                    stringToByte32(proof.field_proofs[1].value),
+                    proof.field_proofs[1].value,
                     base64ToHex(proof.field_proofs[1].salt),
                     proof.field_proofs[1].sortedHashes.map(item => base64ToHex(item)),
                 ],
 
                 [
-                    stringToByte32(proof.field_proofs[2].value),
+                    proof.field_proofs[2].value,
                     base64ToHex(proof.field_proofs[2].salt),
                     proof.field_proofs[2].sortedHashes.map(item => base64ToHex(item)),
                 ]
@@ -224,18 +220,18 @@ contract("PaymentObligation", function (accounts) {
 
             let fields = [
                 [
-                    stringToByte32(proof.field_proofs[0].value),
+                    proof.field_proofs[0].value,
                     base64ToHex(proof.field_proofs[0].salt),
                     proof.field_proofs[0].sortedHashes.map(item => base64ToHex(item)),
                 ],
                 [
-                    stringToByte32(proof.field_proofs[1].value),
+                    proof.field_proofs[1].value,
                     base64ToHex(proof.field_proofs[1].salt),
                     proof.field_proofs[1].sortedHashes.map(item => base64ToHex(item)),
                 ],
 
                 [
-                    stringToByte32(proof.field_proofs[2].value),
+                    proof.field_proofs[2].value,
                     base64ToHex(proof.field_proofs[2].salt),
                     proof.field_proofs[2].sortedHashes.map(item => base64ToHex(item)),
                 ]

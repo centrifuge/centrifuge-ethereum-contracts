@@ -117,7 +117,6 @@ contract UserMintableERC721 is ERC721Token {
       "document needs to be registered in registry"
     );
 
-
     super._mint(_to, _tokenId);
     tokenDetails_[_tokenId] = OwnedAnchor(_anchorId, _merkleRoot);
     _setTokenURI(_tokenId, _tokenURI);

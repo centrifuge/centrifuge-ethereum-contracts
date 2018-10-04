@@ -15,7 +15,7 @@ contract PaymentObligation is UserMintableERC721 {
 
   // anchor registry
   address internal identityRegistry_;
-
+  // hardcoded supported fields for minting a PaymentObligation
   string[3] internal supportedFields_ = ["gross_amount", "currency", "due_date"];
 
   struct PODetails {
@@ -115,9 +115,8 @@ contract PaymentObligation is UserMintableERC721 {
     );
 
     // Store fields values
-    // use the anchorId as a key in order to enforce double minting
+    // use the anchorId as a key in order to prevent double minting
     // for the same anchor and save storage
-    // the tokenId is enforced in tokenDetails_ mapping
     poDetails_[_anchorId] = PODetails(
       _documentFields[0].value,
       _documentFields[1].value,
@@ -130,7 +129,15 @@ contract PaymentObligation is UserMintableERC721 {
     );
   }
 
-
+  /**
+   * Returns the values associated with a token
+   * @param grossAmount string The gross amount of the invoice
+   * @param currency string The currency used in the invoice
+   * @param dueDate string The Due data of the invoice
+   * @param anchorId uint256 The ID of the document as identified
+   * by the set up anchorRegistry
+   * @param documentRoot bytes32 The root hash of the merkle proof/doc
+   */
   function getTokenDetails(uint256 _tokenId)
   public
   view
