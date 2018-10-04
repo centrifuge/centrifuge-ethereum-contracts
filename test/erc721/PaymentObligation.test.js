@@ -8,8 +8,7 @@ let MockAnchorRegistry = artifacts.require("MockAnchorRepository");
 let IdentityRegistry = artifacts.require("IdentityRegistry");
 let Identity = artifacts.require("Identity");
 let proof = require('./proof.json');
-let Web3 = require('web3');
-let latestWeb3 = new Web3(web3.currentProvider);
+
 
 const stringToByte32 = (str) => {
     return str;
@@ -47,13 +46,8 @@ let deployedIdentity;
 let deployedIdentityRegistry;
 
 
-const transationOptions = {
-    from: '0xD77C534AED04D7Ce34Cd425073a033dB4FBe6a9d',
-    gas: 4712388,
-    gasPrice: 20000000000
-}
-
 contract("PaymentObligation", function (accounts) {
+
     before(async function () {
 
         deployedIdentityRegistry = await IdentityRegistry.deployed();
@@ -64,9 +58,14 @@ contract("PaymentObligation", function (accounts) {
     beforeEach(async function () {
         this.anchorRegistry = await MockAnchorRegistry.new();
         const deployedPaymentObligation = await PaymentObligation.new("ERC-721 Document Anchor", "TDA", this.anchorRegistry.address, deployedIdentityRegistry.address);
-
+        const transationOptions = PaymentObligation.defaults();
+        // Encapsulate web3 1.0 import as it overrides the eth module and other tests that use the web3 api fail
+        // web3.eth.sign and web3.eth.blockNumber
+        // TODO watch for truffle release with web3 1.0.0-beta.36 and remove this and update other test
+        let Web3Latest = require('web3');
+        let latestWeb3 = new Web3Latest(web3.currentProvider);
         // setup web3 1.0 contracts
-        this.registry = new latestWeb3.eth.Contract(deployedPaymentObligation.abi, deployedPaymentObligation.address);
+        this.registry = new latestWeb3.eth.Contract(deployedPaymentObligation.abi, deployedPaymentObligation.address, transationOptions);
     });
 
 
@@ -113,7 +112,7 @@ contract("PaymentObligation", function (accounts) {
                 documentIdentifer,
                 validRootHash,
                 fields
-            ).send(transationOptions)
+            ).send()
                 .then(function (tx) {
                     // Check mint event
                     const event = tx.events.PaymentObligationMinted.returnValues;
@@ -124,7 +123,7 @@ contract("PaymentObligation", function (accounts) {
 
 
             // check token details
-            let tokenDetails = await this.registry.methods.getTokenDetails(tokenId).call(transationOptions);
+            let tokenDetails = await this.registry.methods.getTokenDetails(tokenId).call();
             assert.equal(tokenDetails[0], proof.field_proofs[0].value)
             assert.equal(tokenDetails[1], proof.field_proofs[1].value)
             assert.equal(tokenDetails[2], proof.field_proofs[2].value)
@@ -132,7 +131,7 @@ contract("PaymentObligation", function (accounts) {
             assert.equal(tokenDetails[4], validRootHash)
 
             //check token uri
-            let tokenUri = await this.registry.methods.tokenURI(tokenId).call(transationOptions);
+            let tokenUri = await this.registry.methods.tokenURI(tokenId).call();
             assert.equal(tokenUri, tokenURI)
         });
 
@@ -175,7 +174,7 @@ contract("PaymentObligation", function (accounts) {
                 documentIdentifer,
                 validRootHash,
                 fields
-            ).send(transationOptions));
+            ).send());
 
         });
 
@@ -217,7 +216,7 @@ contract("PaymentObligation", function (accounts) {
                 documentIdentifer,
                 validRootHash,
                 fields
-            ).send(transationOptions)
+            ).send()
 
             await shouldRevert(this.registry.methods.mint(
                 accounts[2],
@@ -226,7 +225,7 @@ contract("PaymentObligation", function (accounts) {
                 documentIdentifer,
                 validRootHash,
                 fields
-            ).send(transationOptions));
+            ).send());
 
         });
 
@@ -275,7 +274,7 @@ contract("PaymentObligation", function (accounts) {
                 documentIdentifer,
                 validRootHash,
                 fields
-            ).estimateGas(transationOptions);
+            ).estimateGas();
 
             console.log('Actual mint gas cost:', mintGasCost)
             assert.isBelow(mintGasCost, mintMaxGas, `Gas Price for mint is to high`)

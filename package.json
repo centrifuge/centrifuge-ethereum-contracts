@@ -3,7 +3,7 @@
   "version": "0.2.0",
   "scripts": {
     "lint:sol:fix": "solium -d contracts/ --fix",
-    "test": "truffle test ./test/*.test.js",
+    "test": "truffle test",
     "start-ganache": "ganache-cli --gasLimit 4712388 --networkId 99999 -p 8545 -m \"tumble gas embody bright agree pony smoke laptop index sight shallow hungry\"",
     "re-test": "nodemon --exec 'truffle test'",
     "migrate-local": "MIGRATE_ADDRESS=0xd77c534aed04d7ce34cd425073a033db4fbe6a9d truffle migrate && ./scripts/generateEnvFile.sh local-ganache"
