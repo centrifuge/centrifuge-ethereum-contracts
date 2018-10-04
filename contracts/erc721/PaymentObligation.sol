@@ -1,10 +1,18 @@
 pragma solidity ^0.4.24;
+pragma experimental ABIEncoderV2;
 
 import "contracts/lib/MerkleProofSha256.sol";
 import "contracts/erc721/UserMintableERC721.sol";
 
 
 contract PaymentObligation is UserMintableERC721 {
+
+  event PaymentObligationMinted(
+    address to,
+    uint256 tokenId,
+    string tokenURI
+  );
+
   // anchor registry
   address internal identityRegistry_;
 
@@ -16,11 +24,17 @@ contract PaymentObligation is UserMintableERC721 {
     string dueDate;
   }
 
+  struct Field {
+    string value;
+    bytes32 salt;
+    bytes32[] proof;
+  }
+
   mapping(uint256 => PODetails) internal poDetails_;
 
-  /** 
+  /**
    * @dev Constructor function
-   * @param _name string The name of this token 
+   * @param _name string The name of this token
    * @param _symbol string The shorthand token identifier
    * @param _anchorRegistry address The address of the anchor registry
    * that is backing this token's mint method.
@@ -37,76 +51,85 @@ contract PaymentObligation is UserMintableERC721 {
     identityRegistry_ = _identityRegistry;
   }
 
-  // TODO add document type and proove that the sender is a collaborator
+  // TODO add document type and prove that the sender is a collaborator
   /**
    * @dev Mints a token after validating the given merkle proof
    * and comparing it to the anchor registry's stored hash/doc ID.
    * @param _to address The recipient of the minted token
    * @param _tokenId uint256 The ID for the minted token
+   * @param _tokenURI string The metadata uri
    * @param _anchorId bytes32 The ID of the document as identified
    * by the set up anchorRegistry.
    * @param _merkleRoot bytes32 The root hash of the merkle proof/doc
-   * @param _values bytes32[3] The values of the leafs that is being proved
-   * Will be converted to string and concatenated for proof verification as outlined in
-   * precise-proofs library.
-   * @param _salts bytes32[3] The salts for the field that is being proved
-   * Will be concatenated for proof verification as outlined in
-   * precise-proofs library.
-   * @param _amountProof bytes32[] The proof to prove the gross_amount authenticity
-   * @param _amountProof bytes32[] The proof to prove the currency authenticity
-   * @param _dueDateProof bytes32[] The proof to prove the due_date authenticity
+   * @param _documentFields Field[3] Documents fields that are needed
+   * for proof verification as outlined in precise-proofs library.
    */
   function mint(
     address _to,
     uint256 _tokenId,
+    string _tokenURI,
     uint256 _anchorId,
     bytes32 _merkleRoot,
-    bytes32[3] _values,
-    bytes32[3] _salts,
-    bytes32[] _amountProof,
-    bytes32[] _currencyProof,
-    bytes32[] _dueDateProof
+    Field[3] _documentFields
   )
   public
   {
-    string memory grossAmount = bytes32ToStr(_values[0]);
+    require(
+      bytes(poDetails_[_anchorId].grossAmount).length == 0,
+      "anchor id already has a minted nft"
+    );
+
     require(
       MerkleProofSha256.verifyProof(
-        _amountProof,
+        _documentFields[0].proof,
         _merkleRoot,
-        _hashLeafData(supportedFields_[0], grossAmount, _salts[0])
+        _hashLeafData(supportedFields_[0], _documentFields[0].value, _documentFields[0].salt)
       ),
       "merkle tree needs to validate gross_amount"
     );
 
-    string memory currency = bytes32ToStr(_values[1]);
     require(
       MerkleProofSha256.verifyProof(
-        _currencyProof,
+        _documentFields[1].proof,
         _merkleRoot,
-        _hashLeafData(supportedFields_[1], currency, _salts[1])
+        _hashLeafData(supportedFields_[1], _documentFields[1].value, _documentFields[1].salt)
       ),
       "merkle tree needs to validate currency"
     );
-    string memory dueDate = bytes32ToStr(_values[2]);
+
     require(
       MerkleProofSha256.verifyProof(
-        _dueDateProof,
+        _documentFields[2].proof,
         _merkleRoot,
-        _hashLeafData(supportedFields_[2], dueDate, _salts[2])
+        _hashLeafData(supportedFields_[2], _documentFields[2].value, _documentFields[2].salt)
       ),
       "merkle tree needs to validate due_date"
     );
 
-    super._mintWithAnchor(
+    super._mintAnchor(
       _to,
       _tokenId,
       _anchorId,
-      _merkleRoot
+      _merkleRoot,
+      _tokenURI
     );
+
     // Store fields values
-    poDetails_[_tokenId] = PODetails(grossAmount, currency, dueDate);
+    // use the anchorId as a key in order to enforce double minting
+    // for the same anchor and save storage
+    // the tokenId is enforced in tokenDetails_ mapping
+    poDetails_[_anchorId] = PODetails(
+      _documentFields[0].value,
+      _documentFields[1].value,
+      _documentFields[2].value);
+
+    emit PaymentObligationMinted(
+      _to,
+      _tokenId,
+      _tokenURI
+    );
   }
+
 
   function getTokenDetails(uint256 _tokenId)
   public
@@ -119,36 +142,16 @@ contract PaymentObligation is UserMintableERC721 {
     bytes32 documentRoot
   )
   {
+    anchorId = tokenDetails_[_tokenId].anchorId;
+
     return (
-    poDetails_[_tokenId].grossAmount,
-    poDetails_[_tokenId].currency,
-    poDetails_[_tokenId].dueDate,
-    tokenDetails_[_tokenId].anchorId,
+    poDetails_[anchorId].grossAmount,
+    poDetails_[anchorId].currency,
+    poDetails_[anchorId].dueDate,
+    anchorId,
     tokenDetails_[_tokenId].rootHash
     );
   }
-
-  function bytes32ToStr(bytes32 x)
-  private
-  pure
-  returns (string)
-  {
-    bytes memory bytesString = new bytes(32);
-    uint charCount = 0;
-    for (uint j = 0; j < 32; j++) {
-      byte char = byte(bytes32(uint(x) * 2 ** (8 * j)));
-      if (char != 0) {
-        bytesString[charCount] = char;
-        charCount++;
-      }
-    }
-    bytes memory bytesStringTrimmed = new bytes(charCount);
-    for (j = 0; j < charCount; j++) {
-      bytesStringTrimmed[j] = bytesString[j];
-    }
-    return string(bytesStringTrimmed);
-  }
-
 
 }
 

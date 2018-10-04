@@ -49,11 +49,6 @@ contract("UserMintableERC721", function (accounts) {
             assert.equal(anchorRegistry.address, await instance.anchorRegistry.call(), "The registry should be deployed with the specific anchor registry");
         });
 
-        // TODO this is more complex.
-        // it("should fail to deploy with an invalid anchor registry", async function () {
-        //     await shouldRevert(UserMintableERC721.new("ERC721 Document Anchor", "TDA", "0x1"));
-        // });
-
 
         it("should be able to check if documents are registered on the anchor registry", async function () {
             let mockRegistry = await MockUserMintableERC721.new("ERC-721 Document Anchor", "TDA", this.anchorRegistry.address);
@@ -65,7 +60,7 @@ contract("UserMintableERC721", function (accounts) {
 
             assert.equal(
                 false,
-                await mockRegistry.isRegisteredInRegistryWithRoot.call(
+                await mockRegistry.isValidAnchor.call(
                     "0x0",
                     "0x0"
                 ),
@@ -73,7 +68,7 @@ contract("UserMintableERC721", function (accounts) {
             );
             assert.equal(
                 false,
-                await mockRegistry.isRegisteredInRegistryWithRoot.call(
+                await mockRegistry.isValidAnchor.call(
                     "0x9aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa9",
                     "0x9bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb9"
                 ),
@@ -81,7 +76,7 @@ contract("UserMintableERC721", function (accounts) {
             );
             assert.equal(
                 false,
-                await mockRegistry.isRegisteredInRegistryWithRoot.call(
+                await mockRegistry.isValidAnchor.call(
                     "0xaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
                     "0x9bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb9"
                 ),
@@ -90,7 +85,7 @@ contract("UserMintableERC721", function (accounts) {
 
             assert.equal(
                 true,
-                await mockRegistry.isRegisteredInRegistryWithRoot.call(
+                await mockRegistry.isValidAnchor.call(
                     "0xaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
                     "0xbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb"
                 ),
@@ -118,21 +113,23 @@ contract("UserMintableERC721", function (accounts) {
 
 
 
-    describe("mintWithAnchor", async function () {
+    describe("mintAnchor", async function () {
         it("should mint a token if the Merkle proof validates", async function () {
             let documentIdentifer = "0xce5b7b97141cbf0a447e1d7bb29794f3d8ff276c5974061f4aefc90cbba35eaf";
             let mockRegistry = await MockUserMintableERC721.new("ERC-721 Document Anchor", "TDA", this.anchorRegistry.address);
             let validRootHash = base64ToHex("7fo13k/hjw+cCLT+SN4JdazaP2gMZ0jrhYtjKYL1C4M=");
+            let tokenURI = "http://test.com";
             await this.anchorRegistry.setAnchorById(
                 documentIdentifer,
                 validRootHash
             );
             
-            await mockRegistry.mintWithAnchor.call(
+            await mockRegistry.mintAnchor.call(
                 "0x1",
                 1,
                 documentIdentifer,
-                validRootHash
+                validRootHash,
+                tokenURI
             )
         });
 
@@ -140,6 +137,7 @@ contract("UserMintableERC721", function (accounts) {
         it("should fail minting a token if the document idenfitier is not found", async function () {
             let documentIdentifer = "0xce5b7b97141cbf0a447e1d7bb29794f3d8ff276c5974061f4aefc90cbba35eaf";
             let mockRegistry = await MockUserMintableERC721.new("ERC-721 Document Anchor", "TDA", this.anchorRegistry.address);
+            let tokenURI = "http://test.com";
             await this.anchorRegistry.setAnchorById(
                 documentIdentifer,
                 "0x1e5e444f4c4c7278f5f31aeb407c3804e7c34f79f72b8438be665f8cee935744"
@@ -153,11 +151,12 @@ contract("UserMintableERC721", function (accounts) {
 
             let invalidDocumentIdentifier = "0x93ab1b97141cbf0a447e1d7bb29794f3d8ff276c5974061f4aefc90cbba48afe"
 
-            await shouldRevert(mockRegistry.mintWithAnchor(
+            await shouldRevert(mockRegistry.mintAnchor(
                 "0x1",
                 1,
                 invalidDocumentIdentifier,
-                validRootHash
+                validRootHash,
+                tokenURI
             ));
         });
     });

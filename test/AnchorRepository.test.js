@@ -76,9 +76,10 @@ async function getBasicTestNeeds(accounts) {
 
 contract("AnchorRepository", function (accounts) {
     before(async function () {
-        deployedAnchorRepository = await AnchorRepository.deployed();
+
         // Create Identity and add it to the IdentityRegistry
         deployedIdentityRegistry = await IdentityRegistry.deployed();
+        deployedAnchorRepository = await AnchorRepository.deployed();
         deployedIdentity = await Identity.new(deployedCentrifugeId);
         await deployedIdentityRegistry.registerIdentity(deployedCentrifugeId, deployedIdentity.address);
         authPublicKey = accounts[1]
