@@ -1,0 +1,66 @@
+{
+  "core_document": {
+    "document_identifier": "Sn1p0/uB8m1PeTMDRf9aC41uzCxAsmFYeM3kLhg4W74=",
+    "current_identifier": "Sn1p0/uB8m1PeTMDRf9aC41uzCxAsmFYeM3kLhg4W74=",
+    "next_identifier": "2t198b8+x4n86wnuR5Sxm4FUvCzCkwvm1JmA8Gk4OS0=",
+    "document_root": "Gq37eN+iTN9Hr1Oar/M2CuvwPHH14jj7jBZXwXuXGNg=",
+    "signing_root": "FLT2el1sQjd6/tRE3fVPS9vEKDoiyCRx5G8+Pny7XPI=",
+    "data_root": "YYblFV+Zzl08cX23QT2CIB6j3/vqHezrzlZEjM35pfs=",
+    "signatures": [
+      {
+        "entity_id": "jIz69zLT",
+        "public_key": "cTG3pgTgQPwuyWhloOTd/Samq6/PMYagWah86fcid7M=",
+        "signature": "2E94tclSJanTrglHEBut58Dczzr3ClqrVWKshZg1ubKSMBKQOvRju1351qfo0ARAryDx5X/orkmqSut6LwrzCA==",
+        "timestamp": "1970-01-01T00:00:21.367544715Z"
+      },
+      {
+        "entity_id": "JP5lVb65",
+        "public_key": "GhROrNU7vIuZXzYWbIMYncML8sg5WPpVnfDk3fL/sAQ=",
+        "signature": "i3yjxG8adzpsm4LdwPGBzu2vX9NBJ8F2jM7xPZNZVwSV8zPs91Gc89K42/NNZkbBhPa7NJk8VOCh+wsXSvDsAA==",
+        "timestamp": "1970-01-01T00:00:23.745434710Z"
+      }
+    ],
+    "coredocument_salts": {
+      "document_identifier": "2vfXccZrwRZ5ZXIZjsh6yUKdjJBcqX4DND2MyWLIYb4=",
+      "current_identifier": "7sTr9gkDm02lEIEhQwF3L6SKOOV4ZqJHMRtmp9yRVLQ=",
+      "next_identifier": "lAi7P5P0jZyHhOLgVtcPiNIo0ikucsep3adwIwHyXsM=",
+      "previous_root": "IklxKlRL7IdoVXjGcxh1s9xJFHoVmZVk/+5RQ9xfBWE=",
+      "data_root": "mV09YF9meh2/mS+M5djeKdPu1WsBNKHRvzvJsopInw8="
+    }
+  },
+  "data": {
+    "currency": "USD",
+    "gross_amount": "1501",
+    "due_date": "2018-09-26T23:12:37.902198664Z"
+  },
+  "salts": {
+    "invoice_number": "gZrBsE2lMHLa1W5eWsmopomiPJ87FzLKkkATEcxpEwY=",
+    "sender_name": "MpfO28XPBqFA2HAsem71jSXd6TOxbDtGs1MuUZ4Ay7E=",
+    "sender_street": "Js2nDGxY3gTxPTboikMTdOU/2U1SFjrCYKWaiWP505I=",
+    "sender_city": "UT8s0YL9NvCRzBbTqCDLpHSEsYS0Z52Mzblun4/0I6A=",
+    "sender_zipcode": "UsRznHbAphBr0SC/42cyQCFgYnlfoNaFmHPMzF03SSo=",
+    "sender_country": "WfFd9ntenQy/UJfWyWNxzUXH+j8xgVtmIIouqwihur4=",
+    "recipient_name": "URewM6Aemp5j52HqomD5j8gBgUZfuo7AmbpjX+K+36A=",
+    "recipient_street": "peKQ1YwOtXtFrY+xxhLB96PsH2oxcgDKnHCDHSLOEhA=",
+    "recipient_city": "PYqHaT+Tzxu7aRTuwz/ubmi+vLd7MWPoJTWYtjP2bRo=",
+    "recipient_zipcode": "aU99A+jnOtP86LhPU9xfoz2xVFBb8b7Xr3nJt9nb2JA=",
+    "recipient_country": "XItxKedSqjypMwO2eY7c5I05Slkc4APYVXOEGbs+wWA=",
+    "currency": "RrQluzpiotlx5L8r2uLpC4/NpHO2REzLiyE934mw/N4=",
+    "gross_amount": "CgiqxYvNmL0esZKf3Vu/BxkNqWizz9CIEMcI2uooBTQ=",
+    "net_amount": "1ogZbhYsL3czgG/KXm0zTllxNjAzvWwS3J8p2TQrdhY=",
+    "tax_amount": "LlwnMmN2TGx10YIoe0x5pZ4l0OBVs78xuZOTBs8PoNQ=",
+    "tax_rate": "QbeTrx7f0fcJaUmQDOqsBaUclo8xdwkJ4ExTR2zxnj0=",
+    "recipient": "TGSinmBCDM6spuBxTZ+dbJejrSNPuDH8P2GxSccJQtQ=",
+    "sender": "wn/7q0gUIfhtMxE+2B3kv2w3NGlc/fCES/BJDy68HDw=",
+    "payee": "nkxDF+nDwrQSXGrDEfg6SohWVZYDbHRXIlyLN3LVmBg=",
+    "comment": "7Am8VSQx7Fk+dGh9dpZpbdKFDDuMkX7da/a3/Bz6tTY=",
+    "due_date": "uKZU9ph3FEpoMyIYIGZ/LcBZjbfA28fvfOqtvvorBso=",
+    "date_created": "7av39xf53C+D5lm6SbOU3a49to6uBfRifliwN4LKHW0=",
+    "extra_data": "EWturk4voiEnJ6d2gbbcTnAY8f8sLZBBWLdZPXOfSlc="
+  }
+}
+
+// curl -X POST "https://35.184.66.29:8082/invoice/proof"      -H "accept: application/json"      -H "Content-Type: application/json"      -d "{\"documentIdentifier\": \"Sn1p0/uB8m1PeTMDRf9aC41uzCxAsmFYeM3kLhg4W74=\", \"fields\": [\"gross_amount\",\"currency\",\"due_date\"]}" -k
+
+// curl -X POST "https://35.184.66.29:8082/invoice/send" -H "accept: application/json" -H "Content-Type: application/json" -d "{ \"recipients\": [\"JP5lVb65\"], \"document\": { \"data\": {\"currency\": \"USD\", \"net_amount\": \"1501\",\"due_date\": \"2018-09-26T23:12:37.902198664Z"}}}" -k
+
