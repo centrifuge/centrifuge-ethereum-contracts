@@ -1,13 +1,21 @@
 pragma solidity ^0.4.24;
+pragma experimental ABIEncoderV2;
 
 import "contracts/lib/MerkleProofSha256.sol";
 import "contracts/erc721/UserMintableERC721.sol";
 
 
 contract PaymentObligation is UserMintableERC721 {
+
+  event PaymentObligationMinted(
+    address to,
+    uint256 tokenId,
+    string tokenURI
+  );
+
   // anchor registry
   address internal identityRegistry_;
-
+  // hardcoded supported fields for minting a PaymentObligation
   string[3] internal supportedFields_ = ["gross_amount", "currency", "due_date"];
 
   struct PODetails {
@@ -52,62 +60,83 @@ contract PaymentObligation is UserMintableERC721 {
    * @param _salts bytes32[3] The salts for the field that is being proved
    * Will be concatenated for proof verification as outlined in
    * precise-proofs library.
-   * @param _amountProof bytes32[] The proof to prove the gross_amount authenticity
-   * @param _amountProof bytes32[] The proof to prove the currency authenticity
-   * @param _dueDateProof bytes32[] The proof to prove the due_date authenticity
+   * @param _proofs bytes32[][3] Documents proofs that are needed
+   * for proof verification as outlined in precise-proofs library.
    */
   function mint(
     address _to,
     uint256 _tokenId,
+    string _tokenURI,
     uint256 _anchorId,
     bytes32 _merkleRoot,
-    bytes32[3] _values,
+    string[3] _values,
     bytes32[3] _salts,
-    bytes32[] _amountProof,
-    bytes32[] _currencyProof,
-    bytes32[] _dueDateProof
+    bytes32[][3] _proofs
   )
   public
   {
-    string memory grossAmount = bytes32ToStr(_values[0]);
+
     require(
       MerkleProofSha256.verifyProof(
-        _amountProof,
+        _proofs[0],
         _merkleRoot,
-        _hashLeafData(supportedFields_[0], grossAmount, _salts[0])
+        _hashLeafData(supportedFields_[0], _values[0], _salts[0])
       ),
       "merkle tree needs to validate gross_amount"
     );
 
-    string memory currency = bytes32ToStr(_values[1]);
+
     require(
       MerkleProofSha256.verifyProof(
-        _currencyProof,
+        _proofs[1],
         _merkleRoot,
-        _hashLeafData(supportedFields_[1], currency, _salts[1])
+        _hashLeafData(supportedFields_[1], _values[1], _salts[1])
       ),
       "merkle tree needs to validate currency"
     );
-    string memory dueDate = bytes32ToStr(_values[2]);
+
     require(
       MerkleProofSha256.verifyProof(
-        _dueDateProof,
+        _proofs[2],
         _merkleRoot,
-        _hashLeafData(supportedFields_[2], dueDate, _salts[2])
+        _hashLeafData(supportedFields_[2], _values[2], _salts[2])
       ),
       "merkle tree needs to validate due_date"
     );
 
-    super._mintWithAnchor(
+    super._mintAnchor(
       _to,
       _tokenId,
       _anchorId,
-      _merkleRoot
+      _merkleRoot,
+      _tokenURI
     );
+
     // Store fields values
-    poDetails_[_tokenId] = PODetails(grossAmount, currency, dueDate);
+    // use the anchorId as a key in order to prevent double minting
+    // for the same anchor and save storage
+    poDetails_[_anchorId] = PODetails(
+      _values[0],
+      _values[1],
+      _values[2]
+    );
+
+    emit PaymentObligationMinted(
+      _to,
+      _tokenId,
+      _tokenURI
+    );
   }
 
+  /**
+  * Returns the values associated with a token
+  * @param grossAmount string The gross amount of the invoice
+  * @param currency string The currency used in the invoice
+  * @param dueDate string The Due data of the invoice
+  * @param anchorId uint256 The ID of the document as identified
+  * by the set up anchorRegistry
+  * @param documentRoot bytes32 The root hash of the merkle proof/doc
+  */
   function getTokenDetails(uint256 _tokenId)
   public
   view
@@ -119,34 +148,14 @@ contract PaymentObligation is UserMintableERC721 {
     bytes32 documentRoot
   )
   {
+    anchorId = tokenDetails_[_tokenId].anchorId;
     return (
-    poDetails_[_tokenId].grossAmount,
-    poDetails_[_tokenId].currency,
-    poDetails_[_tokenId].dueDate,
-    tokenDetails_[_tokenId].anchorId,
+    poDetails_[anchorId].grossAmount,
+    poDetails_[anchorId].currency,
+    poDetails_[anchorId].dueDate,
+    anchorId,
     tokenDetails_[_tokenId].rootHash
     );
-  }
-
-  function bytes32ToStr(bytes32 x)
-  private
-  pure
-  returns (string)
-  {
-    bytes memory bytesString = new bytes(32);
-    uint charCount = 0;
-    for (uint j = 0; j < 32; j++) {
-      byte char = byte(bytes32(uint(x) * 2 ** (8 * j)));
-      if (char != 0) {
-        bytesString[charCount] = char;
-        charCount++;
-      }
-    }
-    bytes memory bytesStringTrimmed = new bytes(charCount);
-    for (j = 0; j < charCount; j++) {
-      bytesStringTrimmed[j] = bytesString[j];
-    }
-    return string(bytesStringTrimmed);
   }
 
 

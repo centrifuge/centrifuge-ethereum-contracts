@@ -26,32 +26,35 @@ contract MockUserMintableERC721 is UserMintableERC721 {
     return super._hashLeafData(_leafName, _leafValue, _leafSalt);
   }
 
-  function isRegisteredInRegistryWithRoot(
+  function isValidAnchor(
     uint256 _documentId,
     bytes32 _merkleRoot
   )
   public view
   returns (bool)
   {
-    return super._isRegisteredInRegistryWithRoot(
+    return super._isValidAnchor(
       _documentId,
       _merkleRoot
     );
   }
 
-  function mintWithAnchor(
+  function mintAnchor(
     address _to,
     uint256 _tokenId,
     uint256 _anchorId,
-    bytes32 _merkleRoot
+    bytes32 _merkleRoot,
+    string _tokenURI
   )
   public
   {
-    super._mintWithAnchor(
+    super._mintAnchor(
       _to,
       _tokenId,
       _anchorId,
-      _merkleRoot
+      _merkleRoot,
+      _tokenURI
+
     );
   }
 }

@@ -53,7 +53,7 @@ contract UserMintableERC721 is ERC721Token {
    * by the set up anchorRegistry.
    * @param _merkleRoot bytes32 The root hash of the merkle proof/doc
    */
-  function _isRegisteredInRegistryWithRoot(
+  function _isValidAnchor(
     uint256 _anchorId,
     bytes32 _merkleRoot
   )
@@ -92,8 +92,6 @@ contract UserMintableERC721 is ERC721Token {
     return sha256(abi.encodePacked(_leafName, _leafValue, _leafSalt));
   }
 
-
-  //TODO make this take a list of proofs
   /**
    * @dev Mints a token after validating the given merkle proof
    * and comparing it to the anchor registry's stored hash/doc ID.
@@ -102,39 +100,25 @@ contract UserMintableERC721 is ERC721Token {
    * @param _anchorId bytes32 The ID of the document as identified
    * by the set up anchorRegistry.
    * @param _merkleRoot bytes32 The root hash of the merkle proof/doc
+   * @param _tokenURI string The metadata uri
    */
-  function _mintWithAnchor(
+  function _mintAnchor(
     address _to,
     uint256 _tokenId,
     uint256 _anchorId,
-    bytes32 _merkleRoot
+    bytes32 _merkleRoot,
+    string _tokenURI
+
   )
   internal
   {
     require(
-      _anchorId != 0x0,
-      "document ID needs to be valid"
-    );
-    require(
-      _merkleRoot != 0x0,
-      "merkle root needs to be valid"
-    );
-    require(
-      _isRegisteredInRegistryWithRoot(_anchorId, _merkleRoot),
+      _isValidAnchor(_anchorId, _merkleRoot),
       "document needs to be registered in registry"
     );
 
-
     super._mint(_to, _tokenId);
     tokenDetails_[_tokenId] = OwnedAnchor(_anchorId, _merkleRoot);
-    _registerTokenURI(_tokenId);
-  }
-
-  function _registerTokenURI(uint256 _tokenId)
-  internal
-  {
-    // pseudo code
-    // string uri = "XYZ:ABC/".toSlice().concat(tokenDetails_[_tokenId].documentId.toSlice());
-    tokenURIs[_tokenId] = "somewhere:decentralized";
+    _setTokenURI(_tokenId, _tokenURI);
   }
 }
