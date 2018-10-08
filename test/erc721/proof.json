@@ -1,0 +1,57 @@
+{
+  "document_identifier": "Sn1p0/uB8m1PeTMDRf9aC41uzCxAsmFYeM3kLhg4W74=",
+  "document_root": "Gq37eN+iTN9Hr1Oar/M2CuvwPHH14jj7jBZXwXuXGNg=",
+  "field_proofs": [
+    {
+      "property": "gross_amount",
+      "value": "1501",
+      "salt": "CgiqxYvNmL0esZKf3Vu/BxkNqWizz9CIEMcI2uooBTQ=",
+      "sortedHashes": [
+        "DU9+4ZdnsoSlRtSxSAmo3UUPxNB4PjrOZ7WB0P6YCeM=",
+        "jFXGNv71IY+bJXzI0xqlUpgaw24OE/S7jo8K2uEaM/0=",
+        "309kntnRi+xcEi4ZtwPNX5y+dVSUC+gJcfnRzn277dc=",
+        "swCziNfIJ5/j3cNHAhiGWo5katwwKumEldmPMf9kQRQ=",
+        "J/rKVOIIfnbFgySphQ/PM6nX4lO7qybr9HzKhm78xCs=",
+        "WIzkmVP/MoqRt70BaKE1lbjM6as9v1u45OqVUXhcwQg=",
+        "z0RzXzAhT3q/bwTMcXPOgE9JL9tY06WALS18WyC+L/o=",
+        "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=",
+        "rw2sDv+nDpsH9MpCuWDyGEdVv4/NQgGB4MagEM99P0k=",
+        "7dqEdOrBwoDuqUAXCrYEbJMkYMh5z5pT0a2D6oDNGQQ="
+      ]
+    },
+    {
+      "property": "currency",
+      "value": "USD",
+      "salt": "RrQluzpiotlx5L8r2uLpC4/NpHO2REzLiyE934mw/N4=",
+      "sortedHashes": [
+        "ymExQDYH74pHaLh2jayC2IfsBsnn6BBsI5WxxLHnKQg=",
+        "rkfehnNGgyzy6Q1I10kyBUYrgVyX25EJBCYbtMgF1qY=",
+        "8K84azRvfOwg5xstK/bn7Wv7o/lW6y6aqyboJWaox8Y=",
+        "swCziNfIJ5/j3cNHAhiGWo5katwwKumEldmPMf9kQRQ=",
+        "J/rKVOIIfnbFgySphQ/PM6nX4lO7qybr9HzKhm78xCs=",
+        "WIzkmVP/MoqRt70BaKE1lbjM6as9v1u45OqVUXhcwQg=",
+        "z0RzXzAhT3q/bwTMcXPOgE9JL9tY06WALS18WyC+L/o=",
+        "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=",
+        "rw2sDv+nDpsH9MpCuWDyGEdVv4/NQgGB4MagEM99P0k=",
+        "7dqEdOrBwoDuqUAXCrYEbJMkYMh5z5pT0a2D6oDNGQQ="
+      ]
+    },
+    {
+      "property": "due_date",
+      "value": "2018-09-26T23:12:37.902198664Z",
+      "salt": "uKZU9ph3FEpoMyIYIGZ/LcBZjbfA28fvfOqtvvorBso=",
+      "sortedHashes": [
+        "GF/OnI2Pl7QZjJ39MtgzlFBp4o9j3T2flWNp7FNLPFw=",
+        "R59QCyMS9jp49v2H7R6ah8/IR8qTvG87nLdLLEd/Cs8=",
+        "8K84azRvfOwg5xstK/bn7Wv7o/lW6y6aqyboJWaox8Y=",
+        "swCziNfIJ5/j3cNHAhiGWo5katwwKumEldmPMf9kQRQ=",
+        "J/rKVOIIfnbFgySphQ/PM6nX4lO7qybr9HzKhm78xCs=",
+        "WIzkmVP/MoqRt70BaKE1lbjM6as9v1u45OqVUXhcwQg=",
+        "z0RzXzAhT3q/bwTMcXPOgE9JL9tY06WALS18WyC+L/o=",
+        "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=",
+        "rw2sDv+nDpsH9MpCuWDyGEdVv4/NQgGB4MagEM99P0k=",
+        "7dqEdOrBwoDuqUAXCrYEbJMkYMh5z5pT0a2D6oDNGQQ="
+      ]
+    }
+  ]
+}
