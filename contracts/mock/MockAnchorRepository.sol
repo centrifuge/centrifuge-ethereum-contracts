@@ -1,8 +1,7 @@
 pragma solidity ^0.4.24;
 
 import "contracts/AnchorRepository.sol";
-import "openzeppelin-solidity/contracts/introspection/SupportsInterfaceWithLookup.sol";
- 
+
 
 /**
  * @title MockAnchorRepository

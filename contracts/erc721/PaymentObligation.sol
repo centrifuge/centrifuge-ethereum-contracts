@@ -32,6 +32,8 @@ contract PaymentObligation is UserMintableERC721 {
    * @param _symbol string The shorthand token identifier
    * @param _anchorRegistry address The address of the anchor registry
    * that is backing this token's mint method.
+   * @param _identityRegistry address The address of the identity registry
+   * that ensures that the sender is authorized to mint the token
    */
   constructor(
     string _name,
@@ -51,6 +53,7 @@ contract PaymentObligation is UserMintableERC721 {
    * and comparing it to the anchor registry's stored hash/doc ID.
    * @param _to address The recipient of the minted token
    * @param _tokenId uint256 The ID for the minted token
+   * @param _tokenURI string The metadata uri
    * @param _anchorId bytes32 The ID of the document as identified
    * by the set up anchorRegistry.
    * @param _merkleRoot bytes32 The root hash of the merkle proof/doc

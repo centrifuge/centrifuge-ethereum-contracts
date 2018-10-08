@@ -28,10 +28,6 @@ contract UserMintableERC721 is ERC721Token {
   ERC721Token(_name, _symbol)
   public
   {
-    /*require(
-      AnchorRepository(_anchorRegistry).supportsInterface(InterfaceId_AnchorRepository),
-      "not a valid anchor registry"
-    );*/
     anchorRegistry_ = _anchorRegistry;
   }
 
