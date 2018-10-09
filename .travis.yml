@@ -9,7 +9,8 @@ cache:
   - node_modules
 
 script:
- - npm run start-ganache && npm run test
+ - npm run start-ganache &
+ - npm run test
  - ./scripts/migrate.sh rinkeby
 
 deploy:
