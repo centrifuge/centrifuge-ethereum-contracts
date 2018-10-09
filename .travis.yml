@@ -3,15 +3,26 @@ sudo: required
 group: beta
 language: node_js
 node_js:
-  - "9"
-
-cache:
-  directories:
-    - node_modules
-
-before_script:
-  - truffle version
-
-script:
-  - npm run start-ganache &
-  - truffle test
+- '9'
+cache: yarn:true
+install:
+- yarn install
+jobs:
+  include:
+  - stage: Unit tests
+  - script: echo "Running unit tests (1)"
+  - script: npm run start-ganache & test
+  - stage: Deploy to Rinkeby
+  - script: echo "Deploying to rinkeby (2)"
+  - script: "./scripts/migrate.sh"
+  - stage: Publish to npm
+    deploy:
+      provider: npm
+      email: razvan@centrifuge.io
+      api_key:
+        secure: Ohv0BrKWyasymh2HbOpMyU5yI2E3iofDM2fmn1C67A/R/ZvVEY22P6e3AysR+i9sBHx/ql/t3iiEcmbkBs7PsHuleILxqbOk1RPbdYuiUriEHFgKzS8f9bc11PjTRdz+n7K/P4+lrHl4FlTNWJ2fYWb5Wyw3EpSsAh8MeRqJI8mfPDspohdzXkJ/0TxjdLAY3RPXsGljd8Y5vygazvDMWRl9EKht7DMiXxWo6aNpWOqtvQO/6E4kiTyaSkyMl3VLgumBS2ouG2fFzVwdCFzaevjFD4K3j2B8qjjsB4jLf2GN3dMkOsmM0zdr2pqlUEEvBBBdsBdDzYN36H60b5MGIfgJ5G5OOAX4Avvn9jCBltZBBypQUKXDtCYGocLTHK6pLrkLMFV7chcYWsh1tJuWSWsUY77/Xs3uOuaCe3eBqWrIVCwu59oIN5YEQMTZjhugvJ0d6CqvIy+sQzZkT0rlOZvhRveMITwypM9xUDy7cXFDt02afhmjGGEpAUlCAJd10BAWyNceNX6juIpaG/9NNh2JCfQSUoYRnloWokPQheEn/tmI8bTIitbx1GuzkyXXQfmF6eA5k8LgRQ3rDt8faQWbeG8wo3qyOepH+21LRIU9qgMDHlztuPS2h3bEf888YsbpMRK5qGSfe/JV4dfBtVYParrgfNWAiiulJAfFtlk=
+      on:
+        repo: centrifuge/centrifuge-ethereum-contracts
+        branch: travis
+env:
+  secure: sECKcP6cheSzcXryfSnnKvttw1oGuIi8CfL/uK6RGZ25pB+BPAoKBMTMX0eURqQBxNgCT0BD1KtuCdN1TqKHLFqJrCjiotlVpc8wapZZFbcHmstirjEkLo0G7kUNLSai7XpJvlmrSigejetYyyljtsM2jxZfPn1lptiu1/3mnJkXiYGtMbW6LOC1uqBg3yNmMkWshHiP+5TO9UbGybt+2Yj/7tmJ2cHmwOP1SExB5b1GHh1aKtXJJyn+nBXQhH1XLWRJL7TUkjYYIwFWdAGJPqSRrpTK+VLzNpjeo4nAnWQ0L8Cep1NYgAI/hLkFXxMgpqtVzFKjCIX/ZjMRj+XxNlliiVQaP9LFTI9IE6qwAVLbdcscsxy1gnIwJcxsd7oO+QB2wcDvtjRc8oDkM86XfW5oYs1a5c+rxUNSi4B+ySWMLYCEhYDpnGgSHiDkcuBXgsAsyIF89pw60j+jZR9ytMzoyFtd8T6vHACXrorfLBNmP1nRobSB76kgm+QfVw2KpUia29m8LbaLcNktXItCpsYwQtDWKK7R3nVN2DNug/JJsnmKFGJ5wKb7UR10hZvkANTr7d4udHOJTaxK2EO07CEG2S9fe7RFcx3g+Vj0U+SMqruddsYC0OgipgZN6wsl3PDGuEOSd1Ymv0AeR6YTRl5UCfpDM0Nj0gIfn4WMQ6Y=
