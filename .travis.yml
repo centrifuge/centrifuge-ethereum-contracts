@@ -11,6 +11,7 @@ cache:
 script:
  - npm run start-ganache &
  - npm run test
+ if: branch = develop
  - ./scripts/migrate.sh rinkeby
 
 deploy:
