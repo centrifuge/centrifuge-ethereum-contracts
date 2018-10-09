@@ -18,10 +18,11 @@ env:
 jobs:
   include:
   - stage: tests
-  - stage: Deploy to Rinkeby
     if: branch = develop
+  - stage: Deploy to Rinkeby
     script: skip
   - script: ./scripts/migrate.sh rinkeby
+    if: branch = develop
   - stage: Publish to npm
     script: skip
     deploy:
