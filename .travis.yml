@@ -8,19 +8,22 @@ cache:
   directories:
   - node_modules
 
-script:
- - npm run start-ganache &
- - npm run test
- if: branch = develop
- - ./scripts/migrate.sh rinkeby
-
-deploy:
-  provider: npm
-  email: razvan@centrifuge.io
-  api_key:
-    secure: Ohv0BrKWyasymh2HbOpMyU5yI2E3iofDM2fmn1C67A/R/ZvVEY22P6e3AysR+i9sBHx/ql/t3iiEcmbkBs7PsHuleILxqbOk1RPbdYuiUriEHFgKzS8f9bc11PjTRdz+n7K/P4+lrHl4FlTNWJ2fYWb5Wyw3EpSsAh8MeRqJI8mfPDspohdzXkJ/0TxjdLAY3RPXsGljd8Y5vygazvDMWRl9EKht7DMiXxWo6aNpWOqtvQO/6E4kiTyaSkyMl3VLgumBS2ouG2fFzVwdCFzaevjFD4K3j2B8qjjsB4jLf2GN3dMkOsmM0zdr2pqlUEEvBBBdsBdDzYN36H60b5MGIfgJ5G5OOAX4Avvn9jCBltZBBypQUKXDtCYGocLTHK6pLrkLMFV7chcYWsh1tJuWSWsUY77/Xs3uOuaCe3eBqWrIVCwu59oIN5YEQMTZjhugvJ0d6CqvIy+sQzZkT0rlOZvhRveMITwypM9xUDy7cXFDt02afhmjGGEpAUlCAJd10BAWyNceNX6juIpaG/9NNh2JCfQSUoYRnloWokPQheEn/tmI8bTIitbx1GuzkyXXQfmF6eA5k8LgRQ3rDt8faQWbeG8wo3qyOepH+21LRIU9qgMDHlztuPS2h3bEf888YsbpMRK5qGSfe/JV4dfBtVYParrgfNWAiiulJAfFtlk=
-  on:
-    repo: centrifuge/centrifuge-ethereum-contracts
-    branch: develop
 env:
   secure: QScayrjushGujxRDsfmYwmm031RVR5BFPWyMK03CXnh/SZrumLVsDbBcab0z46ETTpMPOKX13kl3XRW17tpVYQ0EbOZyExfxSbRWf+Kkri4hjnEv1XewIcaMKs3uKeeZNahWiDRm9buLNjgvNgGC1t2BQntFjvt3LM5biWvTyeFeFzb1mEip4nRHNmKYdc5kg01bUJPG9UpKRC1AhsaQL06s/QoSQwneAlNG9t0t9ErTOLdbz1Vs0I5WEMVVzASigOSt7efQBqg3oDRZTmbCkGxQRxMr5PextmMeeWyY8PhufMP7BKtX/W28GOKFzsJtniOdKt795MQwrm/kCQPCT4+l1o3REz4noCQwBdl69t15ksoM6HDzSyCLhz2l3cEpHsSet+QF6TqCGmDP4fBtZkPhJTVedW9tVHb3RI65AxtWsZVK9+AjAsOOZlcGjvVNuzJlem2PPAGRayQ2FC4WNehlWyjg55HgFs7sHdMI5LwbpTXTRq34IF6XdtNUZx0XrpmjVpSskGwZvVsuizbNjrsRlUpVJwgCgLmiVDYpZOb0N1uWULXGQy0HjugTPg63mWHmcnHGdcCd1kWadavP7Fd3Stg79Hqlw8NFEQdtc8Zqqhra2miN+bU1VwUyiBSBuoTcaa/eERguxtk68RhHBxFRNW+ogLHi1bKOTFuRQbM=
+
+jobs:
+  include:
+  - stage: Unit tests
+  - script: npm run start-ganache && npm run test
+  - stage: Deploy to Rinkeby
+    if: branch = develop
+  - script: ./scripts/migrate.sh
+  - stage: Publish to npm
+    deploy:
+      provider: npm
+      email: razvan@centrifuge.io
+      api_key:
+        secure: xMqTLlW76aA/yteHtXFLEGEGHH6hlKjz0OMNRCcLPThyLdIpjAOwu7LR9qcHZM0HqDRptOWqINcmeO44SPHfvVx2C3qZYWgAnta3ed2kVbpY2Hht/YYrEj4DR+uBYebYrqgZiOqY6GXMNBJDHzM896QLPzS6YOtGMUmwOIGvvqxv+LtXUgyddr9ORdG8w7MW+5ZhOJTeD9yD51JI4CWZymNzZ83EeQaown2byTYG3+IhRE/Ckrm3/6c0eZFwOWCBeyeL6RYkoxtIvDzqMirYUnfENLL2Wjmhi9c5qgSLYZ9D6sJAM1ug9pqRmsZJyJKja67R4ZLLfRj9P1EQ38Dz8IdsLvDREFfRm2UKJpxP2sl2JsP+7ZN8pz7hELeO4umtH+N5FjS8XUcWpLnco8oMy6vYyG7345xfl3o5STzyhrC8F/ylSOKCOqNN/Rqb8606Ho4X6KqtoF3/VlHhqck6JcLyVPn87GGXNe+xYxq2q4nX+Qhtt3e2Tqz0n0h5ywPif8avpeEWzmCeBrFl7W60JhHCWBCU7p3Yj4PV1rao6YR6DmfiZFqiGa1GQS0ozRJDqbH2WSUf7wSEgs9JHoZ0Y9UMecjrTZI1m/D1s39aomFvCLoYM0Aq70J2SuvPXQQSrtvH9u6H7gb4C5QfR/Ype72pcpseeizZ3BEGGmQKqFM=
+      on:
+        repo: rdinicut/centrifuge-ethereum-contracts
+        branch: travis
