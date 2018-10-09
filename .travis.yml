@@ -17,10 +17,13 @@ env:
 
 jobs:
   include:
+  - stage: tests
   - stage: Deploy to Rinkeby
     if: branch = travis
-  - script: ./scripts/migrate.sh
+    script: skip
+  - script: ./scripts/migrate.sh rinkeby
   - stage: Publish to npm
+    script: skip
     deploy:
       provider: npm
       email: razvan@centrifuge.io
