@@ -19,12 +19,12 @@ jobs:
   include:
   - stage: tests
   - stage: Deploy to Rinkeby
-    if: branch = develop
+    if: (NOT type IN (pull_request)) AND (branch = develop)
     script: skip
   - script: ./scripts/migrate.sh rinkeby
-    if: branch = develop
+    if: (NOT type IN (pull_request)) AND (branch = develop)
   - stage: Publish to npm
-    if: branch = develop
+    if: (NOT type IN (pull_request)) AND (branch = develop)
     script: skip
     deploy:
       provider: npm
