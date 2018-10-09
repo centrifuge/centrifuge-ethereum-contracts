@@ -29,7 +29,6 @@
     }
   },
   "dependencies": {
-    "centrifuge-ethereum-contracts": "^0.2.1",
     "openzeppelin-solidity": "1.11.0"
   },
   "devDependencies": {
