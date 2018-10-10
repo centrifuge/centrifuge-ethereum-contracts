@@ -33,7 +33,7 @@ fi
 
 if [[ "$1" =~ ^(rinkeby)$ ]]; then
   npm install @centrifuge/ethereum-contracts@latest --force --no-save
-  cp -rf $local_dir/../node_modules/centrifuge-ethereum-contracts/build $local_dir/../build
+  cp -rf $local_dir/../node_modules/@centrifuge/ethereum-contracts/build $local_dir/../build
 fi
 
 

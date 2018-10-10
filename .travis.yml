@@ -20,6 +20,7 @@ jobs:
     script: ./scripts/migrate.sh rinkeby
   - stage: Publish to npm
     if: "(NOT type IN (pull_request)) AND (branch = develop)"
+    script: skip
     deploy:
       provider: npm
       email: razvan@centrifuge.io
