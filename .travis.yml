@@ -17,8 +17,7 @@ jobs:
     - npm run test
   - stage: Deploy to Rinkeby
     if: "(NOT type IN (pull_request)) AND (branch = develop)"
-  - script: "./scripts/migrate.sh rinkeby"
-    if: "(NOT type IN (pull_request)) AND (branch = develop)"
+    script: ./scripts/migrate.sh rinkeby
   - stage: Publish to npm
     if: "(NOT type IN (pull_request)) AND (branch = develop)"
     deploy:
