@@ -32,7 +32,7 @@ if [[ "$1" =~ ^(localgeth)$ ]]; then
 fi
 
 if [[ "$1" =~ ^(rinkeby)$ ]]; then
-  npm install centrifuge-ethereum-contracts@latest --force --no-save
+  npm install @centrifuge/ethereum-contracts@latest --force --no-save
   cp -rf $local_dir/../node_modules/centrifuge-ethereum-contracts/build $local_dir/../build
 fi
 
