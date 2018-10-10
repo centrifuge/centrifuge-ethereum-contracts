@@ -7,12 +7,11 @@ require("babel-register")({
 });
 require('babel-polyfill');
 
-//TODO Use import keys and truffle-wallet-provider module to sign txs from the code and use in networks
 let account = process.env.MIGRATE_ADDRESS;
-let WalletProvider = require("truffle-wallet-provider");
-let endpoint = process.env.RINKEBY_PROVIDER || "http://127.0.0.1:8545"; //
+let endpoint = process.env.ETH_PROVIDER || "http://127.0.0.1:8545";
 let privateKey = process.env.ETH_PRIVATE_KEY || "";
 
+let WalletProvider = require("truffle-wallet-provider");
 
 module.exports = {
     networks: {

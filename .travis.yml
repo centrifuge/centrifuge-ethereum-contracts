@@ -7,25 +7,20 @@ node_js:
 cache:
   directories:
   - node_modules
-
-script:
- - npm run start-ganache &
- - npm run test
-
 env:
-  secure: QScayrjushGujxRDsfmYwmm031RVR5BFPWyMK03CXnh/SZrumLVsDbBcab0z46ETTpMPOKX13kl3XRW17tpVYQ0EbOZyExfxSbRWf+Kkri4hjnEv1XewIcaMKs3uKeeZNahWiDRm9buLNjgvNgGC1t2BQntFjvt3LM5biWvTyeFeFzb1mEip4nRHNmKYdc5kg01bUJPG9UpKRC1AhsaQL06s/QoSQwneAlNG9t0t9ErTOLdbz1Vs0I5WEMVVzASigOSt7efQBqg3oDRZTmbCkGxQRxMr5PextmMeeWyY8PhufMP7BKtX/W28GOKFzsJtniOdKt795MQwrm/kCQPCT4+l1o3REz4noCQwBdl69t15ksoM6HDzSyCLhz2l3cEpHsSet+QF6TqCGmDP4fBtZkPhJTVedW9tVHb3RI65AxtWsZVK9+AjAsOOZlcGjvVNuzJlem2PPAGRayQ2FC4WNehlWyjg55HgFs7sHdMI5LwbpTXTRq34IF6XdtNUZx0XrpmjVpSskGwZvVsuizbNjrsRlUpVJwgCgLmiVDYpZOb0N1uWULXGQy0HjugTPg63mWHmcnHGdcCd1kWadavP7Fd3Stg79Hqlw8NFEQdtc8Zqqhra2miN+bU1VwUyiBSBuoTcaa/eERguxtk68RhHBxFRNW+ogLHi1bKOTFuRQbM=
-
+  secure: RymZPAUgaq7nxQsu4Cj0GmEyQ/KlLfvB8hoMzK94l+t+0yrUPe1bA/nGGCYD1KOJeG8mHbSg3QdQ+RC+xaV5TOGDSP2CNCUewgwrqVcWKsXzZFmqk1qEvwI5m30oY8C/0VQEg9KnxvDU7STvGFBh4hCRMWWib/GI0rnK3vbGognd+4AZGKCpzVwluGADnt9g125iWoljGoD26Gf9EaiGpGe1shUEPDnMe1vw69nD7TB/2lcFdyDH7wzeswKPmlv9LGxG9AFh11IuNkAtmtRUqSqrh72e1JHe+zB4/DQc34wiZcOp81J8bwFbtLGY63cfG6qBgt3im1dEpCnz7ZOyiNE+DkNI8QqsCfC/ic1yP0ka718oMcM4dpc/KgW9Nt88n98lCwwQMBdWhPtZdf2QnDtIb+S2SSS4WIRjjTA1VHWqlD7wzaLQvScJQV0wNoTlbkfFstzh1RF5BS7a/OMTIPZKGNOnYdtsDm2DgQmRBaYmJjYLsHaHYxpPWjX71VT7g7FsLH0x9DGkTjEKm8VyXR1HqU1XNka0wdqEkSPCHgkXBqHRKYlUiE+nwexyHeubopRhdButdIkjV9RHPiiRK7mIjLqXT6+KoCVRSk5Y410yZDe9xmus3cIkPgfh5PxsqkXTXjXilXXP75CQlk8JwFi3BRzAAU0thjgcz8tGYO8=
 jobs:
   include:
   - stage: tests
+    script:
+    - npm run start-ganache &
+    - npm run test
   - stage: Deploy to Rinkeby
-    if: (NOT type IN (pull_request)) AND (branch = develop)
-    script: skip
-  - script: ./scripts/migrate.sh rinkeby
-    if: (NOT type IN (pull_request)) AND (branch = develop)
+    if: "(NOT type IN (pull_request)) AND (branch = develop)"
+  - script: "./scripts/migrate.sh rinkeby"
+    if: "(NOT type IN (pull_request)) AND (branch = develop)"
   - stage: Publish to npm
-    if: (NOT type IN (pull_request)) AND (branch = develop)
-    script: skip
+    if: "(NOT type IN (pull_request)) AND (branch = develop)"
     deploy:
       provider: npm
       email: razvan@centrifuge.io
