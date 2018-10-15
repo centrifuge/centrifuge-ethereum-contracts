@@ -41,6 +41,10 @@ ANCHOR_REPOSITORY_ABI=`cat $local_dir/../build/contracts/AnchorRepository.json |
 ANCHOR_REPOSITORY_BYTECODE=`cat $local_dir/../build/contracts/AnchorRepository.json | jq '.deployedBytecode' | tr -d '\n'`
 ANCHOR_REPOSITORY_ADDRESS=`cat $local_dir/../build/contracts/AnchorRepository.json | jq --arg NETWORK_ID "${NETWORK_ID}" '.networks[$NETWORK_ID].address' | tr -d '\n'`
 
+PAYMENT_OBLIGATION_ABI=`cat $local_dir/../build/contracts/PaymentObligation.json | jq '.abi' | tr -d '\n'`
+PAYMENT_OBLIGATION_BYTECODE=`cat $local_dir/../build/contracts/PaymentObligation.json | jq '.deployedBytecode' | tr -d '\n'`
+PAYMENT_OBLIGATION_ADDRESS=`cat $local_dir/../build/contracts/PaymentObligation.json | jq --arg NETWORK_ID "${NETWORK_ID}" '.networks[$NETWORK_ID].address' | tr -d '\n'`
+
 IDENTITY_REGISTRY_ABI=`cat $local_dir/../build/contracts/IdentityRegistry.json | jq '.abi' | tr -d '\n'`
 IDENTITY_REGISTRY_BYTECODE=`cat $local_dir/../build/contracts/IdentityRegistry.json | jq '.deployedBytecode' | tr -d '\n'`
 IDENTITY_REGISTRY_ADDRESS=`cat $local_dir/../build/contracts/IdentityRegistry.json | jq --arg NETWORK_ID "${NETWORK_ID}" '.networks[$NETWORK_ID].address' | tr -d '\n'`
@@ -65,6 +69,11 @@ cat >$local_dir/../deployments/${ETH_ENV}.json <<EOF
       "abi": ${ANCHOR_REPOSITORY_ABI},
       "bytecode": ${ANCHOR_REPOSITORY_BYTECODE},
       "address": ${ANCHOR_REPOSITORY_ADDRESS}
+    },
+    "PaymentObligation": {
+      "abi": ${PAYMENT_OBLIGATION_ABI},
+      "bytecode": ${PAYMENT_OBLIGATION_BYTECODE},
+      "address": ${PAYMENT_OBLIGATION_ADDRESS}
     },
     "IdentityRegistry": {
       "abi": ${IDENTITY_REGISTRY_ABI},
