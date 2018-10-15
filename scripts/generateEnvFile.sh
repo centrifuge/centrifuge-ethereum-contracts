@@ -7,7 +7,7 @@ else
 fi
 
 usage() {
-  echo "Usage: ${local_dir} env[local|integration|rinkeby|local-ganache]"
+  echo "Usage: ${local_dir} env[localgeth|integration|rinkeby|local-ganache]"
   exit 1
 }
 
@@ -17,7 +17,7 @@ then
 fi
 
 ETH_ENV=${1}
-if [[ ! "${ETH_ENV}" =~ ^(local|integration|rinkeby|local-ganache)$ ]]; then
+if [[ ! "${ETH_ENV}" =~ ^(localgeth|integration|rinkeby|local-ganache)$ ]]; then
     echo "Environment [${ETH_ENV}] not allowed"
     usage
 fi
