@@ -1,57 +1,85 @@
 {
-  "document_identifier": "Sn1p0/uB8m1PeTMDRf9aC41uzCxAsmFYeM3kLhg4W74=",
-  "document_root": "Gq37eN+iTN9Hr1Oar/M2CuvwPHH14jj7jBZXwXuXGNg=",
+  "document_identifier": "Q3WjfSoSbnqWDS37oTrCE7Wzt4LrUJRlVeKZCQihDR0=",
+  "_comment_for_document_root": "This is copied by hand from sample_invoice.json",
+  "document_root": "6TW/xwJemhDlFz8klhV7OPDScH93j4+AwtFqSZh9RGQ=",
   "field_proofs": [
     {
       "property": "gross_amount",
       "value": "1501",
-      "salt": "CgiqxYvNmL0esZKf3Vu/BxkNqWizz9CIEMcI2uooBTQ=",
+      "salt": "0Cr5Ci1Si3sc/E74EPc4LUutW3o7CuG6o8N00qfADO0=",
       "sortedHashes": [
-        "DU9+4ZdnsoSlRtSxSAmo3UUPxNB4PjrOZ7WB0P6YCeM=",
-        "jFXGNv71IY+bJXzI0xqlUpgaw24OE/S7jo8K2uEaM/0=",
-        "309kntnRi+xcEi4ZtwPNX5y+dVSUC+gJcfnRzn277dc=",
-        "swCziNfIJ5/j3cNHAhiGWo5katwwKumEldmPMf9kQRQ=",
-        "J/rKVOIIfnbFgySphQ/PM6nX4lO7qybr9HzKhm78xCs=",
-        "WIzkmVP/MoqRt70BaKE1lbjM6as9v1u45OqVUXhcwQg=",
-        "z0RzXzAhT3q/bwTMcXPOgE9JL9tY06WALS18WyC+L/o=",
-        "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=",
+        "TWoITPH9qoI3qXiKYJ8nJHNyWf/zzTbIFsS2rSo3v4s=",
+        "WpowObH9UvVgtgWZ9Y4Q422wS55TKeNVOkzQeI98S8s=",
+        "4+IWDzQJ19XX8EMqEnf3Gkk0+HJoi5nH4sDBS163Ujw=",
+        "vmq+5YDkNIIfsnxMf+OeF/ZX2Brk97E096MJPpt+BJ0=",
+        "sY9I4st8MAQJ/s8xQDsb8ZKKWWY3xx+TN9PbMtwp4U8=",
+        "dpBYI60V37hOjFSmqnbqYNGrzkeul+CKHPOTuot+wr4=",
+        "eHxWgLAGXZHGHMDq1BiHeqOmikPI0T+etO+QqGZvdv8=",
+        "Dpjyxgus3vfdO6iMZqnD5fh3J5Ow7m6ofq4aetqEbdc=",
+        "C4FMMSA2DExbSUi04GPQzeiQkeymohBc1POw7B4G2kQ=",
         "rw2sDv+nDpsH9MpCuWDyGEdVv4/NQgGB4MagEM99P0k=",
-        "7dqEdOrBwoDuqUAXCrYEbJMkYMh5z5pT0a2D6oDNGQQ="
+        "aXZE0bUxoKfEnT+wAWe/gs24Zd0niyqyN1/kxEl4yQE="
       ]
     },
     {
       "property": "currency",
       "value": "USD",
-      "salt": "RrQluzpiotlx5L8r2uLpC4/NpHO2REzLiyE934mw/N4=",
+      "salt": "pHDsX1l2K0h1FRllpmg+mlLM63uhEMrVQHNHRBUI2es=",
       "sortedHashes": [
-        "ymExQDYH74pHaLh2jayC2IfsBsnn6BBsI5WxxLHnKQg=",
-        "rkfehnNGgyzy6Q1I10kyBUYrgVyX25EJBCYbtMgF1qY=",
-        "8K84azRvfOwg5xstK/bn7Wv7o/lW6y6aqyboJWaox8Y=",
-        "swCziNfIJ5/j3cNHAhiGWo5katwwKumEldmPMf9kQRQ=",
-        "J/rKVOIIfnbFgySphQ/PM6nX4lO7qybr9HzKhm78xCs=",
-        "WIzkmVP/MoqRt70BaKE1lbjM6as9v1u45OqVUXhcwQg=",
-        "z0RzXzAhT3q/bwTMcXPOgE9JL9tY06WALS18WyC+L/o=",
-        "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=",
+        "PB7XPeG/30pNffvdUlSBa+IaHqZGpb/FBfIyhsWwrBc=",
+        "9LrzZ7exQH0+VWsuVOCTuGZAiRjWYh7+uK6WQ8ExO8M=",
+        "cP8kQ8HZ46DEN0kOOPmJTJ4iNysk7/gdBTfZe0HEhuM=",
+        "vmq+5YDkNIIfsnxMf+OeF/ZX2Brk97E096MJPpt+BJ0=",
+        "sY9I4st8MAQJ/s8xQDsb8ZKKWWY3xx+TN9PbMtwp4U8=",
+        "dpBYI60V37hOjFSmqnbqYNGrzkeul+CKHPOTuot+wr4=",
+        "eHxWgLAGXZHGHMDq1BiHeqOmikPI0T+etO+QqGZvdv8=",
+        "Dpjyxgus3vfdO6iMZqnD5fh3J5Ow7m6ofq4aetqEbdc=",
+        "C4FMMSA2DExbSUi04GPQzeiQkeymohBc1POw7B4G2kQ=",
         "rw2sDv+nDpsH9MpCuWDyGEdVv4/NQgGB4MagEM99P0k=",
-        "7dqEdOrBwoDuqUAXCrYEbJMkYMh5z5pT0a2D6oDNGQQ="
+        "aXZE0bUxoKfEnT+wAWe/gs24Zd0niyqyN1/kxEl4yQE="
       ]
     },
     {
       "property": "due_date",
       "value": "2018-09-26T23:12:37.902198664Z",
-      "salt": "uKZU9ph3FEpoMyIYIGZ/LcBZjbfA28fvfOqtvvorBso=",
+      "salt": "z6lVup2Oqg5ZrIMeon0GE3aDGfeJ/HkDA8ppXZXs+A0=",
       "sortedHashes": [
-        "GF/OnI2Pl7QZjJ39MtgzlFBp4o9j3T2flWNp7FNLPFw=",
-        "R59QCyMS9jp49v2H7R6ah8/IR8qTvG87nLdLLEd/Cs8=",
-        "8K84azRvfOwg5xstK/bn7Wv7o/lW6y6aqyboJWaox8Y=",
-        "swCziNfIJ5/j3cNHAhiGWo5katwwKumEldmPMf9kQRQ=",
-        "J/rKVOIIfnbFgySphQ/PM6nX4lO7qybr9HzKhm78xCs=",
-        "WIzkmVP/MoqRt70BaKE1lbjM6as9v1u45OqVUXhcwQg=",
-        "z0RzXzAhT3q/bwTMcXPOgE9JL9tY06WALS18WyC+L/o=",
-        "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=",
+        "y+65gwtNDoae82eT5q7BAzBWQXSomfuBV9lBtF/gpRE=",
+        "sOTFic2eB6rgkE0d7SkOHcbD4trUq1jBhXDpaswVJnw=",
+        "cP8kQ8HZ46DEN0kOOPmJTJ4iNysk7/gdBTfZe0HEhuM=",
+        "vmq+5YDkNIIfsnxMf+OeF/ZX2Brk97E096MJPpt+BJ0=",
+        "sY9I4st8MAQJ/s8xQDsb8ZKKWWY3xx+TN9PbMtwp4U8=",
+        "dpBYI60V37hOjFSmqnbqYNGrzkeul+CKHPOTuot+wr4=",
+        "eHxWgLAGXZHGHMDq1BiHeqOmikPI0T+etO+QqGZvdv8=",
+        "Dpjyxgus3vfdO6iMZqnD5fh3J5Ow7m6ofq4aetqEbdc=",
+        "C4FMMSA2DExbSUi04GPQzeiQkeymohBc1POw7B4G2kQ=",
         "rw2sDv+nDpsH9MpCuWDyGEdVv4/NQgGB4MagEM99P0k=",
-        "7dqEdOrBwoDuqUAXCrYEbJMkYMh5z5pT0a2D6oDNGQQ="
+        "aXZE0bUxoKfEnT+wAWe/gs24Zd0niyqyN1/kxEl4yQE="
+      ]
+    },
+    {
+      "property": "document_type",
+      "value": "http://github.com/centrifuge/centrifuge-protobufs/invoice/#invoice.InvoiceData",
+      "salt": "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=",
+      "sortedHashes": [
+        "eqY6tL+GCftBVB75uVrlBVb1/Idl3EdSWokB88jxy2Y=",
+        "rw2sDv+nDpsH9MpCuWDyGEdVv4/NQgGB4MagEM99P0k=",
+        "aXZE0bUxoKfEnT+wAWe/gs24Zd0niyqyN1/kxEl4yQE="
+      ]
+    },
+    {
+      "property": "collaborators[0]",
+      "value": "JP5lVb65",
+      "salt": "TGkrvlVpDf2WgiLxsWcH1kw3fOSbg2gZVLVPjitfdBQ=",
+      "sortedHashes": [
+        "zxTPfL60daeW4TFoHVYUMkYXGI2TE9q6Og+UiQOfrek=",
+        "QUekJXXnCSb5H0+9KZZP/k06SMJr646QA5zPS8EEdVQ=",
+        "Dpjyxgus3vfdO6iMZqnD5fh3J5Ow7m6ofq4aetqEbdc=",
+        "C4FMMSA2DExbSUi04GPQzeiQkeymohBc1POw7B4G2kQ=",
+        "rw2sDv+nDpsH9MpCuWDyGEdVv4/NQgGB4MagEM99P0k=",
+        "aXZE0bUxoKfEnT+wAWe/gs24Zd0niyqyN1/kxEl4yQE="
       ]
     }
   ]
 }
+

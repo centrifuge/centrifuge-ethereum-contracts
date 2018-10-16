@@ -1,4 +1,5 @@
 import {shouldRevert} from "../tools/assertTx";
+
 const {bufferToHex} = require("ethereumjs-util");
 let PaymentObligation = artifacts.require("PaymentObligation");
 let MockAnchorRegistry = artifacts.require("MockAnchorRepository");
@@ -22,7 +23,12 @@ contract("PaymentObligation", function (accounts) {
 
     beforeEach(async function () {
         this.anchorRegistry = await MockAnchorRegistry.new();
-        const deployedPaymentObligation = await PaymentObligation.new("ERC-721 Document Anchor", "TDA", this.anchorRegistry.address, deployedIdentityRegistry.address);
+        const deployedPaymentObligation = await PaymentObligation.new(
+            "ERC-721 Document Anchor",
+            "TDA",
+            this.anchorRegistry.address,
+            deployedIdentityRegistry.address,
+        );
         const transationOptions = PaymentObligation.defaults();
         // Encapsulate web3 1.0 import as it overrides the eth module and other tests that use the web3 api fail
         // web3.eth.sign and web3.eth.blockNumber
@@ -36,6 +42,7 @@ contract("PaymentObligation", function (accounts) {
     describe("mint", async function () {
         it("should mint a token if the Merkle proofs validates", async function () {
             let documentIdentifer = base64ToHex(proof.document_identifier);
+            console.log(documentIdentifer)
             let validRootHash = base64ToHex(proof.document_root);
             let tokenURI = "http://test.com";
             await this.anchorRegistry.setAnchorById(
@@ -50,27 +57,35 @@ contract("PaymentObligation", function (accounts) {
                 tokenURI,
                 documentIdentifer,
                 validRootHash,
+                proof.field_proofs[4].property,
+                deployedCentrifugeId,
                 [
                     proof.field_proofs[0].value,
                     proof.field_proofs[1].value,
-                    proof.field_proofs[2].value
+                    proof.field_proofs[2].value,
+                    proof.field_proofs[3].value,
+                    proof.field_proofs[4].value,
                 ],
                 [
                     base64ToHex(proof.field_proofs[0].salt),
                     base64ToHex(proof.field_proofs[1].salt),
                     base64ToHex(proof.field_proofs[2].salt),
+                    base64ToHex(proof.field_proofs[3].salt),
+                    base64ToHex(proof.field_proofs[4].salt),
 
                 ],
                 [
                     proof.field_proofs[0].sortedHashes.map(item => base64ToHex(item)),
                     proof.field_proofs[1].sortedHashes.map(item => base64ToHex(item)),
                     proof.field_proofs[2].sortedHashes.map(item => base64ToHex(item)),
+                    proof.field_proofs[3].sortedHashes.map(item => base64ToHex(item)),
+                    proof.field_proofs[4].sortedHashes.map(item => base64ToHex(item)),
                 ]
             ).send()
                 .then(function (tx) {
                     // Check mint event
                     const event = tx.events.PaymentObligationMinted.returnValues;
-                    assert.equal(event.to.toLowerCase(), accounts[2]);
+                    assert.equal(event.to.toLowerCase(), accounts[2].toLowerCase());
                     assert.equal(event.tokenId, tokenId);
                     assert.equal(event.tokenURI, tokenURI);
                 });
@@ -105,21 +120,29 @@ contract("PaymentObligation", function (accounts) {
                 tokenURI,
                 documentIdentifer,
                 validRootHash,
+                proof.field_proofs[4].property,
+                deployedCentrifugeId,
                 [
-                    "some random value",
+                    'Some Random Value',
                     proof.field_proofs[1].value,
-                    proof.field_proofs[2].value
+                    proof.field_proofs[2].value,
+                    proof.field_proofs[3].value,
+                    proof.field_proofs[4].value,
                 ],
                 [
                     base64ToHex(proof.field_proofs[0].salt),
                     base64ToHex(proof.field_proofs[1].salt),
                     base64ToHex(proof.field_proofs[2].salt),
+                    base64ToHex(proof.field_proofs[3].salt),
+                    base64ToHex(proof.field_proofs[4].salt),
 
                 ],
                 [
                     proof.field_proofs[0].sortedHashes.map(item => base64ToHex(item)),
                     proof.field_proofs[1].sortedHashes.map(item => base64ToHex(item)),
                     proof.field_proofs[2].sortedHashes.map(item => base64ToHex(item)),
+                    proof.field_proofs[3].sortedHashes.map(item => base64ToHex(item)),
+                    proof.field_proofs[4].sortedHashes.map(item => base64ToHex(item)),
                 ]
             ).send());
         });
@@ -141,21 +164,29 @@ contract("PaymentObligation", function (accounts) {
                 tokenURI,
                 documentIdentifer,
                 validRootHash,
+                proof.field_proofs[4].property,
+                deployedCentrifugeId,
                 [
                     proof.field_proofs[0].value,
                     proof.field_proofs[1].value,
-                    proof.field_proofs[2].value
+                    proof.field_proofs[2].value,
+                    proof.field_proofs[3].value,
+                    proof.field_proofs[4].value,
                 ],
                 [
                     base64ToHex(proof.field_proofs[0].salt),
                     base64ToHex(proof.field_proofs[1].salt),
                     base64ToHex(proof.field_proofs[2].salt),
+                    base64ToHex(proof.field_proofs[3].salt),
+                    base64ToHex(proof.field_proofs[4].salt),
 
                 ],
                 [
                     proof.field_proofs[0].sortedHashes.map(item => base64ToHex(item)),
                     proof.field_proofs[1].sortedHashes.map(item => base64ToHex(item)),
                     proof.field_proofs[2].sortedHashes.map(item => base64ToHex(item)),
+                    proof.field_proofs[3].sortedHashes.map(item => base64ToHex(item)),
+                    proof.field_proofs[4].sortedHashes.map(item => base64ToHex(item)),
                 ]
             ).send();
 
@@ -165,28 +196,36 @@ contract("PaymentObligation", function (accounts) {
                 tokenURI,
                 documentIdentifer,
                 validRootHash,
+                proof.field_proofs[4].property,
+                deployedCentrifugeId,
                 [
                     proof.field_proofs[0].value,
                     proof.field_proofs[1].value,
-                    proof.field_proofs[2].value
+                    proof.field_proofs[2].value,
+                    proof.field_proofs[3].value,
+                    proof.field_proofs[4].value,
                 ],
                 [
                     base64ToHex(proof.field_proofs[0].salt),
                     base64ToHex(proof.field_proofs[1].salt),
                     base64ToHex(proof.field_proofs[2].salt),
+                    base64ToHex(proof.field_proofs[3].salt),
+                    base64ToHex(proof.field_proofs[4].salt),
 
                 ],
                 [
                     proof.field_proofs[0].sortedHashes.map(item => base64ToHex(item)),
                     proof.field_proofs[1].sortedHashes.map(item => base64ToHex(item)),
                     proof.field_proofs[2].sortedHashes.map(item => base64ToHex(item)),
+                    proof.field_proofs[3].sortedHashes.map(item => base64ToHex(item)),
+                    proof.field_proofs[4].sortedHashes.map(item => base64ToHex(item)),
                 ]
             ).send());
         });
     });
 
     describe("check the gas cost for mint", async function () {
-        const mintMaxGas = 467000;
+        const mintMaxGas = 533819;
         it(`should have mint gas cost less then ${mintMaxGas} `, async function () {
             let documentIdentifer = base64ToHex(proof.document_identifier);
             let validRootHash = base64ToHex(proof.document_root);
@@ -204,21 +243,29 @@ contract("PaymentObligation", function (accounts) {
                 tokenURI,
                 documentIdentifer,
                 validRootHash,
+                proof.field_proofs[4].property,
+                deployedCentrifugeId,
                 [
                     proof.field_proofs[0].value,
                     proof.field_proofs[1].value,
-                    proof.field_proofs[2].value
+                    proof.field_proofs[2].value,
+                    proof.field_proofs[3].value,
+                    proof.field_proofs[4].value,
                 ],
                 [
                     base64ToHex(proof.field_proofs[0].salt),
                     base64ToHex(proof.field_proofs[1].salt),
                     base64ToHex(proof.field_proofs[2].salt),
+                    base64ToHex(proof.field_proofs[3].salt),
+                    base64ToHex(proof.field_proofs[4].salt),
 
                 ],
                 [
                     proof.field_proofs[0].sortedHashes.map(item => base64ToHex(item)),
                     proof.field_proofs[1].sortedHashes.map(item => base64ToHex(item)),
                     proof.field_proofs[2].sortedHashes.map(item => base64ToHex(item)),
+                    proof.field_proofs[3].sortedHashes.map(item => base64ToHex(item)),
+                    proof.field_proofs[4].sortedHashes.map(item => base64ToHex(item)),
                 ]
             ).estimateGas();
             console.log('Actual mint gas cost:', mintGasCost)
