@@ -24,12 +24,8 @@ contract PaymentObligation is UserMintableERC721 {
     "due_date",
     "document_type"
   ];
-  // Hardcoded  field labels that can mint a Payment Obligation
-  // The value of the field must be a valid centrifuge id
-
-  mapping(string => bool) internal supportedCollaborators_;
-  /*string[4] internal supportedCollaborators_ = ["collaborators[1]","collaborators[2]","collaborators[3]","collaborators[0]"];
-  bytes internal collaboratorPrefix = "collaborators";*/
+  // Prefix for the collaborator field.
+  bytes internal collaboratorPrefix = "collaborators";
 
   struct PODetails {
     string grossAmount;
@@ -58,14 +54,6 @@ contract PaymentObligation is UserMintableERC721 {
   public
   {
     identityRegistry_ = _identityRegistry;
-    /* TODO add array of strings as a param to the constructor
-     * in order to set the supported labels for collaborator
-     * This is not possible right now because truffle@beta supports 1.0.0-beta.35
-     * and the ABIEncoderV2 is available from 1.0.0-beta.36
-     */
-
-    supportedCollaborators_["collaborators[0]"] = true;
-
   }
 
   /**
@@ -139,15 +127,21 @@ contract PaymentObligation is UserMintableERC721 {
       "merkle tree needs to validate document_type is invoice"
     );
 
-    // Check the label for the _collaboratorField
-    require(
-      supportedCollaborators_[_collaboratorField] == true,
-      "Collaborator property name is not supported"
-    );
+    // Check the prefix of the collaborator property name
+    bytes memory strBytes = bytes(_collaboratorField);
+    bytes memory result = new bytes(collaboratorPrefix.length);
+    for (uint i = 0; i < collaboratorPrefix.length; i++) {
+      result[i] = strBytes[i];
+    }
 
     require(
+      keccak256(result) == keccak256(collaboratorPrefix),
+      "Collaborator property name must start with collaborators"
+    );
+    // Check that collaborator centrifuge id has a valid identity
+    require(
       _isValidCollaborator(_collaboratorValue) == true,
-      "Collaborator identity not valid"
+      "Collaborator identity is not valid"
     );
 
     require(
@@ -213,13 +207,8 @@ contract PaymentObligation is UserMintableERC721 {
     );
   }
 
-
-
-
-  // Validate that the
-  // @param _message keccak256 encoded message
+  // Checks if the collaborator is the owner of the centrifuge identity
   // @param _centrifugeId Centrifuge Identity identifier
-  // @param _signature Signed message
   function _isValidCollaborator(
     uint48 _centrifugeId
   )
