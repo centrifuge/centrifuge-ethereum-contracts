@@ -57,8 +57,7 @@ contract("PaymentObligation", function (accounts) {
                 tokenURI,
                 documentIdentifer,
                 validRootHash,
-                proof.field_proofs[4].property,
-                deployedCentrifugeId,
+                (proof.field_proofs[4].property),
                 [
                     proof.field_proofs[0].value,
                     proof.field_proofs[1].value,
@@ -121,7 +120,6 @@ contract("PaymentObligation", function (accounts) {
                 documentIdentifer,
                 validRootHash,
                 proof.field_proofs[4].property,
-                deployedCentrifugeId,
                 [
                     'Some Random Value',
                     proof.field_proofs[1].value,
@@ -165,7 +163,6 @@ contract("PaymentObligation", function (accounts) {
                 documentIdentifer,
                 validRootHash,
                 proof.field_proofs[4].property,
-                deployedCentrifugeId,
                 [
                     proof.field_proofs[0].value,
                     proof.field_proofs[1].value,
@@ -197,7 +194,6 @@ contract("PaymentObligation", function (accounts) {
                 documentIdentifer,
                 validRootHash,
                 proof.field_proofs[4].property,
-                deployedCentrifugeId,
                 [
                     proof.field_proofs[0].value,
                     proof.field_proofs[1].value,
@@ -244,7 +240,6 @@ contract("PaymentObligation", function (accounts) {
                 documentIdentifer,
                 validRootHash,
                 proof.field_proofs[4].property,
-                deployedCentrifugeId,
                 [
                     proof.field_proofs[0].value,
                     proof.field_proofs[1].value,

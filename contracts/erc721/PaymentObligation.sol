@@ -65,15 +65,14 @@ contract PaymentObligation is UserMintableERC721 {
    * @param _anchorId bytes32 The ID of the document as identified
    * by the set up anchorRegistry.
    * @param _merkleRoot bytes32 The root hash of the merkle proof/doc
-   * @param _collaboratorField string The values of the leafs that is being proved
-   * Will be converted to string and concatenated for proof verification as outlined in
-   * @param _values bytes32[3] The values of the leafs that is being proved
-   * Will be converted to string and concatenated for proof verification as outlined in
+   * @param _collaboratorField string The values of the collaborator leaf
+   * It needs to start with a collaborator prefix, ex: collaborator[0]
+   * @param _values string[5] The values of the leafs that is being proved
    * precise-proofs library.
-   * @param _salts bytes32[3] The salts for the field that is being proved
+   * @param _salts bytes32[5] The salts for the field that is being proved
    * Will be concatenated for proof verification as outlined in
    * precise-proofs library.
-   * @param _proofs bytes32[][3] Documents proofs that are needed
+   * @param _proofs bytes32[][5] Documents proofs that are needed
    * for proof verification as outlined in precise-proofs library.
    */
   function mint(
@@ -83,7 +82,6 @@ contract PaymentObligation is UserMintableERC721 {
     uint256 _anchorId,
     bytes32 _merkleRoot,
     string _collaboratorField,
-    uint48 _collaboratorValue,
     string[5] _values,
     bytes32[5] _salts,
     bytes32[][5] _proofs
@@ -137,11 +135,6 @@ contract PaymentObligation is UserMintableERC721 {
     require(
       keccak256(result) == keccak256(collaboratorPrefix),
       "Collaborator property name must start with collaborators"
-    );
-    // Check that collaborator centrifuge id has a valid identity
-    require(
-      _isValidCollaborator(_collaboratorValue) == true,
-      "Collaborator identity is not valid"
     );
 
     require(
@@ -207,8 +200,11 @@ contract PaymentObligation is UserMintableERC721 {
     );
   }
 
-  // Checks if the collaborator is the owner of the centrifuge identity
-  // @param _centrifugeId Centrifuge Identity identifier
+  /**
+  * Checks if the a centrifuge identity exists and that
+  * the sender owns that identity
+  * @param _centrifugeId uint48 Centrifuge Identity identifier
+  */
   function _isValidCollaborator(
     uint48 _centrifugeId
   )
