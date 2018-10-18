@@ -7,7 +7,7 @@ else
 fi
 
 usage() {
-  echo "Usage: ${local_dir} env[local|integration|rinkeby|local-ganache]"
+  echo "Usage: ${local_dir} env[localgeth|integration|rinkeby|local-ganache]"
   exit 1
 }
 
@@ -17,7 +17,7 @@ then
 fi
 
 ETH_ENV=${1}
-if [[ ! "${ETH_ENV}" =~ ^(local|integration|rinkeby|local-ganache)$ ]]; then
+if [[ ! "${ETH_ENV}" =~ ^(localgeth|integration|rinkeby|local-ganache)$ ]]; then
     echo "Environment [${ETH_ENV}] not allowed"
     usage
 fi
@@ -40,6 +40,10 @@ ANCHOR_REGISTRY_ADDRESS=`cat $local_dir/../build/contracts/AnchorRegistry.json |
 ANCHOR_REPOSITORY_ABI=`cat $local_dir/../build/contracts/AnchorRepository.json | jq '.abi' | tr -d '\n'`
 ANCHOR_REPOSITORY_BYTECODE=`cat $local_dir/../build/contracts/AnchorRepository.json | jq '.deployedBytecode' | tr -d '\n'`
 ANCHOR_REPOSITORY_ADDRESS=`cat $local_dir/../build/contracts/AnchorRepository.json | jq --arg NETWORK_ID "${NETWORK_ID}" '.networks[$NETWORK_ID].address' | tr -d '\n'`
+
+PAYMENT_OBLIGATION_ABI=`cat $local_dir/../build/contracts/PaymentObligation.json | jq '.abi' | tr -d '\n'`
+PAYMENT_OBLIGATION_BYTECODE=`cat $local_dir/../build/contracts/PaymentObligation.json | jq '.deployedBytecode' | tr -d '\n'`
+PAYMENT_OBLIGATION_ADDRESS=`cat $local_dir/../build/contracts/PaymentObligation.json | jq --arg NETWORK_ID "${NETWORK_ID}" '.networks[$NETWORK_ID].address' | tr -d '\n'`
 
 IDENTITY_REGISTRY_ABI=`cat $local_dir/../build/contracts/IdentityRegistry.json | jq '.abi' | tr -d '\n'`
 IDENTITY_REGISTRY_BYTECODE=`cat $local_dir/../build/contracts/IdentityRegistry.json | jq '.deployedBytecode' | tr -d '\n'`
@@ -65,6 +69,11 @@ cat >$local_dir/../deployments/${ETH_ENV}.json <<EOF
       "abi": ${ANCHOR_REPOSITORY_ABI},
       "bytecode": ${ANCHOR_REPOSITORY_BYTECODE},
       "address": ${ANCHOR_REPOSITORY_ADDRESS}
+    },
+    "PaymentObligation": {
+      "abi": ${PAYMENT_OBLIGATION_ABI},
+      "bytecode": ${PAYMENT_OBLIGATION_BYTECODE},
+      "address": ${PAYMENT_OBLIGATION_ADDRESS}
     },
     "IdentityRegistry": {
       "abi": ${IDENTITY_REGISTRY_ABI},

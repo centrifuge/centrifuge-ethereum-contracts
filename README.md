@@ -8,17 +8,12 @@
 
 ## Running it
 ```bash
-# install truffle globally on the machine
-npm install -g truffle@4.1.13
-
-# install ganache-cli globally on the machine
-npm install -g ganache-cli@6.1.6
 
 # install the repo dependencies
 npm install 
 
 # run testrpc with fixed mnmonic
-npm run testrpc-m
+npm run start-ganache
 
 # to run tests
 npm run test
@@ -31,7 +26,7 @@ npm run re-test
 
 ## Migrate Smart Contracts against Integration Environment
 
-Follow instructions under https://github.com/CentrifugeInc/go-centrifuge/blob/master/README.md to deploy a local light node that bootstraps from the remote node.
+Follow instructions under https://github.com/centrifuge/go-centrifuge/blob/master/README.md to deploy a local light node that bootstraps from the remote node.
 As soon as the local node is running, and synced:
 * Copy `migrateAccount.json` file to your $ETH_DATADIR/$NETWORK_ID/keystore
 * Perform migration `./scripts/migrate.sh integration`

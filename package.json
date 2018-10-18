@@ -1,17 +1,32 @@
 {
-  "name": "centrifuge-ethereum-contracts",
-  "version": "0.1.0",
+  "name": "@centrifuge/ethereum-contracts",
+  "version": "0.2.2",
+  "description": "Centrifuge OS (https://github.com/centrifuge/centrifuge-ethereum-contracts)",
+  "publishConfig": {
+    "access": "public"
+  },
+  "files": [
+    "build",
+    "contracts"
+  ],
+  "homepage": "https://github.com/centrifuge/centrifuge-ethereum-contracts#readme",
   "scripts": {
+    "lint:sol:fix": "solium -d contracts/ --fix",
     "test": "truffle test",
-    "testrpc-m": "ganache-cli --gasLimit 4712388 --networkId 99999 -p 8545 -m \"tumble gas embody bright agree pony smoke laptop index sight shallow hungry\"",
+    "start-ganache": "ganache-cli --gasLimit 4712388 --networkId 99999 -p 8545 -m \"tumble gas embody bright agree pony smoke laptop index sight shallow hungry\"",
     "re-test": "nodemon --exec 'truffle test'",
-    "migrate-local":"truffle migrate && ./scripts/generateEnvFile.sh local-ganache"
+    "migrate": "truffle migrate"
   },
   "nodemonConfig": {
     "ignore": [
       "docs/*"
     ],
     "delay": "500"
+  },
+  "husky": {
+    "hooks": {
+      "pre-commit": "npm run lint:sol:fix"
+    }
   },
   "dependencies": {
     "openzeppelin-solidity": "1.11.0"
@@ -20,11 +35,16 @@
     "babel-plugin-transform-runtime": "^6.23.0",
     "babel-polyfill": "^6.23.0",
     "babel-preset-env": "^1.7.0",
-    "babel-preset-es2015": "^6.18.0",
-    "babel-preset-stage-2": "^6.18.0",
-    "babel-preset-stage-3": "^6.17.0",
     "babel-register": "^6.23.0",
+    "babelrc-rollup": "^3.0.0",
     "ethereumjs-util": "^5.2.0",
-    "nodemon": "1.18.3"
+    "ethereumjs-wallet": "^0.6.2",
+    "ganache-cli": "^6.1.8",
+    "husky": "^1.0.0-rc.15",
+    "nodemon": "1.18.3",
+    "solium": "^1.1.8",
+    "truffle": "^4.1.14",
+    "truffle-wallet-provider": "0.0.5",
+    "web3": "1.0.0-beta.36"
   }
 }
