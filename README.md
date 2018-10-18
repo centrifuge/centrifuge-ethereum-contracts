@@ -1,10 +1,12 @@
-CI Status
----------
+# centrifuge Ethereum Contracts
 [![Build Status](https://travis-ci.com/centrifuge/centrifuge-ethereum-contracts.svg?token=bsfbw2zXLuaTvhVTDXMh&branch=master)](https://travis-ci.com/centrifuge/centrifuge-ethereum-contracts)
 
+**Getting help:** Head over to our developer documentation at [developer.centrifuge.io](http://developer.centrifuge.io) to learn how to setup a node and interact with it. 
 
-Running it
-----------
+**DISCLAIMER:** The code released here presents a very early alpha version that should not be used in production and has not been audited. Use this at your own risk.
+
+
+## Running it
 ```bash
 # install truffle globally on the machine
 npm install -g truffle@4.1.13
@@ -27,8 +29,7 @@ npm run re-test
 
 *Migrate script will run only all migrations under the 2 prefix, keep that in mind if adding a new prefix contract migration*
 
-Migrate Smart Contracts against Integration Environment
--------------------------------------------------------
+## Migrate Smart Contracts against Integration Environment
 
 Follow instructions under https://github.com/CentrifugeInc/go-centrifuge/blob/master/README.md to deploy a local light node that bootstraps from the remote node.
 As soon as the local node is running, and synced:
@@ -39,8 +40,7 @@ As soon as the local node is running, and synced:
   * Generates environment json file
 
 
-Migrate Smart Contracts against Rinkeby Environment
----------------------------------------------------
+## Migrate Smart Contracts against Rinkeby Environment
 
 Follow instructions under https://github.com/CentrifugeInc/go-centrifuge/blob/master/README.md to deploy a local light Rinkeby node.
 As soon as the local proxy node is running:
@@ -58,8 +58,7 @@ As soon as the local proxy node is running:
   * Generates environment json file
 
 
-Released ABIs + Addresses
--------------------------
+## Released ABIs + Addresses
 
 We keep track of the released ABIs and their respective deployed addresses as part of the repository.
 
@@ -77,6 +76,4 @@ Every environment will have its own `json` file that contains the following form
 }
 ```
 
-We will take advantage of git revision/version control of our smart contracts deployed. 
-Master branch always refer to latest, while tags/branches will refer to specific releases.
 
