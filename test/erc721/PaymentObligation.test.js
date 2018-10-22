@@ -7,9 +7,6 @@ let IdentityRegistry = artifacts.require("IdentityRegistry");
 let Identity = artifacts.require("Identity");
 let proof = require('./proof.json');
 
-const base64ToHex = function (_base64String) {
-    return bufferToHex(Buffer.from(_base64String, "base64"));
-}
 let deployedCentrifugeId = "0x24fe6555beb9";
 let deployedIdentity;
 let deployedIdentityRegistry;
@@ -41,9 +38,9 @@ contract("PaymentObligation", function (accounts) {
 
     describe("mint", async function () {
         it("should mint a token if the Merkle proofs validates", async function () {
-            let documentIdentifer = base64ToHex(proof.document_identifier);
+            let documentIdentifer = proof.document_identifier;
             console.log(documentIdentifer)
-            let validRootHash = base64ToHex(proof.document_root);
+            let validRootHash = proof.document_root;
             let tokenURI = "http://test.com";
             await this.anchorRegistry.setAnchorById(
                 documentIdentifer,
@@ -66,19 +63,19 @@ contract("PaymentObligation", function (accounts) {
                     proof.field_proofs[4].value,
                 ],
                 [
-                    base64ToHex(proof.field_proofs[0].salt),
-                    base64ToHex(proof.field_proofs[1].salt),
-                    base64ToHex(proof.field_proofs[2].salt),
-                    base64ToHex(proof.field_proofs[3].salt),
-                    base64ToHex(proof.field_proofs[4].salt),
+                    proof.field_proofs[0].salt,
+                    proof.field_proofs[1].salt,
+                    proof.field_proofs[2].salt,
+                    proof.field_proofs[3].salt,
+                    proof.field_proofs[4].salt,
 
                 ],
                 [
-                    proof.field_proofs[0].sortedHashes.map(item => base64ToHex(item)),
-                    proof.field_proofs[1].sortedHashes.map(item => base64ToHex(item)),
-                    proof.field_proofs[2].sortedHashes.map(item => base64ToHex(item)),
-                    proof.field_proofs[3].sortedHashes.map(item => base64ToHex(item)),
-                    proof.field_proofs[4].sortedHashes.map(item => base64ToHex(item)),
+                    proof.field_proofs[0].sortedHashes,
+                    proof.field_proofs[1].sortedHashes,
+                    proof.field_proofs[2].sortedHashes,
+                    proof.field_proofs[3].sortedHashes,
+                    proof.field_proofs[4].sortedHashes,
                 ]
             ).send()
                 .then(function (tx) {
@@ -104,8 +101,8 @@ contract("PaymentObligation", function (accounts) {
         });
 
         it("should not mint a token if the a Merkle proof fails", async function () {
-            let documentIdentifer = base64ToHex(proof.document_identifier);
-            let validRootHash = base64ToHex(proof.document_root);
+            let documentIdentifer = proof.document_identifier;
+            let validRootHash = proof.document_root;
             let tokenURI = "http://test.com";
             await this.anchorRegistry.setAnchorById(
                 documentIdentifer,
@@ -128,26 +125,26 @@ contract("PaymentObligation", function (accounts) {
                     proof.field_proofs[4].value,
                 ],
                 [
-                    base64ToHex(proof.field_proofs[0].salt),
-                    base64ToHex(proof.field_proofs[1].salt),
-                    base64ToHex(proof.field_proofs[2].salt),
-                    base64ToHex(proof.field_proofs[3].salt),
-                    base64ToHex(proof.field_proofs[4].salt),
+                    proof.field_proofs[0].salt,
+                    proof.field_proofs[1].salt,
+                    proof.field_proofs[2].salt,
+                    proof.field_proofs[3].salt,
+                    proof.field_proofs[4].salt,
 
                 ],
                 [
-                    proof.field_proofs[0].sortedHashes.map(item => base64ToHex(item)),
-                    proof.field_proofs[1].sortedHashes.map(item => base64ToHex(item)),
-                    proof.field_proofs[2].sortedHashes.map(item => base64ToHex(item)),
-                    proof.field_proofs[3].sortedHashes.map(item => base64ToHex(item)),
-                    proof.field_proofs[4].sortedHashes.map(item => base64ToHex(item)),
+                    proof.field_proofs[0].sortedHashes,
+                    proof.field_proofs[1].sortedHashes,
+                    proof.field_proofs[2].sortedHashes,
+                    proof.field_proofs[3].sortedHashes,
+                    proof.field_proofs[4].sortedHashes,
                 ]
             ).send());
         });
 
         it("should not mint a token if the anchorId has been used before", async function () {
-            let documentIdentifer = base64ToHex(proof.document_identifier);
-            let validRootHash = base64ToHex(proof.document_root);
+            let documentIdentifer = proof.document_identifier;
+            let validRootHash = proof.document_root;
             let tokenURI = "http://test.com";
 
             await this.anchorRegistry.setAnchorById(
@@ -171,19 +168,19 @@ contract("PaymentObligation", function (accounts) {
                     proof.field_proofs[4].value,
                 ],
                 [
-                    base64ToHex(proof.field_proofs[0].salt),
-                    base64ToHex(proof.field_proofs[1].salt),
-                    base64ToHex(proof.field_proofs[2].salt),
-                    base64ToHex(proof.field_proofs[3].salt),
-                    base64ToHex(proof.field_proofs[4].salt),
+                    proof.field_proofs[0].salt,
+                    proof.field_proofs[1].salt,
+                    proof.field_proofs[2].salt,
+                    proof.field_proofs[3].salt,
+                    proof.field_proofs[4].salt,
 
                 ],
                 [
-                    proof.field_proofs[0].sortedHashes.map(item => base64ToHex(item)),
-                    proof.field_proofs[1].sortedHashes.map(item => base64ToHex(item)),
-                    proof.field_proofs[2].sortedHashes.map(item => base64ToHex(item)),
-                    proof.field_proofs[3].sortedHashes.map(item => base64ToHex(item)),
-                    proof.field_proofs[4].sortedHashes.map(item => base64ToHex(item)),
+                    proof.field_proofs[0].sortedHashes,
+                    proof.field_proofs[1].sortedHashes,
+                    proof.field_proofs[2].sortedHashes,
+                    proof.field_proofs[3].sortedHashes,
+                    proof.field_proofs[4].sortedHashes,
                 ]
             ).send();
 
@@ -202,19 +199,19 @@ contract("PaymentObligation", function (accounts) {
                     proof.field_proofs[4].value,
                 ],
                 [
-                    base64ToHex(proof.field_proofs[0].salt),
-                    base64ToHex(proof.field_proofs[1].salt),
-                    base64ToHex(proof.field_proofs[2].salt),
-                    base64ToHex(proof.field_proofs[3].salt),
-                    base64ToHex(proof.field_proofs[4].salt),
+                    proof.field_proofs[0].salt,
+                    proof.field_proofs[1].salt,
+                    proof.field_proofs[2].salt,
+                    proof.field_proofs[3].salt,
+                    proof.field_proofs[4].salt,
 
                 ],
                 [
-                    proof.field_proofs[0].sortedHashes.map(item => base64ToHex(item)),
-                    proof.field_proofs[1].sortedHashes.map(item => base64ToHex(item)),
-                    proof.field_proofs[2].sortedHashes.map(item => base64ToHex(item)),
-                    proof.field_proofs[3].sortedHashes.map(item => base64ToHex(item)),
-                    proof.field_proofs[4].sortedHashes.map(item => base64ToHex(item)),
+                    proof.field_proofs[0].sortedHashes,
+                    proof.field_proofs[1].sortedHashes,
+                    proof.field_proofs[2].sortedHashes,
+                    proof.field_proofs[3].sortedHashes,
+                    proof.field_proofs[4].sortedHashes,
                 ]
             ).send());
         });
@@ -223,8 +220,8 @@ contract("PaymentObligation", function (accounts) {
     describe("check the gas cost for mint", async function () {
         const mintMaxGas = 533819;
         it(`should have mint gas cost less then ${mintMaxGas} `, async function () {
-            let documentIdentifer = base64ToHex(proof.document_identifier);
-            let validRootHash = base64ToHex(proof.document_root);
+            let documentIdentifer = proof.document_identifier;
+            let validRootHash = proof.document_root;
             let tokenURI = "http://test.com";
 
             await this.anchorRegistry.setAnchorById(
@@ -248,19 +245,19 @@ contract("PaymentObligation", function (accounts) {
                     proof.field_proofs[4].value,
                 ],
                 [
-                    base64ToHex(proof.field_proofs[0].salt),
-                    base64ToHex(proof.field_proofs[1].salt),
-                    base64ToHex(proof.field_proofs[2].salt),
-                    base64ToHex(proof.field_proofs[3].salt),
-                    base64ToHex(proof.field_proofs[4].salt),
+                    proof.field_proofs[0].salt,
+                    proof.field_proofs[1].salt,
+                    proof.field_proofs[2].salt,
+                    proof.field_proofs[3].salt,
+                    proof.field_proofs[4].salt,
 
                 ],
                 [
-                    proof.field_proofs[0].sortedHashes.map(item => base64ToHex(item)),
-                    proof.field_proofs[1].sortedHashes.map(item => base64ToHex(item)),
-                    proof.field_proofs[2].sortedHashes.map(item => base64ToHex(item)),
-                    proof.field_proofs[3].sortedHashes.map(item => base64ToHex(item)),
-                    proof.field_proofs[4].sortedHashes.map(item => base64ToHex(item)),
+                    proof.field_proofs[0].sortedHashes,
+                    proof.field_proofs[1].sortedHashes,
+                    proof.field_proofs[2].sortedHashes,
+                    proof.field_proofs[3].sortedHashes,
+                    proof.field_proofs[4].sortedHashes,
                 ]
             ).estimateGas();
             console.log('Actual mint gas cost:', mintGasCost)

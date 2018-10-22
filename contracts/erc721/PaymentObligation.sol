@@ -200,26 +200,5 @@ contract PaymentObligation is UserMintableERC721 {
     );
   }
 
-  /**
-  * Checks if the a centrifuge identity exists and that
-  * the sender owns that identity
-  * @param _centrifugeId uint48 Centrifuge Identity identifier
-  */
-  function _isValidCollaborator(
-    uint48 _centrifugeId
-  )
-  internal
-  view
-  returns (bool)
-  {
-    // get address of the identity associated to the _centrifugeId
-    IdentityRegistry registry = IdentityRegistry(identityRegistry_);
-    address identityAddress = registry.getIdentityByCentrifugeId(_centrifugeId);
-    if (identityAddress == 0x0)
-      return false;
-    return (Identity(identityAddress).owner() == msg.sender);
-  }
-
-
 }
 
