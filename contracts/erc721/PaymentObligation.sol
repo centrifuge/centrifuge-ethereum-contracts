@@ -3,6 +3,8 @@ pragma experimental ABIEncoderV2;
 
 import "contracts/lib/MerkleProofSha256.sol";
 import "contracts/erc721/UserMintableERC721.sol";
+import "contracts/Identity.sol";
+import "contracts/IdentityRegistry.sol";
 
 
 contract PaymentObligation is UserMintableERC721 {
@@ -16,7 +18,14 @@ contract PaymentObligation is UserMintableERC721 {
   // anchor registry
   address internal identityRegistry_;
   // hardcoded supported fields for minting a PaymentObligation
-  string[3] internal supportedFields_ = ["gross_amount", "currency", "due_date"];
+  string[4] internal supportedFields_ = [
+    "gross_amount",
+    "currency",
+    "due_date",
+    "document_type"
+  ];
+  // Prefix for the collaborator field.
+  bytes internal collaboratorPrefix = "collaborators";
 
   struct PODetails {
     string grossAmount;
@@ -26,9 +35,9 @@ contract PaymentObligation is UserMintableERC721 {
 
   mapping(uint256 => PODetails) internal poDetails_;
 
-  /** 
+  /**
    * @dev Constructor function
-   * @param _name string The name of this token 
+   * @param _name string The name of this token
    * @param _symbol string The shorthand token identifier
    * @param _anchorRegistry address The address of the anchor registry
    * that is backing this token's mint method.
@@ -47,7 +56,6 @@ contract PaymentObligation is UserMintableERC721 {
     identityRegistry_ = _identityRegistry;
   }
 
-  // TODO add document type and proove that the sender is a collaborator
   /**
    * @dev Mints a token after validating the given merkle proof
    * and comparing it to the anchor registry's stored hash/doc ID.
@@ -57,13 +65,14 @@ contract PaymentObligation is UserMintableERC721 {
    * @param _anchorId bytes32 The ID of the document as identified
    * by the set up anchorRegistry.
    * @param _merkleRoot bytes32 The root hash of the merkle proof/doc
-   * @param _values bytes32[3] The values of the leafs that is being proved
-   * Will be converted to string and concatenated for proof verification as outlined in
+   * @param _collaboratorField string The values of the collaborator leaf
+   * It needs to start with a collaborator prefix, ex: collaborator[0]
+   * @param _values string[5] The values of the leafs that is being proved
    * precise-proofs library.
-   * @param _salts bytes32[3] The salts for the field that is being proved
+   * @param _salts bytes32[5] The salts for the field that is being proved
    * Will be concatenated for proof verification as outlined in
    * precise-proofs library.
-   * @param _proofs bytes32[][3] Documents proofs that are needed
+   * @param _proofs bytes32[][5] Documents proofs that are needed
    * for proof verification as outlined in precise-proofs library.
    */
   function mint(
@@ -72,13 +81,13 @@ contract PaymentObligation is UserMintableERC721 {
     string _tokenURI,
     uint256 _anchorId,
     bytes32 _merkleRoot,
-    string[3] _values,
-    bytes32[3] _salts,
-    bytes32[][3] _proofs
+    string _collaboratorField,
+    string[5] _values,
+    bytes32[5] _salts,
+    bytes32[][5] _proofs
   )
   public
   {
-
     require(
       MerkleProofSha256.verifyProof(
         _proofs[0],
@@ -105,6 +114,36 @@ contract PaymentObligation is UserMintableERC721 {
         _hashLeafData(supportedFields_[2], _values[2], _salts[2])
       ),
       "merkle tree needs to validate due_date"
+    );
+
+    require(
+      MerkleProofSha256.verifyProof(
+        _proofs[3],
+        _merkleRoot,
+        _hashLeafData(supportedFields_[3], "http://github.com/centrifuge/centrifuge-protobufs/invoice/#invoice.InvoiceData", _salts[3])
+      ),
+      "merkle tree needs to validate document_type is invoice"
+    );
+
+    // Check the prefix of the collaborator property name
+    bytes memory strBytes = bytes(_collaboratorField);
+    bytes memory result = new bytes(collaboratorPrefix.length);
+    for (uint i = 0; i < collaboratorPrefix.length; i++) {
+      result[i] = strBytes[i];
+    }
+
+    require(
+      keccak256(result) == keccak256(collaboratorPrefix),
+      "Collaborator property name must start with collaborators"
+    );
+
+    require(
+      MerkleProofSha256.verifyProof(
+        _proofs[4],
+        _merkleRoot,
+        _hashLeafData(_collaboratorField, _values[4], _salts[4])
+      ),
+      "merkle tree needs to validate collaborator field"
     );
 
     super._mintAnchor(
@@ -160,7 +199,6 @@ contract PaymentObligation is UserMintableERC721 {
     tokenDetails_[_tokenId].rootHash
     );
   }
-
 
 }
 
