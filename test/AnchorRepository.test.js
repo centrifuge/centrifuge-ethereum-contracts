@@ -1,6 +1,5 @@
 import {ETH_MESSAGE_AUTH} from "./constants";
 
-const createRandomByte = require('./tools/random').createRandomByte;
 const mineNBlocks = require('./tools/blockHeight').mineNBlocks;
 const MerkleTree = require('openzeppelin-solidity/test/helpers/merkleTree').default;
 const shouldRevert = require('./tools/assertTx').shouldRevert;
@@ -14,7 +13,7 @@ let IdentityRegistry = artifacts.require("IdentityRegistry");
 let deployedAnchorRepository;
 let deployedIdentity;
 let deployedIdentityRegistry;
-let deployedCentrifugeId = createRandomByte(6);
+let deployedCentrifugeId = web3.utils.randomHex(6);
 let authPublicKey;
 
 function createSignatureMessage(payloads) {
@@ -29,8 +28,8 @@ function getDeterministCommitParameter(accounts) {
     return {
         anchorId: "0x154cc26833dec2f4ad7ead9d65f9ec968a1aa5efbf6fe762f8f2a67d18a2d9b1",
         documentRoot: "0x65a35574f70281ae4d1f6c9f3adccd5378743f858c67a802a49a08ce185bc975",
-        proof: [ '0x5a02f3555c92e495fd9b0e790d9b18794160e8a2087a2bec9066cc2d533bc3cd',
-        '0x58b05c048002cc9e861250f2e467f3883e2660c04e7e8c66edaa55db11dbc52c' ],
+        proof: ['0x5a02f3555c92e495fd9b0e790d9b18794160e8a2087a2bec9066cc2d533bc3cd',
+            '0x58b05c048002cc9e861250f2e467f3883e2660c04e7e8c66edaa55db11dbc52c'],
         centrifugeId: "0x1851943e76d2",
         publicKey: authPublicKey,
         commitSignature: "0xb4051d6d03c3bf39f4ec4ba949a91a358b0cacb4804b82ed2ba978d338f5e747770c00b63c8e50c1a7aa5ba629870b54c2068a56f8b43460aa47891c6635d36d01",
@@ -41,23 +40,23 @@ function getDeterministCommitParameter(accounts) {
 
 async function getBasicTestNeeds(accounts) {
 
-    const anchorId = createRandomByte(32);
-    const elements = [createRandomByte(32), createRandomByte(32), createRandomByte(32), createRandomByte(32)];
+    const anchorId = web3.utils.randomHex(32);
+    const elements = [web3.utils.randomHex(32), web3.utils.randomHex(32), web3.utils.randomHex(32), web3.utils.randomHex(32)];
     const merkleTree = new MerkleTree(elements);
     const documentRoot = merkleTree.getHexRoot();
     const proof = merkleTree.getHexProof(elements[0]);
     const signingRoot = bufferToHex(keccak(elements[0]));
-    const expirationBlock = web3.eth.blockNumber + 15;
+    const expirationBlock = await web3.eth.getBlockNumber() + 15;
 
-    const hex = web3.toHex(expirationBlock).slice(2);
+    const hex = web3.utils.toHex(expirationBlock).slice(2);
     const zeroFilled = '0x' + new Array(65 - hex.length).join('0') + hex
 
     const precommitToSign = createSignatureMessage([anchorId, signingRoot, deployedCentrifugeId, zeroFilled]);
-    const precommitSignature = await web3.eth.sign(authPublicKey, precommitToSign);
+    const precommitSignature = await web3.eth.sign(precommitToSign, authPublicKey);
 
     const commitToSign = createSignatureMessage([anchorId, documentRoot, deployedCentrifugeId]);
-    const commitSignature = await web3.eth.sign(authPublicKey, commitToSign);
-    
+    const commitSignature = await web3.eth.sign(commitToSign, authPublicKey);
+
     return {
         anchorId,
         signingRoot,
@@ -75,13 +74,16 @@ async function getBasicTestNeeds(accounts) {
 
 
 contract("AnchorRepository", function (accounts) {
+
+
     before(async function () {
+        //accounts = await web3.eth.getAccounts();
         deployedAnchorRepository = await AnchorRepository.deployed();
         // Create Identity and add it to the IdentityRegistry
         deployedIdentityRegistry = await IdentityRegistry.deployed();
         deployedIdentity = await Identity.new(deployedCentrifugeId);
         await deployedIdentityRegistry.registerIdentity(deployedCentrifugeId, deployedIdentity.address);
-        authPublicKey = accounts[1]
+        authPublicKey = accounts[1];
         await deployedIdentity.addKey(authPublicKey, ETH_MESSAGE_AUTH)
 
     });
@@ -90,17 +92,12 @@ contract("AnchorRepository", function (accounts) {
 
         it("should only allow fully filled PreAnchors to be recorded", async function () {
             const {anchorId, signingRoot, centrifugeId, precommitSignature, expirationBlock, anchorRepository, callOptions} = await getBasicTestNeeds(accounts);
-
-            await shouldRevert(anchorRepository.preCommit("", signingRoot, centrifugeId, precommitSignature, expirationBlock, callOptions));
-            await shouldRevert(anchorRepository.preCommit(null, signingRoot, centrifugeId, precommitSignature, expirationBlock, callOptions));
-            await shouldRevert(anchorRepository.preCommit(anchorId, "", centrifugeId, precommitSignature, expirationBlock, callOptions));
-            await shouldRevert(anchorRepository.preCommit(anchorId, null, centrifugeId, precommitSignature, expirationBlock, callOptions))
-            await shouldRevert(anchorRepository.preCommit(anchorId, signingRoot, "", precommitSignature, expirationBlock, callOptions));
-            await shouldRevert(anchorRepository.preCommit(anchorId, signingRoot, null, precommitSignature, expirationBlock, callOptions));
-            await shouldRevert(anchorRepository.preCommit(anchorId, signingRoot, centrifugeId, "", expirationBlock, callOptions));
-            await shouldRevert(anchorRepository.preCommit(anchorId, signingRoot, centrifugeId, null, expirationBlock, callOptions));
-            await shouldRevert(anchorRepository.preCommit(anchorId, signingRoot, centrifugeId, precommitSignature, "", callOptions));
-            await shouldRevert(anchorRepository.preCommit(anchorId, signingRoot, centrifugeId, precommitSignature, null, callOptions));
+            ;
+            await shouldRevert(anchorRepository.preCommit("0x0", signingRoot, centrifugeId, precommitSignature, expirationBlock, callOptions));
+            await shouldRevert(anchorRepository.preCommit(anchorId, "0x0", centrifugeId, precommitSignature, expirationBlock, callOptions));
+            await shouldRevert(anchorRepository.preCommit(anchorId, signingRoot, "0x0", precommitSignature, expirationBlock, callOptions));
+            await shouldRevert(anchorRepository.preCommit(anchorId, signingRoot, centrifugeId, "0x0", expirationBlock, callOptions));
+            await shouldRevert(anchorRepository.preCommit(anchorId, signingRoot, centrifugeId, precommitSignature, "0x0", callOptions));
 
         })
 
@@ -108,16 +105,11 @@ contract("AnchorRepository", function (accounts) {
         it("should only allow fully filled Anchors to be recorded", async function () {
             const {anchorId, documentRoot, centrifugeId, proof, commitSignature, anchorRepository, callOptions} = await getBasicTestNeeds(accounts);
 
-            await shouldRevert(anchorRepository.commit("", centrifugeId, documentRoot, proof, commitSignature, callOptions));
-            await shouldRevert(anchorRepository.commit(null, centrifugeId, documentRoot, proof, commitSignature, callOptions));
-            await shouldRevert(anchorRepository.commit(anchorId, "", documentRoot, proof, commitSignature, callOptions))
-            await shouldRevert(anchorRepository.commit(anchorId, null, documentRoot, proof, commitSignature, callOptions));
-            await shouldRevert(anchorRepository.commit(anchorId, centrifugeId, "", proof, commitSignature, callOptions));
-            await shouldRevert(anchorRepository.commit(anchorId, centrifugeId, null, proof, commitSignature, callOptions));
-            await shouldReturnWithMessage(anchorRepository.commit(anchorId, centrifugeId, documentRoot, "", commitSignature, callOptions), "value.forEach is not a function");
-            await shouldReturnWithMessage(anchorRepository.commit(anchorId, centrifugeId, documentRoot, null, commitSignature, callOptions), "Cannot read property 'length' of null");
-            await shouldRevert(anchorRepository.commit(anchorId, centrifugeId, documentRoot, proof, "", callOptions));
-            await shouldRevert(anchorRepository.commit(anchorId, centrifugeId, documentRoot, proof, null, callOptions));
+            await shouldRevert(anchorRepository.commit("0x0", centrifugeId, documentRoot, proof, commitSignature, callOptions));
+            await shouldRevert(anchorRepository.commit(anchorId, "0x0", documentRoot, proof, commitSignature, callOptions))
+            await shouldRevert(anchorRepository.commit(anchorId, centrifugeId, "0x0", proof, commitSignature, callOptions));
+            await shouldRevert(anchorRepository.commit(anchorId, centrifugeId, documentRoot, [], commitSignature, callOptions));
+            await shouldRevert(anchorRepository.commit(anchorId, centrifugeId, documentRoot, proof, "0x0", callOptions));
         })
 
 
@@ -131,7 +123,6 @@ contract("AnchorRepository", function (accounts) {
 
         it("should allow a commit without an existing precommit", async function () {
             const {anchorId, documentRoot, centrifugeId, proof, commitSignature, anchorRepository, callOptions} = await getBasicTestNeeds(accounts);
-
             await shouldSucceed(anchorRepository.commit(anchorId, documentRoot, centrifugeId, proof, commitSignature, callOptions));
         })
 
@@ -156,11 +147,11 @@ contract("AnchorRepository", function (accounts) {
             await shouldSucceed(anchorRepository.preCommit(anchorId, signingRoot, centrifugeId, precommitSignature, expirationBlock, callOptions));
             await mineNBlocks(15);
             //create new expirationBlock and signature for precommit
-            expirationBlock = web3.eth.blockNumber + 15;
-            const hex = web3.toHex(expirationBlock).slice(2);
+            expirationBlock = await web3.eth.getBlockNumber() + 15;
+            const hex = web3.utils.toHex(expirationBlock).slice(2);
             const zeroFilled = '0x' + new Array(65 - hex.length).join('0') + hex
             const precommitToSign = createSignatureMessage([anchorId, signingRoot, deployedCentrifugeId, zeroFilled]);
-            precommitSignature = await web3.eth.sign(authPublicKey, precommitToSign);
+            precommitSignature = await web3.eth.sign(precommitToSign, authPublicKey);
 
             await shouldSucceed(anchorRepository.preCommit(anchorId, signingRoot, centrifugeId, precommitSignature, expirationBlock, callOptions));
 
@@ -169,9 +160,9 @@ contract("AnchorRepository", function (accounts) {
 
         it("should not allow committing an Anchor if the PreAnchor has a different centrifugeId ", async function () {
             const {anchorId, signingRoot, documentRoot, proof, centrifugeId, publicKey, precommitSignature, expirationBlock, anchorRepository, callOptions} = await getBasicTestNeeds(accounts);
-            const anotherCentrifugeId = createRandomByte(6);
+            const anotherCentrifugeId = web3.utils.randomHex(6);
             const commitToSign = createSignatureMessage([anchorId, documentRoot, anotherCentrifugeId]);
-            const commitSignature = await web3.eth.sign(publicKey, commitToSign);
+            const commitSignature = await web3.eth.sign(commitToSign, publicKey);
 
             await shouldSucceed(anchorRepository.preCommit(anchorId, signingRoot, centrifugeId, precommitSignature, expirationBlock, callOptions));
             await shouldRevert(anchorRepository.commit(anchorId, documentRoot, anotherCentrifugeId, proof, commitSignature, callOptions));
@@ -181,9 +172,9 @@ contract("AnchorRepository", function (accounts) {
         it("should not allow committing an Anchor if the precommit singingRoot does not belong to the documentRoot", async function () {
             const {anchorId, signingRoot, proof, centrifugeId, precommitToSign, precommitSignature, publicKey, expirationBlock, anchorRepository, callOptions} = await getBasicTestNeeds(accounts);
             // Create another document
-            const documentRoot = createRandomByte(32);
+            const documentRoot = web3.utils.randomHex(32);
             const commitToSign = createSignatureMessage([anchorId, documentRoot, centrifugeId]);
-            const commitSignature = await web3.eth.sign(publicKey, commitToSign);
+            const commitSignature = await web3.eth.sign(commitToSign, publicKey);
 
             await shouldSucceed(anchorRepository.preCommit(anchorId, signingRoot, centrifugeId, precommitSignature, expirationBlock, callOptions));
             await shouldRevert(anchorRepository.commit(anchorId, documentRoot, centrifugeId, proof, commitSignature, callOptions))
@@ -207,23 +198,23 @@ contract("AnchorRepository", function (accounts) {
             await shouldSucceed(anchorRepository.commit(anchorId, documentRoot, centrifugeId, proof, commitSignature, callOptions));
 
             let response = await anchorRepository.getAnchorById.call(anchorId, callOptions);
-            assert.equal(anchorId, web3.toHex(response[0]));
+            assert.equal(anchorId, web3.utils.toHex(response[0]));
 
             //solidity removes leading 0 from hexes in conversins
             //Make sure that the test do not fail because of that
             assert.equal(documentRoot, response[1]);
-            assert.equal(centrifugeId, web3.toHex(response[2]));
+            assert.equal(centrifugeId, web3.utils.toHex(response[2]));
 
 
         })
 
         it("should return an empty anchor for wrong anchorId", async function () {
             const {anchorRepository, callOptions} = await getBasicTestNeeds(accounts);
-            const notExistingAnchorId = createRandomByte(32);
+            const notExistingAnchorId = web3.utils.randomHex(32);
 
             let response = await anchorRepository.getAnchorById.call(notExistingAnchorId, callOptions);
-            assert.equal(notExistingAnchorId, web3.toHex(response[0]));
-            assert.equal(0x0, response[1]);
+            assert.equal(notExistingAnchorId, web3.utils.toHex(response[0]));
+            assert.equal("0x0000000000000000000000000000000000000000000000000000000000000000", response[1]);
             assert.equal(0, response[2].toNumber());
 
         })
@@ -235,13 +226,13 @@ contract("AnchorRepository", function (accounts) {
             await deployedIdentityRegistry.registerIdentity(testCentrifugeId, testDeployedIdentity.address);
             authPublicKey = accounts[1]
             await testDeployedIdentity.addKey(authPublicKey, ETH_MESSAGE_AUTH)
-          
-            const {anchorId, documentRoot, proof, centrifugeId,  commitSignature, anchorRepository, callOptions} = getDeterministCommitParameter(accounts);
-            
+
+            const {anchorId, documentRoot, proof, centrifugeId, commitSignature, anchorRepository, callOptions} = getDeterministCommitParameter(accounts);
+
             await shouldSucceed(anchorRepository.commit(anchorId, documentRoot, centrifugeId, proof, commitSignature, callOptions));
             let response = await anchorRepository.getAnchorById.call(anchorId, callOptions);
-            
-            assert.equal(anchorId, web3.toHex(response[0]));
+
+            assert.equal(anchorId, web3.utils.toHex(response[0]));
         })
 
     })

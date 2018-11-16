@@ -1,4 +1,5 @@
 pragma solidity ^0.4.24;
+pragma experimental ABIEncoderV2;
 
 import "contracts/erc721/UserMintableERC721.sol";
 
@@ -9,8 +10,13 @@ import "contracts/erc721/UserMintableERC721.sol";
  */
 contract MockUserMintableERC721 is UserMintableERC721 {
 
-  constructor(string _name, string _symbol, address _anchorRegistry)
-  UserMintableERC721(_name, _symbol, _anchorRegistry)
+  constructor(
+    string _name,
+    string _symbol,
+    address _anchorRegistry,
+    string[] _mandatoryFields
+  )
+  UserMintableERC721(_name, _symbol, _anchorRegistry, _mandatoryFields)
   public
   {
   }
@@ -44,7 +50,10 @@ contract MockUserMintableERC721 is UserMintableERC721 {
     uint256 _tokenId,
     uint256 _anchorId,
     bytes32 _merkleRoot,
-    string _tokenURI
+    string _tokenURI,
+    string[] _values,
+    bytes32[] _salts,
+    bytes32[][] _proofs
   )
   public
   {
@@ -53,8 +62,10 @@ contract MockUserMintableERC721 is UserMintableERC721 {
       _tokenId,
       _anchorId,
       _merkleRoot,
-      _tokenURI
-
+      _tokenURI,
+      _values,
+      _salts,
+      _proofs
     );
   }
 }

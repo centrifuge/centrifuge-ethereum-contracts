@@ -1,4 +1,3 @@
-const createRandomByte = require('./tools/random').createRandomByte;
 const assertEvent = require('./tools/contractEvents').assertEvent;
 const getEventValue = require('./tools/contractEvents').getEventValue;
 const shouldRevert = require('./tools/assertTx').shouldRevert;
@@ -19,11 +18,11 @@ contract("IdentityFactory", function (accounts) {
 
   describe("Create Identity", async function () {
     it("should register identity and transfer ownership", async function () {
-      let centrifugeId = createRandomByte(6);
+      let centrifugeId = web3.utils.randomHex(6);
 
       let createdAddress;
       await identityFactoryContract.createIdentity(centrifugeId, { from: accounts[1] }).then(function(tx) {
-        assertEvent(tx, "IdentityCreated", {centrifugeId: centrifugeId},{centrifugeId:(value) => web3.toHex(value)});
+        assertEvent(tx, "IdentityCreated", {centrifugeId: centrifugeId},{centrifugeId:(value) => web3.utils.toHex(value)});
         assertEvent(tx, "OwnershipTransferred", {newOwner: accounts[1]});
         createdAddress = getEventValue(tx, "IdentityCreated", "identity");
       });
@@ -35,11 +34,11 @@ contract("IdentityFactory", function (accounts) {
     });
 
     it("should register identity once", async function () {
-      let centrifugeId = createRandomByte(6);
+      let centrifugeId = web3.utils.randomHex(6);
 
       let createdAddress;
       await identityFactoryContract.createIdentity(centrifugeId, { from: accounts[1] }).then(function(tx) {
-        assertEvent(tx, "IdentityCreated", {centrifugeId: centrifugeId},{centrifugeId:(value) => web3.toHex(value)});
+        assertEvent(tx, "IdentityCreated", {centrifugeId: centrifugeId},{centrifugeId:(value) => web3.utils.toHex(value)});
         assertEvent(tx, "OwnershipTransferred", {newOwner: accounts[1]});
         createdAddress = getEventValue(tx, "IdentityCreated", "identity");
       });
@@ -57,7 +56,7 @@ contract("IdentityFactory", function (accounts) {
 
       await shouldRevert(identityFactoryContract.createIdentity(centrifugeId));
 
-      centrifugeId = 0x0;
+      centrifugeId = "0x0000000000000000000000000000000000000000000000000000000000000000";
       await shouldRevert(identityFactoryContract.createIdentity(centrifugeId));
     });
 
