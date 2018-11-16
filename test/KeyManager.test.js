@@ -1,7 +1,6 @@
 import {P2P_IDENTITY, P2P_SIGNATURE, ETH_MESSAGE_AUTH} from "./constants";
 import {assertEvent, getEvents} from "./tools/contractEvents";
 
-const createRandomByte = require('./tools/random').createRandomByte;
 const mineNBlocks = require('./tools/blockHeight').mineNBlocks;
 const shouldRevert = require('./tools/assertTx').shouldRevert;
 const shouldSucceed = require('./tools/assertTx').shouldSucceed;
@@ -9,12 +8,12 @@ const Identity = artifacts.require("Identity");
 
 
 async function getBasicTestNeeds() {
-    let centrifugeId = createRandomByte(6);
+    let centrifugeId = web3.utils.randomHex(6);
 
     return {
         centrifugeId,
         identity: await Identity.new(centrifugeId),
-        key: createRandomByte(32)
+        key: web3.utils.randomHex(32)
     };
 }
 
@@ -25,8 +24,7 @@ contract("KeyManager", function (accounts) {
 
         it("Should not add a empty key", async function () {
             const {identity} = await getBasicTestNeeds();
-            await shouldRevert(identity.addMultiPurposeKey("", [P2P_IDENTITY]));
-            await shouldRevert(identity.addKey("", P2P_IDENTITY));
+            await shouldRevert(identity.addKey("0x", P2P_IDENTITY));
         })
 
         it("Should not add a key with an empty purpose", async function () {
@@ -89,8 +87,8 @@ contract("KeyManager", function (accounts) {
 
         it("Should add and retrieve keys by purpose", async function () {
             const {identity, key} = await getBasicTestNeeds();
-            const key2 = createRandomByte(20);
-            const key3 = createRandomByte(32);
+            const key2 = web3.utils.randomHex(20);
+            const key3 = web3.utils.randomHex(32);
             await identity.addKey(key, P2P_IDENTITY);
             await identity.addKey(key2, ETH_MESSAGE_AUTH);
             await identity.addMultiPurposeKey(key3, [P2P_IDENTITY, P2P_SIGNATURE]);

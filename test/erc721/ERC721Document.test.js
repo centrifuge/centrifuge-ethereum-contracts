@@ -6,6 +6,9 @@ let MockAnchorRegistry = artifacts.require("MockAnchorRepository");
 let MockUserMintableERC721 = artifacts.require("MockUserMintableERC721");
 
 
+let proof = require('./proof.json');
+const mandatoryFields = [proof.field_proofs[0].property, proof.field_proofs[1].property];
+
 const base64ToHex = function (_base64String) {
     return bufferToHex(Buffer.from(_base64String, "base64"));
 }
@@ -35,14 +38,14 @@ const getValidProofHashes = function () {
 contract("UserMintableERC721", function (accounts) {
     beforeEach(async function () {
         this.anchorRegistry = await MockAnchorRegistry.new();
-        this.registry = await UserMintableERC721.new("ERC-721 Document Anchor", "TDA", this.anchorRegistry.address);
+        this.registry = await UserMintableERC721.new("ERC-721 Document Anchor", "TDA", this.anchorRegistry.address, mandatoryFields);
     });
 
     describe("UserMintableERC721", async function () {
 
         it("should be deployable as an independent registry", async function () {
             let anchorRegistry = await MockAnchorRegistry.new();
-            let instance = await UserMintableERC721.new("ERC721 Document Anchor 2", "TDA2", anchorRegistry.address);
+            let instance = await UserMintableERC721.new("ERC721 Document Anchor 2", "TDA2", anchorRegistry.address, mandatoryFields);
 
             assert.equal("ERC721 Document Anchor 2", await instance.name.call(), "The registry should be deployed with the specific name");
             assert.equal("TDA2", await instance.symbol.call(), "The registry should be deployed with the specific symbol");
@@ -56,7 +59,7 @@ contract("UserMintableERC721", function (accounts) {
 
 
         it("should be able to check if documents are registered on the anchor registry", async function () {
-            let mockRegistry = await MockUserMintableERC721.new("ERC-721 Document Anchor", "TDA", this.anchorRegistry.address);
+            let mockRegistry = await MockUserMintableERC721.new("ERC-721 Document Anchor", "TDA", this.anchorRegistry.address, mandatoryFields);
 
             await this.anchorRegistry.setAnchorById(
                 "0xaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
@@ -66,10 +69,10 @@ contract("UserMintableERC721", function (accounts) {
             assert.equal(
                 false,
                 await mockRegistry.isValidAnchor.call(
-                    "0x0",
-                    "0x0"
+                    "0x0000000000000000000000000000000000000000000000000000000000000000",
+                    "0x0000000000000000000000000000000000000000000000000000000000000000"
                 ),
-                "Registry check should fail for 0x0 data"
+                "Registry check should fail for 0x0000000000000000000000000000000000000000000000000000000000000000 data"
             );
             assert.equal(
                 false,
@@ -102,7 +105,7 @@ contract("UserMintableERC721", function (accounts) {
 
     describe("_hashLeafData", async function () {
         it("should hash the leaf data the same way JS does", async function () {
-            let mockRegistry = await MockUserMintableERC721.new("ERC-721 Document Anchor", "TDA", this.anchorRegistry.address);
+            let mockRegistry = await MockUserMintableERC721.new("ERC-721 Document Anchor", "TDA", this.anchorRegistry.address, mandatoryFields);
 
             let leafName_ = "valueA";
             let leafValue_ = "Foo";
@@ -119,50 +122,72 @@ contract("UserMintableERC721", function (accounts) {
 
 
     describe("mintAnchor", async function () {
-        it("should mint a token if the Merkle proof validates", async function () {
-            let documentIdentifer = "0xce5b7b97141cbf0a447e1d7bb29794f3d8ff276c5974061f4aefc90cbba35eaf";
-            let mockRegistry = await MockUserMintableERC721.new("ERC-721 Document Anchor", "TDA", this.anchorRegistry.address);
+
+        it("should mint a token if the Merkle proofs validates", async function () {
+            let mockRegistry = await MockUserMintableERC721.new("ERC-721 Document Anchor", "TDA", this.anchorRegistry.address, mandatoryFields);
+            let documentIdentifer = proof.header.version_id;
+            let validRootHash = proof.header.document_root;
             let tokenURI = "http://test.com";
-            let validRootHash = base64ToHex("7fo13k/hjw+cCLT+SN4JdazaP2gMZ0jrhYtjKYL1C4M=");
             await this.anchorRegistry.setAnchorById(
                 documentIdentifer,
                 validRootHash
             );
-
-            await mockRegistry.mintAnchor.call(
-                "0x1",
-                1,
+            const tokenId = 1;
+            await mockRegistry.mintAnchor(
+                accounts[2],
+                tokenId,
                 documentIdentifer,
                 validRootHash,
-                tokenURI
+                tokenURI,
+                [
+                    proof.field_proofs[0].value,
+                    proof.field_proofs[1].value
+                ],
+                [
+                    proof.field_proofs[0].salt,
+                    proof.field_proofs[1].salt
+                ],
+                [
+                    proof.field_proofs[0].sorted_hashes,
+                    proof.field_proofs[1].sorted_hashes
+                ]
             )
+
         });
 
 
         it("should fail minting a token if the document idenfitier is not found", async function () {
-            let documentIdentifer = "0xce5b7b97141cbf0a447e1d7bb29794f3d8ff276c5974061f4aefc90cbba35eaf";
-            let mockRegistry = await MockUserMintableERC721.new("ERC-721 Document Anchor", "TDA", this.anchorRegistry.address);
+            let mockRegistry = await MockUserMintableERC721.new("ERC-721 Document Anchor", "TDA", this.anchorRegistry.address, mandatoryFields);
+            let documentIdentifer = proof.header.version_id;
+            let invalidRootHash = "0x1e5e444f4c4c7278f5f31aeb407c3804e7c34f79f72b8438be665f8cee935744"
             let tokenURI = "http://test.com";
             await this.anchorRegistry.setAnchorById(
                 documentIdentifer,
-                "0x1e5e444f4c4c7278f5f31aeb407c3804e7c34f79f72b8438be665f8cee935744"
+                invalidRootHash
             );
+            const tokenId = 1;
 
-            let validProof = getValidProofHashes();
-
-            //root hash is 0x1e5e444f4c4c7278f5f31aeb407c3804e7c34f79f72b8438be665f8cee935744 in hex
-            let validRootHash = bufferToHex(Buffer.from("7fo13k/hjw+cCLT+SN4JdazaP2gMZ0jrhYtjKYL1C4M=", "base64"));
-            let validLeaf = produceValidLeafHash("valueA", "Foo", "aoXdxhE+aM2mhDyvNwoFT6pgcaM4wmdD+LunX0tPupw=");
-
-            let invalidDocumentIdentifier = "0x93ab1b97141cbf0a447e1d7bb29794f3d8ff276c5974061f4aefc90cbba48afe"
 
             await shouldRevert(mockRegistry.mintAnchor(
-                "0x1",
-                1,
-                invalidDocumentIdentifier,
-                validRootHash,
+                accounts[2],
+                tokenId,
+                documentIdentifer,
+                invalidRootHash,
                 tokenURI
-            ));
+                ,
+                [
+                    proof.field_proofs[0].value,
+                    proof.field_proofs[1].value
+                ],
+                [
+                    proof.field_proofs[0].salt,
+                    proof.field_proofs[1].salt
+                ],
+                [
+                    proof.field_proofs[0].sorted_hashes,
+                    proof.field_proofs[1].sorted_hashes
+                ]
+            ))
         });
     });
 });
