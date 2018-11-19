@@ -13,6 +13,7 @@ let privateKey = process.env.ETH_PRIVATE_KEY || "";
 
 let WalletProvider = require("truffle-wallet-provider");
 
+
 module.exports = {
     networks: {
         development: { // running against ganache + metamask default port
@@ -38,6 +39,17 @@ module.exports = {
             network_id: "4", // rinkeby network ID
             from: account, // 0x44a0579754d6c94e7bb2c26bfa7394311cc50ccb" default address to use for any transaction Truffle makes during migrations
             gas: 4712388 // Gas limit used for deploys
+        },
+        kovan: {
+            provider: () => {
+                let wallet = require('ethereumjs-wallet').fromPrivateKey(toBuffer(privateKey));
+                return new WalletProvider(wallet, endpoint.replace('rinkeby', 'kovan'));
+            },
+            port: 8545,
+            network_id: "42", // kovan network ID
+            from: account,
+            gas: 4712388,
+            gasPrice: 41
         }
     }
 };

@@ -7,7 +7,7 @@ else
 fi
 
 usage() {
-  echo "Usage: ${local_dir} env[localgeth|rinkeby]"
+  echo "Usage: ${local_dir} env[localgeth|rinkeby|kovan|ropsten]"
   exit 1
 }
 
@@ -15,7 +15,7 @@ if [ "$#" -ne 1 ]; then
   usage
 fi
 
-if [[ ! "$1" =~ ^(localgeth|rinkeby)$ ]]; then
+if [[ ! "$1" =~ ^(localgeth|rinkeby|kovan|ropsten)$ ]]; then
     echo "Environment [${1}] not allowed"
     usage
 fi
@@ -25,16 +25,12 @@ NETWORK=$1
 MIGRATE_ADDRESS=${MIGRATE_ADDRESS:-'0x89b0a86583c4444acfd71b463e0d3c55ae1412a5'}
 MIGRATE_PASSWORD=${MIGRATE_PASSWORD:-''}
 
-rm -Rf $local_dir/../build
-if [[ "$1" =~ ^(localgeth)$ ]]; then
 
+if [[ "$1" =~ ^(localgeth)$ ]]; then
+  rm -Rf $local_dir/../build
   docker run -it --net=host --entrypoint "/geth" centrifugeio/cent-geth:v0.1.0 attach http://localhost:9545 --exec "personal.unlockAccount('${MIGRATE_ADDRESS}', '${MIGRATE_PASSWORD}', 500)"
 fi
 
-if [[ "$1" =~ ^(rinkeby)$ ]]; then
-  npm install @centrifuge/ethereum-contracts@latest --force --no-save
-  cp -rf $local_dir/../node_modules/@centrifuge/ethereum-contracts/build $local_dir/../build
-fi
 
 
 npm run  migrate -- --network "${NETWORK}"

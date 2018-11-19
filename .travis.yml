@@ -15,9 +15,15 @@ jobs:
     script:
     - npm run start-ganache &
     - npm run test
+  - stage: Pull Contracts from npm
+    if: "(NOT type IN (pull_request)) AND (branch = develop)"
+    script: ./scripts/pullContracts.sh
   - stage: Deploy to Rinkeby
     if: "(NOT type IN (pull_request)) AND (branch = develop)"
     script: ./scripts/migrate.sh rinkeby
+  - stage: Deploy to Kovan
+    if: "(NOT type IN (pull_request)) AND (branch = develop)"
+    script: ./scripts/migrate.sh kovan
   - stage: Publish to npm
     if: "(NOT type IN (pull_request)) AND (branch = develop)"
     script: skip
