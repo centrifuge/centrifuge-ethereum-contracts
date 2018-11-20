@@ -16,6 +16,7 @@ jobs:
     - npm run start-ganache &
     - npm run test
   - stage: Deploy and publish
+    if: "(NOT type IN (pull_request)) AND (branch = develop)"
     script:
     - "./scripts/pullContracts.sh"
     - "./scripts/migrate.sh rinkeby"
@@ -28,4 +29,4 @@ jobs:
         secure: hVd/MuZPhvzseACZ6VEpOos6+rTY4jZBTIUorbi62+RXpQTSFtZcGjA6dCCfsuHJ5JR6BAIL5WncSEJTftrkVor350U6yt5gqde6TJ6j9IPKhabU3e5o3kQz05iKQVGGHyzZzVCvKZQV0bqKI0OFTQA7pqwu0G6Qf3nA3aZTgdMAsF0klJdpQykqWfgnwYQJthlVYayNJ5Vp1fPfLw0Lq98bN7KNS67+YhF5xRF5AgZpd95JM/6cuRLo0hokUYL7DMvgKTEsWECLgFVqH0fYS/QQNQfQwdPwrT3RQYNCyaFco+Ueq1Zy7li9+57ZnN9PLZpyL7lFTUBfILcBua0jYSX2t35cn/J8BdwukXgZt0HjhEQQIE0mdeJSKdHOWDR4fuAC8biHO+ZsOHBhfEAhl44qDE9qMPgJX2SANkppiTxAzmbIn3r++vYg6S+wcUaaFpJlCjPAx0/ioPyp63WocSvoJkJY7OzfOJyXPD1xR1HeDH4isvD8zz+QzTKGMtiaJNlko1yUnGlyMh9r1TMDJXnsV8J7R+1RIrXjkA1XuO6gCuppRpGKyDe6gBGxjRNIOdHc9pYGY2NrbEngjI93r2snBjj3HzWWtWEmZSdnzYAdq9Uf2AO+OOLh/rzTg5Yz1iAWTmGb9XFNYuBZsnEyB9IBH0+dUf6rEQROueYRsXQ=
       on:
         repo: centrifuge/centrifuge-ethereum-contracts
-        branch: fix-travis-deploy
+        branch: develop
