@@ -15,13 +15,13 @@ jobs:
     script:
     - npm run start-ganache &
     - npm run test
-
     deploy:
       provider: npm
       skip_cleanup: true
       email: razvan@centrifuge.io
       api_key:
-        secure: kNNwW655RKvE6cdv9jjxBYqsc9KsZoLB2ZgUIbp+KDep7jNbbBhjPtzwUVuIK8n2qL57iLzgZSRKSQVLQfOLmEGVAVDm4E/3TM6ysB32O/1gKYTuuD/kM9xuo9Z/m2rMSQPLxfqnk1mmKXnbh4us6qbUPfHHlD0irZXq4rBWdCLOU5lpyxWA/dTU4OhRfiCrQj57L7VpRq9M03JLBTPTBGQUgk53/cDF1OY8nHMaPcJc7uU0iaGtNNqt8+aF59O6OO2bFTRu9hHfkStB1SZ3kOqnjADKqTTTIGCjCE3LGCzXAIkqwy4JMw74VxC+8e9A6yMVcCWtbAwou94cIdLGZkmj2FDY+BNwYYuuwH42fp32JdVZY+/PYhdukjMHJWZkw1gMZCtkOZUR0VNsJv0l9XpfAttzCeZIVS9G6gZI0h2UN3HBoP7nAonv+c/iRG0MlSLFss/Wm38wQpeJSrXVHq58UMR+kPA9V06Xca7wCPC+QCRTyrDr5sDSsN/G9YkuCN+SJM42wrDmto0fk3O4G1c8wxnPmqVgZPQBVD9SOsbgEcgB8jHKMtySVdOlS63sNe12V4hacMXllKJuVx5sfZ0h039lJnwHUro4mBKWKpJKnM4oWmnkg+44GaVbtsDQ30QRsldCN0sZ0kjLAf3QXCnaXGBVcf1ZLs0Fxw6MFCM=
+        secure: sPrV2AIwTCf+FTDnRD/0//8052Kvb4XxCn6Rb6osjZPY5tNhmA+Y4lzatUmaIevD/3hHRAT8kiFqpUL17FrxjvjDQC7NQ2uakj1L25HN+4Wc9DadUCpkbn1+2lp3fF6fdOwkAwPr6sZyd1VUmnd849adjlQQikWNLRUM212t+OtQOWynCAYGR9egKn8EKqYrVrjpT2loYRc6z5GJlnSICwY28p30CdZgl+gYR/lw+VGOH2bfy2/BPA0egln0ZodJycGJrlG8xG3rNC8Z3/PcFCtEAIfRJulzJChDFbp+Tr9ME2NfjJR/lJ86R9la5EdJ4/ZLLAJXgwHA7Rh6VwpL9UPIThMZkNOKWgeCw7nWOQ2FS2uvp3BF1sOsWDjBUn9C8zctcSnW5UKe7+3na1u/XIEC5quJF2xjSkSWwmHtFhCVeMVC7ZpKCYZqreW10fw42oxqHplgjOdgwJhaoKxbDCY/h0qQMrR6hOk5bheI2XEm0KJei3gJJO8MrJvX2lTgxouKg7O7sHtVcTY5Olk9lkJJkR80v7rIGNq846csyU8jW+tY8ycUU5SxkWtAaPwyCU5c/9v15yfpNvdLzs8yA5i2ls5AJFTS/scUafnp6GerhLF03/xW1cpo2Y6lPvgBpuv6M8tY7uzKMkLNe1WA2c7hfmyNKtibBIkgPXvXZ0M=
       on:
         repo: centrifuge/centrifuge-ethereum-contracts
         branch: fix-travis-deploy
+
