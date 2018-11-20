@@ -7,7 +7,7 @@ else
 fi
 
 usage() {
-  echo "Usage: ${local_dir} env[localgeth|integration|rinkeby|local-ganache]"
+  echo "Usage: ${local_dir} env[localgeth|integration|rinkeby|local-ganache|kovan]"
   exit 1
 }
 
@@ -17,7 +17,7 @@ then
 fi
 
 ETH_ENV=${1}
-if [[ ! "${ETH_ENV}" =~ ^(localgeth|integration|rinkeby|local-ganache)$ ]]; then
+if [[ ! "${ETH_ENV}" =~ ^(localgeth|integration|rinkeby|kovan|local-ganache)$ ]]; then
     echo "Environment [${ETH_ENV}] not allowed"
     usage
 fi
@@ -26,6 +26,9 @@ NETWORK_ID=8383
 if [[ "$1" = "rinkeby" ]];
 then
   NETWORK_ID=4
+elif [[ "$1" = "kovan" ]];
+then
+    NETWORK_ID=42
 elif [[ "$1" = "local-ganache" ]];
 then
     NETWORK_ID=99999

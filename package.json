@@ -1,6 +1,6 @@
 {
   "name": "@centrifuge/ethereum-contracts",
-  "version": "0.2.2",
+  "version": "0.2.5",
   "description": "Centrifuge OS (https://github.com/centrifuge/centrifuge-ethereum-contracts)",
   "publishConfig": {
     "access": "public"
@@ -43,7 +43,7 @@
     "husky": "^1.0.0-rc.15",
     "nodemon": "1.18.3",
     "solium": "^1.1.8",
-    "truffle": "^4.1.14",
+    "truffle": "4.1.14",
     "truffle-wallet-provider": "0.0.5",
     "web3": "1.0.0-beta.36"
   }
