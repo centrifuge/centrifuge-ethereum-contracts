@@ -48,8 +48,7 @@ module.exports = {
             port: 8545,
             network_id: "42", // kovan network ID
             from: account,
-            gas: 4712388,
-            gasPrice: 41
+            gas: 4712388
         }
     }
 };
