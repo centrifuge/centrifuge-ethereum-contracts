@@ -17,12 +17,15 @@ jobs:
     - npm run test
   - stage: Deploy and publish
     script:
+    - "./scripts/pullContracts.sh"
+    - "./scripts/migrate.sh rinkeby"
+    - "./scripts/migrate.sh kovan"
     deploy:
       provider: npm
       skip_cleanup: true
       email: razvan@centrifuge.io
       api_key:
-        secure: kNNwW655RKvE6cdv9jjxBYqsc9KsZoLB2ZgUIbp+KDep7jNbbBhjPtzwUVuIK8n2qL57iLzgZSRKSQVLQfOLmEGVAVDm4E/3TM6ysB32O/1gKYTuuD/kM9xuo9Z/m2rMSQPLxfqnk1mmKXnbh4us6qbUPfHHlD0irZXq4rBWdCLOU5lpyxWA/dTU4OhRfiCrQj57L7VpRq9M03JLBTPTBGQUgk53/cDF1OY8nHMaPcJc7uU0iaGtNNqt8+aF59O6OO2bFTRu9hHfkStB1SZ3kOqnjADKqTTTIGCjCE3LGCzXAIkqwy4JMw74VxC+8e9A6yMVcCWtbAwou94cIdLGZkmj2FDY+BNwYYuuwH42fp32JdVZY+/PYhdukjMHJWZkw1gMZCtkOZUR0VNsJv0l9XpfAttzCeZIVS9G6gZI0h2UN3HBoP7nAonv+c/iRG0MlSLFss/Wm38wQpeJSrXVHq58UMR+kPA9V06Xca7wCPC+QCRTyrDr5sDSsN/G9YkuCN+SJM42wrDmto0fk3O4G1c8wxnPmqVgZPQBVD9SOsbgEcgB8jHKMtySVdOlS63sNe12V4hacMXllKJuVx5sfZ0h039lJnwHUro4mBKWKpJKnM4oWmnkg+44GaVbtsDQ30QRsldCN0sZ0kjLAf3QXCnaXGBVcf1ZLs0Fxw6MFCM=
+        secure: hVd/MuZPhvzseACZ6VEpOos6+rTY4jZBTIUorbi62+RXpQTSFtZcGjA6dCCfsuHJ5JR6BAIL5WncSEJTftrkVor350U6yt5gqde6TJ6j9IPKhabU3e5o3kQz05iKQVGGHyzZzVCvKZQV0bqKI0OFTQA7pqwu0G6Qf3nA3aZTgdMAsF0klJdpQykqWfgnwYQJthlVYayNJ5Vp1fPfLw0Lq98bN7KNS67+YhF5xRF5AgZpd95JM/6cuRLo0hokUYL7DMvgKTEsWECLgFVqH0fYS/QQNQfQwdPwrT3RQYNCyaFco+Ueq1Zy7li9+57ZnN9PLZpyL7lFTUBfILcBua0jYSX2t35cn/J8BdwukXgZt0HjhEQQIE0mdeJSKdHOWDR4fuAC8biHO+ZsOHBhfEAhl44qDE9qMPgJX2SANkppiTxAzmbIn3r++vYg6S+wcUaaFpJlCjPAx0/ioPyp63WocSvoJkJY7OzfOJyXPD1xR1HeDH4isvD8zz+QzTKGMtiaJNlko1yUnGlyMh9r1TMDJXnsV8J7R+1RIrXjkA1XuO6gCuppRpGKyDe6gBGxjRNIOdHc9pYGY2NrbEngjI93r2snBjj3HzWWtWEmZSdnzYAdq9Uf2AO+OOLh/rzTg5Yz1iAWTmGb9XFNYuBZsnEyB9IBH0+dUf6rEQROueYRsXQ=
       on:
         repo: centrifuge/centrifuge-ethereum-contracts
         branch: fix-travis-deploy
