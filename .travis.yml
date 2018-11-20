@@ -12,11 +12,6 @@ env:
 jobs:
   include:
   - stage: tests
-    script:
-    - npm run start-ganache &
-    - npm run test
-  - stage: Deploy and publish
-    script:
     deploy:
       provider: npm
       skip_cleanup: true
