@@ -15,23 +15,18 @@ jobs:
     script:
     - npm run start-ganache &
     - npm run test
-  - stage: Pull Contracts from npm
+  - stage: Deploy and publish
     if: "(NOT type IN (pull_request)) AND (branch = develop)"
-    script: ./scripts/pullContracts.sh
-  - stage: Deploy to Rinkeby
-    if: "(NOT type IN (pull_request)) AND (branch = develop)"
-    script: ./scripts/migrate.sh rinkeby
-  - stage: Deploy to Kovan
-    if: "(NOT type IN (pull_request)) AND (branch = develop)"
-    script: ./scripts/migrate.sh kovan
-  - stage: Publish to npm
-    if: "(NOT type IN (pull_request)) AND (branch = develop)"
-    script: skip
+    script:
+    - "./scripts/pullContracts.sh"
+    - "./scripts/migrate.sh rinkeby"
+    - "./scripts/migrate.sh kovan"
     deploy:
       provider: npm
+      skip_cleanup: true
       email: razvan@centrifuge.io
       api_key:
-        secure: Ohv0BrKWyasymh2HbOpMyU5yI2E3iofDM2fmn1C67A/R/ZvVEY22P6e3AysR+i9sBHx/ql/t3iiEcmbkBs7PsHuleILxqbOk1RPbdYuiUriEHFgKzS8f9bc11PjTRdz+n7K/P4+lrHl4FlTNWJ2fYWb5Wyw3EpSsAh8MeRqJI8mfPDspohdzXkJ/0TxjdLAY3RPXsGljd8Y5vygazvDMWRl9EKht7DMiXxWo6aNpWOqtvQO/6E4kiTyaSkyMl3VLgumBS2ouG2fFzVwdCFzaevjFD4K3j2B8qjjsB4jLf2GN3dMkOsmM0zdr2pqlUEEvBBBdsBdDzYN36H60b5MGIfgJ5G5OOAX4Avvn9jCBltZBBypQUKXDtCYGocLTHK6pLrkLMFV7chcYWsh1tJuWSWsUY77/Xs3uOuaCe3eBqWrIVCwu59oIN5YEQMTZjhugvJ0d6CqvIy+sQzZkT0rlOZvhRveMITwypM9xUDy7cXFDt02afhmjGGEpAUlCAJd10BAWyNceNX6juIpaG/9NNh2JCfQSUoYRnloWokPQheEn/tmI8bTIitbx1GuzkyXXQfmF6eA5k8LgRQ3rDt8faQWbeG8wo3qyOepH+21LRIU9qgMDHlztuPS2h3bEf888YsbpMRK5qGSfe/JV4dfBtVYParrgfNWAiiulJAfFtlk=
+        secure: hVd/MuZPhvzseACZ6VEpOos6+rTY4jZBTIUorbi62+RXpQTSFtZcGjA6dCCfsuHJ5JR6BAIL5WncSEJTftrkVor350U6yt5gqde6TJ6j9IPKhabU3e5o3kQz05iKQVGGHyzZzVCvKZQV0bqKI0OFTQA7pqwu0G6Qf3nA3aZTgdMAsF0klJdpQykqWfgnwYQJthlVYayNJ5Vp1fPfLw0Lq98bN7KNS67+YhF5xRF5AgZpd95JM/6cuRLo0hokUYL7DMvgKTEsWECLgFVqH0fYS/QQNQfQwdPwrT3RQYNCyaFco+Ueq1Zy7li9+57ZnN9PLZpyL7lFTUBfILcBua0jYSX2t35cn/J8BdwukXgZt0HjhEQQIE0mdeJSKdHOWDR4fuAC8biHO+ZsOHBhfEAhl44qDE9qMPgJX2SANkppiTxAzmbIn3r++vYg6S+wcUaaFpJlCjPAx0/ioPyp63WocSvoJkJY7OzfOJyXPD1xR1HeDH4isvD8zz+QzTKGMtiaJNlko1yUnGlyMh9r1TMDJXnsV8J7R+1RIrXjkA1XuO6gCuppRpGKyDe6gBGxjRNIOdHc9pYGY2NrbEngjI93r2snBjj3HzWWtWEmZSdnzYAdq9Uf2AO+OOLh/rzTg5Yz1iAWTmGb9XFNYuBZsnEyB9IBH0+dUf6rEQROueYRsXQ=
       on:
         repo: centrifuge/centrifuge-ethereum-contracts
         branch: develop
