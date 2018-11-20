@@ -25,7 +25,7 @@ jobs:
       skip_cleanup: true
       email: razvan@centrifuge.io
       api_key:
-        secure: VBz22KaWUN/t0BKO0omKBXSUQZPwTLj1u1UmlKF6K8LZzUHmgB/ZTPPyShgB5maQZnY712PI/CNaxc8ZZ6M6zKjImJgzckfLBawRdLzitp+QPtKQUXmhyQCmnxJzfuryYJynVYfQ3/WiiLkxXLCky/gi+rTBSqHuQ/y2JMbn2DVpthWTgvemh9W42rdVgNyYOVCDPaqQm5P6K0sUwr2DdUrXq/fP5IPG0RAsrSJRuVUf+bw0MLTDN+DgdmVT1s6BIBZJX2361wtMqouOHyWZh81OqLaF+PElHyQudWMBwUILuukz+AMZYH2fTjqLqvosArVTWoEj3xQ4oJQHHIiosNNYArKnaW8Wzm6d5rKNj0QGi+8efufCEnCPMtQ9KQGHNIoD/Z1NjoZWC4n2lTRK/UnM6PzNTIU/He1CWTW+OqeAxtb12+bTm4l0msk+IlhqeKVceKmRLwhXmbeI4PubPmYYwwIwS+NtGNsC6Bf098t8ED7CmGY1s74+dni5OjwPJfQu6DuuAZRtB7hGGWy+Q7El4+NjrYbfFFcxx98j4jieIkY4vwdoyKKYZd31uzhNLEJlz4Y75Dx/49jTwLnZMjTDARXdnVNOE7lLctkoJpS2s1HhKVtGvFiwy7PjUhOftXIIqvI2LYc5TZsI481yTHGrMB2cHemPFUQoMlY/qR0=
+        secure: jvnLUutoMYXcgWT8qq3ZN2xX7x4633HKCzeU+W3ZFRkFDhyilAuWiwP80IiYo1DZcd8Fz7iJLTmDItPn9ymETj4nglWk4AARMaCpfM3wISkQG535MPQejAQ2qDfDFA85ffZHaTbSXM7Z/TdvCmRi4LIS3JDh9NtxsKjNzybgXVduuZVdpGiLR6zY+vy7wBZWGIc0T4bevgAq7CGaHLZJS2MNY+MT7l/QecsP2PKA6g3UoBhoe+S6UxfTgoc9qU938Nc5Vg/wz4VoKINdf8XlJhR5sAlzWItW0Jp1OrzivB/FdmEZBLVknaK+dS3TPtWI5mQ3Ly96NlTk++WtzORsfPa6jgWOA9G/BwnCVrR4YNQomzOD1CV7eoO/8Fd1hVRkXyXlncR341uaApLcJcSgUOldm/btG0kBgfD1So3K+69w33tBIgzy1tv7pMFzBTG/377u9/9+5J9ezLJ8F5BSNh+EYI6JGpGikNuo0wv1Nb8RM9xBXNcVA3fic3pVPTjozdpIW3YkZT/nQNjIbsHcXNJAMRgLp2zJMAIXTqBmZMocrRQDH/7zkgl8CcWgkOZSgrlU/Q7nXqLyF8RoAIclj/Jhk5KwW7w1G/LWzwkF3W9rV+c86TEwQezI+BlPJaPICFENXY50x3zlM+PB1DgBb8zsr4teXmRfKqrvkdwy+gc=
       on:
         repo: centrifuge/centrifuge-ethereum-contracts
         branch: fix-travis-deploy
