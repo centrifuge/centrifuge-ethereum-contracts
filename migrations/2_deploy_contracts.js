@@ -7,7 +7,7 @@ module.exports = function (deployer) {
     return deployer.deploy(IdentityRegistry).then((reg) => {
         return deployer.deploy(IdentityFactory, IdentityRegistry.address).then(() => {
             return deployer.deploy(AnchorRepository, IdentityRegistry.address).then(() => {
-                return deployer.deploy(PaymentObligation, "Centrifuge Payment Obligations", "CENT_PAY_OB", AnchorRepository.address, IdentityRegistry.address);
+                return deployer.deploy(PaymentObligation, AnchorRepository.address, IdentityRegistry.address);
             });
         })
     });
