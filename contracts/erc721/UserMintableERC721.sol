@@ -130,6 +130,12 @@ contract UserMintableERC721 is ERC721Token {
   )
   internal
   {
+
+    require(
+      _isValidAnchor(_anchorId, _merkleRoot),
+      "document needs to be registered in registry"
+    );
+
     for (uint i = 0; i < mandatoryFields.length; i++) {
       require(
         MerkleProofSha256.verifyProof(
@@ -140,10 +146,6 @@ contract UserMintableERC721 is ERC721Token {
         mandatoryFields[i]
       );
     }
-    require(
-      _isValidAnchor(_anchorId, _merkleRoot),
-      "document needs to be registered in registry"
-    );
 
     super._mint(_to, _tokenId);
     tokenDetails_[_tokenId] = OwnedAnchor(_anchorId, _merkleRoot);

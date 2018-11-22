@@ -18,12 +18,12 @@ contract PaymentObligation is UserMintableERC721 {
   // anchor registry
   address internal identityRegistry_;
   // hardcoded supported fields for minting a PaymentObligation
-  string[] internal supportedFields_ = [
+  string[] internal mandatoryFields_ = [
     "gross_amount",
     "currency",
     "due_date",
     "document_type",
-    "collaborators[0]"
+    "collaborators[0]" // owner of the document
   ];
 
   struct PODetails {
@@ -45,7 +45,7 @@ contract PaymentObligation is UserMintableERC721 {
     address _anchorRegistry,
     address _identityRegistry
   )
-  UserMintableERC721("Centrifuge Payment Obligations", "CENT_PAY_OB", _anchorRegistry, supportedFields_)
+  UserMintableERC721("Centrifuge Payment Obligations", "CENT_PAY_OB", _anchorRegistry, mandatoryFields_)
   public
   {
     identityRegistry_ = _identityRegistry;
