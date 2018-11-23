@@ -12,7 +12,7 @@
   "homepage": "https://github.com/centrifuge/centrifuge-ethereum-contracts#readme",
   "scripts": {
     "lint:sol:fix": "solium -d contracts/ --fix",
-    "test": "truffle test test/erc721/PaymentObligation.test.js",
+    "test": "truffle test",
     "start-ganache": "ganache-cli --gasLimit 4712388 --networkId 99999 -p 8545 -m \"tumble gas embody bright agree pony smoke laptop index sight shallow hungry\"",
     "re-test": "nodemon --exec 'truffle test'",
     "migrate": "truffle migrate"
@@ -43,7 +43,7 @@
     "husky": "^1.0.0-rc.15",
     "nodemon": "1.18.3",
     "solium": "^1.1.8",
-    "truffle": "^5.0.0-beta.2",
+    "truffle": "5.0.0-beta.2",
     "truffle-hdwallet-provider": "^1.0.0-web3one.1"
   }
 }
