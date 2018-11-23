@@ -4,7 +4,6 @@ pragma experimental ABIEncoderV2;
 import "contracts/lib/MerkleProofSha256.sol";
 import "contracts/erc721/UserMintableERC721.sol";
 import "contracts/Identity.sol";
-import "contracts/IdentityRegistry.sol";
 
 
 contract PaymentObligation is UserMintableERC721 {
@@ -15,17 +14,13 @@ contract PaymentObligation is UserMintableERC721 {
     string tokenURI
   );
 
-  // anchor registry
-  address internal identityRegistry_;
   // hardcoded supported fields for minting a PaymentObligation
-  string[4] internal supportedFields_ = [
-    "gross_amount",
-    "currency",
-    "due_date",
-    "document_type"
+  string[] internal mandatoryFields_ = [
+    "invoice.gross_amount",
+    "invoice.currency",
+    "invoice.due_date",
+    "collaborators[0]" // owner of the document
   ];
-  // Prefix for the collaborator field.
-  bytes internal collaboratorPrefix = "collaborators";
 
   struct PODetails {
     string grossAmount;
@@ -37,23 +32,16 @@ contract PaymentObligation is UserMintableERC721 {
 
   /**
    * @dev Constructor function
-   * @param _name string The name of this token
-   * @param _symbol string The shorthand token identifier
    * @param _anchorRegistry address The address of the anchor registry
    * that is backing this token's mint method.
-   * @param _identityRegistry address The address of the identity registry
    * that ensures that the sender is authorized to mint the token
    */
   constructor(
-    string _name,
-    string _symbol,
-    address _anchorRegistry,
-    address _identityRegistry
+    address _anchorRegistry
   )
-  UserMintableERC721(_name, _symbol, _anchorRegistry)
+  UserMintableERC721("Centrifuge Payment Obligations", "CENT_PAY_OB", _anchorRegistry, mandatoryFields_)
   public
   {
-    identityRegistry_ = _identityRegistry;
   }
 
   /**
@@ -65,15 +53,15 @@ contract PaymentObligation is UserMintableERC721 {
    * @param _anchorId bytes32 The ID of the document as identified
    * by the set up anchorRegistry.
    * @param _merkleRoot bytes32 The root hash of the merkle proof/doc
-   * @param _collaboratorField string The values of the collaborator leaf
    * It needs to start with a collaborator prefix, ex: collaborator[0]
-   * @param _values string[5] The values of the leafs that is being proved
-   * precise-proofs library.
-   * @param _salts bytes32[5] The salts for the field that is being proved
+   * @param _values string[] The values of the leafs that are being proved
+   * using precise-proofs
+   * @param _salts bytes32[] The salts for the field that is being proved
    * Will be concatenated for proof verification as outlined in
    * precise-proofs library.
-   * @param _proofs bytes32[][5] Documents proofs that are needed
+   * @param _proofs bytes32[][] Documents proofs that are needed
    * for proof verification as outlined in precise-proofs library.
+   * @param _signature signed message used for on chain ACL
    */
   function mint(
     address _to,
@@ -81,77 +69,25 @@ contract PaymentObligation is UserMintableERC721 {
     string _tokenURI,
     uint256 _anchorId,
     bytes32 _merkleRoot,
-    string _collaboratorField,
-    string[5] _values,
-    bytes32[5] _salts,
-    bytes32[][5] _proofs
+    string[] _values,
+    bytes32[] _salts,
+    bytes32[][] _proofs,
+    bytes _signature
   )
   public
   {
-    require(
-      MerkleProofSha256.verifyProof(
-        _proofs[0],
-        _merkleRoot,
-        _hashLeafData(supportedFields_[0], _values[0], _salts[0])
-      ),
-      "merkle tree needs to validate gross_amount"
-    );
 
-
-    require(
-      MerkleProofSha256.verifyProof(
-        _proofs[1],
-        _merkleRoot,
-        _hashLeafData(supportedFields_[1], _values[1], _salts[1])
-      ),
-      "merkle tree needs to validate currency"
-    );
-
-    require(
-      MerkleProofSha256.verifyProof(
-        _proofs[2],
-        _merkleRoot,
-        _hashLeafData(supportedFields_[2], _values[2], _salts[2])
-      ),
-      "merkle tree needs to validate due_date"
-    );
-
-    require(
-      MerkleProofSha256.verifyProof(
-        _proofs[3],
-        _merkleRoot,
-        _hashLeafData(supportedFields_[3], "http://github.com/centrifuge/centrifuge-protobufs/invoice/#invoice.InvoiceData", _salts[3])
-      ),
-      "merkle tree needs to validate document_type is invoice"
-    );
-
-    // Check the prefix of the collaborator property name
-    bytes memory strBytes = bytes(_collaboratorField);
-    bytes memory result = new bytes(collaboratorPrefix.length);
-    for (uint i = 0; i < collaboratorPrefix.length; i++) {
-      result[i] = strBytes[i];
-    }
-
-    require(
-      keccak256(result) == keccak256(collaboratorPrefix),
-      "Collaborator property name must start with collaborators"
-    );
-
-    require(
-      MerkleProofSha256.verifyProof(
-        _proofs[4],
-        _merkleRoot,
-        _hashLeafData(_collaboratorField, _values[4], _salts[4])
-      ),
-      "merkle tree needs to validate collaborator field"
-    );
-
+    // TODO handle colaborator validation against centrifuge identity
+    // TODO validate _signature
     super._mintAnchor(
       _to,
       _tokenId,
       _anchorId,
       _merkleRoot,
-      _tokenURI
+      _tokenURI,
+      _values,
+      _salts,
+      _proofs
     );
 
     // Store fields values
@@ -199,6 +135,5 @@ contract PaymentObligation is UserMintableERC721 {
     tokenDetails_[_tokenId].rootHash
     );
   }
-
 }
 

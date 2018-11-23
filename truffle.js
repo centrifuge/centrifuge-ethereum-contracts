@@ -1,20 +1,28 @@
+var HDWalletProvider = require("truffle-hdwallet-provider");
+
 // openzeppelin has a bunch of good helpers for testing and they need to be compiled to with babel as they use es2015 import.
 // TODO remove babel dependency when updating to v1.12.0 as they are not using babel anymore
-const toBuffer = require("ethereumjs-util").toBuffer;
+
 
 require("babel-register")({
     ignore: /node_modules\/(?!openzeppelin-solidity)/
 });
 require('babel-polyfill');
 
-let account = process.env.MIGRATE_ADDRESS;
-let endpoint = process.env.ETH_PROVIDER || "http://127.0.0.1:8545";
-let privateKey = process.env.ETH_PRIVATE_KEY || "";
+let account = "0xd77c534aed04d7ce34cd425073a033db4fbe6a9d";
+let endpoint = "https://rinkeby.infura.io/v3/61181d6472cb498dbefd50537aa1b4fd" || "http://127.0.0.1:8545";
+let privateKey = "0xb5fffc3933d93dc956772c69b42c4bc66123631a24e3465956d80b5b604a2d13" || "";
 
-let WalletProvider = require("truffle-wallet-provider");
-
+// let account = process.env.MIGRATE_ADDRESS;
+// let endpoint = process.env.ETH_PROVIDER || "http://127.0.0.1:8545";
+// let privateKey = process.env.ETH_PRIVATE_KEY || "";
 
 module.exports = {
+    compilers: {
+        solc: {
+            version: "0.4.24"
+        }
+    },
     networks: {
         development: { // running against ganache + metamask default port
             host: "localhost",
@@ -32,8 +40,7 @@ module.exports = {
         },
         rinkeby: {
             provider: () => {
-                let wallet = require('ethereumjs-wallet').fromPrivateKey(toBuffer(privateKey));
-                return new WalletProvider(wallet, endpoint);
+                return new HDWalletProvider(privateKey, endpoint);
             },
             port: 9545,
             network_id: "4", // rinkeby network ID
@@ -42,8 +49,7 @@ module.exports = {
         },
         kovan: {
             provider: () => {
-                let wallet = require('ethereumjs-wallet').fromPrivateKey(toBuffer(privateKey));
-                return new WalletProvider(wallet, endpoint.replace('rinkeby', 'kovan'));
+                return new HDWalletProvider(privateKey, endpoint.replace('rinkeby', 'kovan'));
             },
             port: 8545,
             network_id: "42", // kovan network ID

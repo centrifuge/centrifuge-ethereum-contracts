@@ -1,12 +1,17 @@
 pragma solidity ^0.4.24;
+pragma experimental ABIEncoderV2;
 
 import "openzeppelin-solidity/contracts/token/ERC721/ERC721Token.sol";
 import "contracts/AnchorRepository.sol";
+import "contracts/lib/MerkleProofSha256.sol";
 
 
 contract UserMintableERC721 is ERC721Token {
   // anchor registry
   address internal anchorRegistry_;
+
+  // array of field names that are being proved using the document root and precise-proofs
+  string[] public mandatoryFields;
 
   // The ownable anchor
   struct OwnedAnchor {
@@ -22,13 +27,21 @@ contract UserMintableERC721 is ERC721Token {
    * @param _name string The name of this token
    * @param _symbol string The shorthand token identifier
    * @param _anchorRegistry address The address of the anchor registry
+   / @param _mandatoryFields array of field names that are being proved
+   * using document root and precise-proofs.
    * that is backing this token's mint method.
    */
-  constructor(string _name, string _symbol, address _anchorRegistry)
+  constructor(
+    string _name,
+    string _symbol,
+    address _anchorRegistry,
+    string[] _mandatoryFields
+  )
   ERC721Token(_name, _symbol)
   public
   {
     anchorRegistry_ = _anchorRegistry;
+    mandatoryFields = _mandatoryFields;
   }
 
   /**
@@ -97,24 +110,47 @@ contract UserMintableERC721 is ERC721Token {
    * by the set up anchorRegistry.
    * @param _merkleRoot bytes32 The root hash of the merkle proof/doc
    * @param _tokenURI string The metadata uri
+   * @param _values string[] The values of the leafs that are being proved
+   * using precise-proofs
+   * @param _salts bytes32[] The salts for the field that is being proved
+   * Will be concatenated for proof verification as outlined in
+   * precise-proofs library.
+   * @param _proofs bytes32[][] Documents proofs that are needed
+   * for proof verification as outlined in precise-proofs library.
    */
   function _mintAnchor(
     address _to,
     uint256 _tokenId,
     uint256 _anchorId,
     bytes32 _merkleRoot,
-    string _tokenURI
-
+    string _tokenURI,
+    string[] _values,
+    bytes32[] _salts,
+    bytes32[][] _proofs
   )
   internal
   {
+
     require(
       _isValidAnchor(_anchorId, _merkleRoot),
       "document needs to be registered in registry"
     );
 
+    for (uint i = 0; i < mandatoryFields.length; i++) {
+      require(
+        MerkleProofSha256.verifyProof(
+          _proofs[i],
+          _merkleRoot,
+          _hashLeafData(mandatoryFields[i], _values[i], _salts[i])
+        ),
+        mandatoryFields[i]
+      );
+    }
+
     super._mint(_to, _tokenId);
     tokenDetails_[_tokenId] = OwnedAnchor(_anchorId, _merkleRoot);
     _setTokenURI(_tokenId, _tokenURI);
   }
+
+
 }
