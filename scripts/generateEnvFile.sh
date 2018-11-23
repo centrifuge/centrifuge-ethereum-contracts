@@ -36,9 +36,6 @@ fi
 
 echo "Generating ethereum deployment file for env [${NETWORK_ID}] and env [${ETH_ENV}]"
 
-ANCHOR_REGISTRY_ABI=`cat $local_dir/../build/contracts/AnchorRegistry.json | jq '.abi' | tr -d '\n'`
-ANCHOR_REGISTRY_BYTECODE=`cat $local_dir/../build/contracts/AnchorRegistry.json | jq '.deployedBytecode' | tr -d '\n'`
-ANCHOR_REGISTRY_ADDRESS=`cat $local_dir/../build/contracts/AnchorRegistry.json | jq --arg NETWORK_ID "${NETWORK_ID}" '.networks[$NETWORK_ID].address' | tr -d '\n'`
 
 ANCHOR_REPOSITORY_ABI=`cat $local_dir/../build/contracts/AnchorRepository.json | jq '.abi' | tr -d '\n'`
 ANCHOR_REPOSITORY_BYTECODE=`cat $local_dir/../build/contracts/AnchorRepository.json | jq '.deployedBytecode' | tr -d '\n'`
@@ -63,11 +60,6 @@ IDENTITY_BYTECODE=`cat $local_dir/../build/contracts/Identity.json | jq '.deploy
 cat >$local_dir/../deployments/${ETH_ENV}.json <<EOF
 {
   "contracts": {
-    "AnchorRegistry": {
-      "abi": ${ANCHOR_REGISTRY_ABI},
-      "bytecode": ${ANCHOR_REGISTRY_BYTECODE},
-      "address": ${ANCHOR_REGISTRY_ADDRESS}
-    },
     "AnchorRepository": {
       "abi": ${ANCHOR_REPOSITORY_ABI},
       "bytecode": ${ANCHOR_REPOSITORY_BYTECODE},

@@ -4,7 +4,6 @@ pragma experimental ABIEncoderV2;
 import "contracts/lib/MerkleProofSha256.sol";
 import "contracts/erc721/UserMintableERC721.sol";
 import "contracts/Identity.sol";
-import "contracts/IdentityRegistry.sol";
 
 
 contract PaymentObligation is UserMintableERC721 {
@@ -15,14 +14,11 @@ contract PaymentObligation is UserMintableERC721 {
     string tokenURI
   );
 
-  // anchor registry
-  address internal identityRegistry_;
   // hardcoded supported fields for minting a PaymentObligation
   string[] internal mandatoryFields_ = [
-    "gross_amount",
-    "currency",
-    "due_date",
-    "document_type",
+    "invoice.gross_amount",
+    "invoice.currency",
+    "invoice.due_date",
     "collaborators[0]" // owner of the document
   ];
 
@@ -38,17 +34,14 @@ contract PaymentObligation is UserMintableERC721 {
    * @dev Constructor function
    * @param _anchorRegistry address The address of the anchor registry
    * that is backing this token's mint method.
-   * @param _identityRegistry address The address of the identity registry
    * that ensures that the sender is authorized to mint the token
    */
   constructor(
-    address _anchorRegistry,
-    address _identityRegistry
+    address _anchorRegistry
   )
   UserMintableERC721("Centrifuge Payment Obligations", "CENT_PAY_OB", _anchorRegistry, mandatoryFields_)
   public
   {
-    identityRegistry_ = _identityRegistry;
   }
 
   /**

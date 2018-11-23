@@ -2,26 +2,15 @@ import {shouldRevert} from "../tools/assertTx";
 
 let PaymentObligation = artifacts.require("PaymentObligation");
 let MockAnchorRegistry = artifacts.require("MockAnchorRepository");
-let IdentityRegistry = artifacts.require("IdentityRegistry");
-let Identity = artifacts.require("Identity");
 let proof = require('./proof.json');
 
-let deployedCentrifugeId = "0x24fe6555beb9";
-let deployedIdentity;
-let deployedIdentityRegistry;
-
 contract("PaymentObligation", function (accounts) {
-    before(async function () {
-        deployedIdentityRegistry = await IdentityRegistry.deployed();
-        deployedIdentity = await Identity.new(deployedCentrifugeId);
-        await deployedIdentityRegistry.registerIdentity(deployedCentrifugeId, deployedIdentity.address);
-    });
+
 
     beforeEach(async function () {
         this.anchorRegistry = await MockAnchorRegistry.new();
         this.registry = await PaymentObligation.new(
-            this.anchorRegistry.address,
-            deployedIdentityRegistry.address
+            this.anchorRegistry.address
         );
     });
 
@@ -50,14 +39,12 @@ contract("PaymentObligation", function (accounts) {
                     proof.field_proofs[1].value,
                     proof.field_proofs[2].value,
                     proof.field_proofs[3].value,
-                    proof.field_proofs[4].value,
                 ],
                 [
                     proof.field_proofs[0].salt,
                     proof.field_proofs[1].salt,
                     proof.field_proofs[2].salt,
                     proof.field_proofs[3].salt,
-                    proof.field_proofs[4].salt,
 
                 ],
                 [
@@ -65,7 +52,6 @@ contract("PaymentObligation", function (accounts) {
                     proof.field_proofs[1].sorted_hashes,
                     proof.field_proofs[2].sorted_hashes,
                     proof.field_proofs[3].sorted_hashes,
-                    proof.field_proofs[4].sorted_hashes,
                 ],
                 signature
             )
@@ -113,14 +99,12 @@ contract("PaymentObligation", function (accounts) {
                     proof.field_proofs[1].value,
                     proof.field_proofs[2].value,
                     proof.field_proofs[3].value,
-                    proof.field_proofs[4].value,
                 ],
                 [
                     proof.field_proofs[0].salt,
                     proof.field_proofs[1].salt,
                     proof.field_proofs[2].salt,
                     proof.field_proofs[3].salt,
-                    proof.field_proofs[4].salt,
 
                 ],
                 [
@@ -128,7 +112,6 @@ contract("PaymentObligation", function (accounts) {
                     proof.field_proofs[1].sorted_hashes,
                     proof.field_proofs[2].sorted_hashes,
                     proof.field_proofs[3].sorted_hashes,
-                    proof.field_proofs[4].sorted_hashes,
                 ],
                 signature
             ));
@@ -157,14 +140,12 @@ contract("PaymentObligation", function (accounts) {
                     proof.field_proofs[1].value,
                     proof.field_proofs[2].value,
                     proof.field_proofs[3].value,
-                    proof.field_proofs[4].value,
                 ],
                 [
                     proof.field_proofs[0].salt,
                     proof.field_proofs[1].salt,
                     proof.field_proofs[2].salt,
                     proof.field_proofs[3].salt,
-                    proof.field_proofs[4].salt,
 
                 ],
                 [
@@ -172,7 +153,6 @@ contract("PaymentObligation", function (accounts) {
                     proof.field_proofs[1].sorted_hashes,
                     proof.field_proofs[2].sorted_hashes,
                     proof.field_proofs[3].sorted_hashes,
-                    proof.field_proofs[4].sorted_hashes,
                 ],
                 signature
             );
@@ -188,14 +168,12 @@ contract("PaymentObligation", function (accounts) {
                     proof.field_proofs[1].value,
                     proof.field_proofs[2].value,
                     proof.field_proofs[3].value,
-                    proof.field_proofs[4].value,
                 ],
                 [
                     proof.field_proofs[0].salt,
                     proof.field_proofs[1].salt,
                     proof.field_proofs[2].salt,
                     proof.field_proofs[3].salt,
-                    proof.field_proofs[4].salt,
 
                 ],
                 [
@@ -203,7 +181,6 @@ contract("PaymentObligation", function (accounts) {
                     proof.field_proofs[1].sorted_hashes,
                     proof.field_proofs[2].sorted_hashes,
                     proof.field_proofs[3].sorted_hashes,
-                    proof.field_proofs[4].sorted_hashes,
                 ],
                 signature
             ));
@@ -235,14 +212,12 @@ contract("PaymentObligation", function (accounts) {
                     proof.field_proofs[1].value,
                     proof.field_proofs[2].value,
                     proof.field_proofs[3].value,
-                    proof.field_proofs[4].value,
                 ],
                 [
                     proof.field_proofs[0].salt,
                     proof.field_proofs[1].salt,
                     proof.field_proofs[2].salt,
                     proof.field_proofs[3].salt,
-                    proof.field_proofs[4].salt,
 
                 ],
                 [
@@ -250,7 +225,6 @@ contract("PaymentObligation", function (accounts) {
                     proof.field_proofs[1].sorted_hashes,
                     proof.field_proofs[2].sorted_hashes,
                     proof.field_proofs[3].sorted_hashes,
-                    proof.field_proofs[4].sorted_hashes,
                 ],
                 signature
             );
