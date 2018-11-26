@@ -1,12 +1,13 @@
 pragma solidity ^0.4.24;
 pragma experimental ABIEncoderV2;
 
-import "openzeppelin-solidity/contracts/token/ERC721/ERC721Token.sol";
+import "openzeppelin-eth/contracts/token/ERC721/ERC721Metadata.sol";
+import "openzeppelin-eth/contracts/token/ERC721/ERC721.sol";
 import "contracts/AnchorRepository.sol";
 import "contracts/lib/MerkleProofSha256.sol";
 
 
-contract UserMintableERC721 is ERC721Token {
+contract UserMintableERC721 is ERC721, ERC721Metadata {
   // anchor registry
   address internal anchorRegistry_;
 
@@ -37,11 +38,13 @@ contract UserMintableERC721 is ERC721Token {
     address _anchorRegistry,
     string[] _mandatoryFields
   )
-  ERC721Token(_name, _symbol)
+
   public
   {
     anchorRegistry_ = _anchorRegistry;
     mandatoryFields = _mandatoryFields;
+    initialize();
+    initialize(_name, _symbol);
   }
 
   /**

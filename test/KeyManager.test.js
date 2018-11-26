@@ -1,9 +1,6 @@
-import {P2P_IDENTITY, P2P_SIGNATURE, ETH_MESSAGE_AUTH} from "./constants";
-import {assertEvent, getEvents} from "./tools/contractEvents";
-
-const mineNBlocks = require('./tools/blockHeight').mineNBlocks;
+const {P2P_IDENTITY, P2P_SIGNATURE, ETH_MESSAGE_AUTH}  = require('./constants');
 const shouldRevert = require('./tools/assertTx').shouldRevert;
-const shouldSucceed = require('./tools/assertTx').shouldSucceed;
+const getEvents = require('./tools/contractEvents').getEvents;
 const Identity = artifacts.require("Identity");
 
 

@@ -1,5 +1,4 @@
-import {shouldRevert} from "../tools/assertTx";
-
+const shouldRevert = require('../tools/assertTx').shouldRevert
 const {bufferToHex, sha256} = require("ethereumjs-util");
 let UserMintableERC721 = artifacts.require("UserMintableERC721");
 let MockAnchorRegistry = artifacts.require("MockAnchorRepository");
@@ -117,8 +116,6 @@ contract("UserMintableERC721", function (accounts) {
             assert.equal(validLeafHash, res, "Solidity hashing should be the same as JS hashing");
         });
     });
-
-
 
 
     describe("mintAnchor", async function () {

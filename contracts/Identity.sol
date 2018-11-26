@@ -1,17 +1,18 @@
 pragma solidity ^0.4.24;
 
 import "contracts/KeyManager.sol";
-import "openzeppelin-solidity/contracts/ECRecovery.sol";
+import "openzeppelin-eth/contracts/cryptography/ECDSA.sol";
 
 
 contract Identity is KeyManager {
-  using ECRecovery for bytes32;
+  using ECDSA for bytes32;
 
   uint48 public centrifugeId;
 
   constructor(uint48 _centrifugeId) public {
     require(_centrifugeId != 0x0);
     centrifugeId = _centrifugeId;
+    initialize(msg.sender);
   }
 
   // @param _toSign Hash to be signed. Must be generated with abi.encodePacked(arg1, arg2, arg3)

@@ -1,5 +1,4 @@
-import {shouldRevert} from "../tools/assertTx";
-
+const shouldRevert = require('../tools/assertTx').shouldRevert
 let PaymentObligation = artifacts.require("PaymentObligation");
 let MockAnchorRegistry = artifacts.require("MockAnchorRepository");
 let proof = require('./proof.json');
