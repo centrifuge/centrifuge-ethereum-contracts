@@ -1,0 +1,9 @@
+{
+  "zosversion": "2",
+  "name": "@centrifuge/ethereum-contracts",
+  "version": "0.1.0",
+  "contracts": {},
+  "dependencies": {
+    "openzeppelin-eth": "^2.0.2"
+  }
+}

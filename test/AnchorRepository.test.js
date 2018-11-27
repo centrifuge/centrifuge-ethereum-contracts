@@ -1,10 +1,8 @@
-import {ETH_MESSAGE_AUTH} from "./constants";
-
+const ETH_MESSAGE_AUTH = require('./constants').ETH_MESSAGE_AUTH;
+const MerkleTree = require('openzeppelin-eth/test/helpers/merkleTree').MerkleTree;
 const mineNBlocks = require('./tools/blockHeight').mineNBlocks;
-const MerkleTree = require('openzeppelin-solidity/test/helpers/merkleTree').default;
 const shouldRevert = require('./tools/assertTx').shouldRevert;
 const shouldSucceed = require('./tools/assertTx').shouldSucceed;
-const shouldReturnWithMessage = require('./tools/assertTx').shouldReturnWithMessage;
 const {keccak, bufferToHex, toBuffer} = require('ethereumjs-util');
 const AnchorRepository = artifacts.require("AnchorRepository");
 const Identity = artifacts.require("Identity");

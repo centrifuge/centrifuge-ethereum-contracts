@@ -1,6 +1,6 @@
 pragma solidity ^0.4.24;
 
-import "openzeppelin-solidity/contracts/MerkleProof.sol";
+import "openzeppelin-eth/contracts/cryptography/MerkleProof.sol";
 import "contracts/Identity.sol";
 import "contracts/IdentityRegistry.sol";
 
@@ -120,7 +120,7 @@ contract AnchorRepository {
     if (preCommits[_anchorId].expirationBlock != 0x0) {
       require(hasValidPreCommit(_anchorId) == true);
       require(
-        MerkleProof.verifyProof(
+        MerkleProof.verify(
           _documentProofs,
           _documentRoot,
           preCommits[_anchorId].signingRoot

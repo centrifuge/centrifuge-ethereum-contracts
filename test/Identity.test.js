@@ -1,9 +1,5 @@
-import {ETH_MESSAGE_AUTH} from "./constants";
-
-const assertEvent = require('./tools/contractEvents').assertEvent;
+const ETH_MESSAGE_AUTH = require('./constants').ETH_MESSAGE_AUTH;
 const shouldRevert = require('./tools/assertTx').shouldRevert;
-const shouldReturnWithMessage = require('./tools/assertTx').shouldReturnWithMessage;
-
 
 let Identity = artifacts.require("Identity");
 let identityRecord;
