@@ -1,6 +1,6 @@
 {
   "zosversion": "2",
-  "name": "@centrifuge/ethereum-constacts",
+  "name": "@centrifuge/ethereum-contracts",
   "version": "0.1.0",
   "contracts": {},
   "dependencies": {
