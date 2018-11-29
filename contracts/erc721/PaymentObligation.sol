@@ -61,7 +61,6 @@ contract PaymentObligation is UserMintableERC721 {
    * precise-proofs library.
    * @param _proofs bytes32[][] Documents proofs that are needed
    * for proof verification as outlined in precise-proofs library.
-   * @param _signature signed message used for on chain ACL
    */
   function mint(
     address _to,
@@ -71,14 +70,12 @@ contract PaymentObligation is UserMintableERC721 {
     bytes32 _merkleRoot,
     string[] _values,
     bytes32[] _salts,
-    bytes32[][] _proofs,
-    bytes _signature
+    bytes32[][] _proofs
   )
   public
   {
 
     // TODO handle colaborator validation against centrifuge identity
-    // TODO validate _signature
     super._mintAnchor(
       _to,
       _tokenId,
