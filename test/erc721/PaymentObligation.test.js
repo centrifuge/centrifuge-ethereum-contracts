@@ -20,7 +20,6 @@ contract("PaymentObligation", function (accounts) {
             let documentIdentifer = proof.header.version_id;
             let validRootHash = proof.header.document_root;
             let tokenURI = "http://test.com";
-           let signature = "0x1";
 
             await this.anchorRegistry.setAnchorById(
                 documentIdentifer,
@@ -51,8 +50,7 @@ contract("PaymentObligation", function (accounts) {
                     proof.field_proofs[1].sorted_hashes,
                     proof.field_proofs[2].sorted_hashes,
                     proof.field_proofs[3].sorted_hashes,
-                ],
-                signature
+                ]
             )
                 .then(function (tx, logs) {
                     // Check mint event
@@ -80,7 +78,6 @@ contract("PaymentObligation", function (accounts) {
             let documentIdentifer = proof.header.version_id;
             let validRootHash = proof.header.document_root;
             let tokenURI = "http://test.com";
-           let signature = "0x1";
             await this.anchorRegistry.setAnchorById(
                 documentIdentifer,
                 validRootHash
@@ -111,8 +108,7 @@ contract("PaymentObligation", function (accounts) {
                     proof.field_proofs[1].sorted_hashes,
                     proof.field_proofs[2].sorted_hashes,
                     proof.field_proofs[3].sorted_hashes,
-                ],
-                signature
+                ]
             ));
         });
 
@@ -120,7 +116,6 @@ contract("PaymentObligation", function (accounts) {
             let documentIdentifer = proof.header.version_id;
             let validRootHash = proof.header.document_root;
             let tokenURI = "http://test.com";
-            let signature = "0x1";
 
             await this.anchorRegistry.setAnchorById(
                 documentIdentifer,
@@ -152,8 +147,7 @@ contract("PaymentObligation", function (accounts) {
                     proof.field_proofs[1].sorted_hashes,
                     proof.field_proofs[2].sorted_hashes,
                     proof.field_proofs[3].sorted_hashes,
-                ],
-                signature
+                ]
             );
 
             await shouldRevert(this.registry.mint(
@@ -180,8 +174,7 @@ contract("PaymentObligation", function (accounts) {
                     proof.field_proofs[1].sorted_hashes,
                     proof.field_proofs[2].sorted_hashes,
                     proof.field_proofs[3].sorted_hashes,
-                ],
-                signature
+                ]
             ));
         });
     });
@@ -192,7 +185,6 @@ contract("PaymentObligation", function (accounts) {
             let documentIdentifer = proof.header.version_id;
             let validRootHash = proof.header.document_root;
             let tokenURI = "http://test.com";
-            let signature = "0x1";
 
             await this.anchorRegistry.setAnchorById(
                 documentIdentifer,
@@ -224,8 +216,8 @@ contract("PaymentObligation", function (accounts) {
                     proof.field_proofs[1].sorted_hashes,
                     proof.field_proofs[2].sorted_hashes,
                     proof.field_proofs[3].sorted_hashes,
-                ],
-                signature
+                ]
+
             );
             console.log('Actual mint gas cost:', mintGasCost)
             assert.isBelow(mintGasCost, mintMaxGas, `Gas Price for mint is to high`)
