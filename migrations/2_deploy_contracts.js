@@ -34,15 +34,3 @@ module.exports = function(deployer, network, accounts) {
         runWithTruffle(deploy, { network, from: accounts[0],  dontExitProcess: true })
     );
 }
-
-/*module.exports = function (deployer) {
-    return deployer.deploy(IdentityRegistry).then((reg) => {
-        return deployer.deploy(IdentityFactory).then((factoryInstance) => {
-            factoryInstance.initialize(IdentityRegistry.address);
-            return deployer.deploy(AnchorRepository).then((anchorRepositoryInstance) => {
-                anchorRepositoryInstance.initialize(IdentityRegistry.address);
-                return deployer.deploy(PaymentObligation, AnchorRepository.address);
-            });
-        })
-    });
-};*/
