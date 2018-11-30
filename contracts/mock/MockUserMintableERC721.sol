@@ -16,9 +16,10 @@ contract MockUserMintableERC721 is UserMintableERC721 {
     address _anchorRegistry,
     string[] _mandatoryFields
   )
-  UserMintableERC721(_name, _symbol, _anchorRegistry, _mandatoryFields)
+
   public
   {
+    UserMintableERC721.initialize(_name, _symbol, _anchorRegistry, _mandatoryFields);
   }
 
   function hashLeafData(

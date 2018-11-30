@@ -1,11 +1,12 @@
 pragma solidity ^0.4.24;
 
+import "zos-lib/contracts/Initializable.sol";
 import "openzeppelin-eth/contracts/cryptography/MerkleProof.sol";
 import "contracts/Identity.sol";
 import "contracts/IdentityRegistry.sol";
 
 
-contract AnchorRepository {
+contract AnchorRepository is Initializable {
 
   event AnchorCommitted(
     address indexed from,
@@ -36,7 +37,12 @@ contract AnchorRepository {
   // The number of blocks for which a precommit is valid
   uint256 constant internal expirationLength = 15;
 
-  constructor(address _identityRegistry) public {
+  function initialize(
+    address _identityRegistry
+  )
+  public
+  initializer
+  {
     identityRegistry = _identityRegistry;
   }
 

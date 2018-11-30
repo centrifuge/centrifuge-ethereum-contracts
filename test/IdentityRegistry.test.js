@@ -7,7 +7,7 @@ let identityRegistryContract;
 
 contract("IdentityRegistry", function (accounts) {
   before(async function () {
-    identityRegistryContract = await IdentityRegistry.deployed();
+    identityRegistryContract = await IdentityRegistry.new();
   });
 
   describe("Register Identity", async function () {

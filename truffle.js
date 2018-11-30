@@ -16,7 +16,6 @@ module.exports = {
             port: 8545,
             network_id: "*", // Match any network id
             from: "0xd77c534aed04d7ce34cd425073a033db4fbe6a9d", // Ganache first account
-            gas: 4712388
         },
         localgeth: {
             host: "localhost",

@@ -1,12 +1,13 @@
 pragma solidity ^0.4.24;
 pragma experimental ABIEncoderV2;
 
+import "zos-lib/contracts/Initializable.sol";
 import "contracts/lib/MerkleProofSha256.sol";
 import "contracts/erc721/UserMintableERC721.sol";
 import "contracts/Identity.sol";
 
 
-contract PaymentObligation is UserMintableERC721 {
+contract PaymentObligation is Initializable, UserMintableERC721 {
 
   event PaymentObligationMinted(
     address to,
@@ -15,13 +16,7 @@ contract PaymentObligation is UserMintableERC721 {
   );
 
   // hardcoded supported fields for minting a PaymentObligation
-  string[] internal mandatoryFields_ = [
-    "invoice.gross_amount",
-    "invoice.currency",
-    "invoice.due_date",
-    "collaborators[0]" // owner of the document
-  ];
-
+  string[] internal mandatoryFields_;
   struct PODetails {
     string grossAmount;
     string currency;
@@ -31,17 +26,29 @@ contract PaymentObligation is UserMintableERC721 {
   mapping(uint256 => PODetails) internal poDetails_;
 
   /**
-   * @dev Constructor function
    * @param _anchorRegistry address The address of the anchor registry
    * that is backing this token's mint method.
    * that ensures that the sender is authorized to mint the token
    */
-  constructor(
+  function initialize(
     address _anchorRegistry
   )
-  UserMintableERC721("Centrifuge Payment Obligations", "CENT_PAY_OB", _anchorRegistry, mandatoryFields_)
   public
+  initializer
   {
+    mandatoryFields_ = [
+      "invoice.gross_amount",
+      "invoice.currency",
+      "invoice.due_date",
+      "collaborators[0]" // owner of the document
+    ];
+
+    UserMintableERC721.initialize(
+      "Centrifuge Payment Obligations",
+       "CENT_PAY_OB",
+       _anchorRegistry,
+       mandatoryFields_
+    );
   }
 
   /**

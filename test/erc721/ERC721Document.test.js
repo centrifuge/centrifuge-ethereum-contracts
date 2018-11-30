@@ -37,14 +37,16 @@ const getValidProofHashes = function () {
 contract("UserMintableERC721", function (accounts) {
     beforeEach(async function () {
         this.anchorRegistry = await MockAnchorRegistry.new();
-        this.registry = await UserMintableERC721.new("ERC-721 Document Anchor", "TDA", this.anchorRegistry.address, mandatoryFields);
+        this.registry = await UserMintableERC721.new();
+        await this.registry.initialize("ERC-721 Document Anchor", "TDA", this.anchorRegistry.address, mandatoryFields)
     });
 
     describe("UserMintableERC721", async function () {
 
         it("should be deployable as an independent registry", async function () {
             let anchorRegistry = await MockAnchorRegistry.new();
-            let instance = await UserMintableERC721.new("ERC721 Document Anchor 2", "TDA2", anchorRegistry.address, mandatoryFields);
+            let instance = await UserMintableERC721.new();
+            await instance.initialize("ERC721 Document Anchor 2", "TDA2", anchorRegistry.address, mandatoryFields);
 
             assert.equal("ERC721 Document Anchor 2", await instance.name.call(), "The registry should be deployed with the specific name");
             assert.equal("TDA2", await instance.symbol.call(), "The registry should be deployed with the specific symbol");

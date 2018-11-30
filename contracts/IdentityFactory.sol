@@ -1,15 +1,15 @@
 pragma solidity ^0.4.24;
 
-import "./Identity.sol";
-import "./IdentityRegistry.sol";
+import "zos-lib/contracts/Initializable.sol";
+import "contracts/Identity.sol";
+import "contracts/IdentityRegistry.sol";
 
 
-contract IdentityFactory {
+contract IdentityFactory is Initializable {
   event IdentityCreated(uint48 indexed centrifugeId, address identity);
-
   address registry;
 
-  constructor(address _registry) public {
+  function initialize(address _registry) public initializer {
     registry = _registry;
   }
 

@@ -8,9 +8,8 @@ contract("PaymentObligation", function (accounts) {
 
     beforeEach(async function () {
         this.anchorRegistry = await MockAnchorRegistry.new();
-        this.registry = await PaymentObligation.new(
-            this.anchorRegistry.address
-        );
+        this.registry = await PaymentObligation.new();
+        this.registry.initialize(this.anchorRegistry.address)
     });
 
     describe("mint", async function () {
@@ -86,7 +85,6 @@ contract("PaymentObligation", function (accounts) {
                 validRootHash
             );
             const tokenId = 1;
-
             await shouldRevert(this.registry.mint(
                 accounts[2],
                 tokenId,
