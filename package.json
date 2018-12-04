@@ -33,15 +33,15 @@
     "openzeppelin-eth": "^2.0.2"
   },
   "devDependencies": {
-    "ethereumjs-util": "^5.2.0",
-    "ethereumjs-wallet": "^0.6.2",
-    "ganache-cli": "^6.1.8",
-    "husky": "^1.0.0-rc.15",
+    "ethereumjs-util": "5.2.0",
+    "ethereumjs-wallet": "0.6.2",
+    "ganache-cli": "6.1.8",
+    "husky": "1.0.0-rc.15",
     "nodemon": "1.18.3",
-    "solium": "^1.1.8",
+    "solium": "1.1.8",
     "truffle": "5.0.0-beta.2",
-    "truffle-hdwallet-provider": "^1.0.0-web3one.1",
-    "zos": "^2.0.1",
-    "zos-lib": "^2.0.1"
+    "truffle-hdwallet-provider": "1.0.0-web3one.1",
+    "zos": "2.0.1",
+    "zos-lib": "2.0.1"
   }
 }
