@@ -1,7 +1,10 @@
 pragma solidity ^0.4.24;
 
+import "zos-lib/contracts/Initializable.sol";
 
-contract IdentityRegistry {
+
+contract IdentityRegistry is Initializable {
+
   event IdentityRegistered(uint48 indexed centrifugeId, address identity);
   event IdentityUpdated(uint48 indexed centrifugeId, address identity);
 

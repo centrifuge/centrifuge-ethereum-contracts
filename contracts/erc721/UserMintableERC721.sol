@@ -1,13 +1,14 @@
 pragma solidity ^0.4.24;
 pragma experimental ABIEncoderV2;
 
+import "zos-lib/contracts/Initializable.sol";
 import "openzeppelin-eth/contracts/token/ERC721/ERC721Metadata.sol";
 import "openzeppelin-eth/contracts/token/ERC721/ERC721.sol";
 import "contracts/AnchorRepository.sol";
 import "contracts/lib/MerkleProofSha256.sol";
 
 
-contract UserMintableERC721 is ERC721, ERC721Metadata {
+contract UserMintableERC721 is Initializable, ERC721, ERC721Metadata {
   // anchor registry
   address internal anchorRegistry_;
 
@@ -32,19 +33,19 @@ contract UserMintableERC721 is ERC721, ERC721Metadata {
    * using document root and precise-proofs.
    * that is backing this token's mint method.
    */
-  constructor(
+  function initialize(
     string _name,
     string _symbol,
     address _anchorRegistry,
     string[] _mandatoryFields
   )
-
   public
+  initializer
   {
     anchorRegistry_ = _anchorRegistry;
     mandatoryFields = _mandatoryFields;
-    initialize();
-    initialize(_name, _symbol);
+    ERC721.initialize();
+    ERC721Metadata.initialize(_name, _symbol);
   }
 
   /**
