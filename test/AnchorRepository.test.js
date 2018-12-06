@@ -57,8 +57,6 @@ contract("AnchorRepository", function (accounts) {
 
     before(async function () {
         this.anchorRepository  = await AnchorRepository.new();
-        await this.anchorRepository.initialize();
-
         const deployedIdentity = await Identity.new();
         deployedCentrifugeId = deployedIdentity.address;
         authPublicKey = accounts[1];
