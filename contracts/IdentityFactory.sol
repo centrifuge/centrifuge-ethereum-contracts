@@ -23,7 +23,7 @@ contract IdentityFactory is Initializable {
   */
   function createIdentityFor(address owner) public {
     Identity identity = new Identity();
-    identity.transferOwnership(msg.sender);
-    emit IdentityCreated(owner);
+    identity.transferOwnership(owner);
+    emit IdentityCreated(identity);
   }
 }
