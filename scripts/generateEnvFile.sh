@@ -45,9 +45,6 @@ PAYMENT_OBLIGATION_ABI=`cat $local_dir/../build/contracts/PaymentObligation.json
 PAYMENT_OBLIGATION_BYTECODE=`cat $local_dir/../build/contracts/PaymentObligation.json | jq '.deployedBytecode' | tr -d '\n'`
 PAYMENT_OBLIGATION_ADDRESS=`cat $local_dir/../build/contracts/PaymentObligation.json | jq --arg NETWORK_ID "${NETWORK_ID}" '.networks[$NETWORK_ID].address' | tr -d '\n'`
 
-IDENTITY_REGISTRY_ABI=`cat $local_dir/../build/contracts/IdentityRegistry.json | jq '.abi' | tr -d '\n'`
-IDENTITY_REGISTRY_BYTECODE=`cat $local_dir/../build/contracts/IdentityRegistry.json | jq '.deployedBytecode' | tr -d '\n'`
-IDENTITY_REGISTRY_ADDRESS=`cat $local_dir/../build/contracts/IdentityRegistry.json | jq --arg NETWORK_ID "${NETWORK_ID}" '.networks[$NETWORK_ID].address' | tr -d '\n'`
 
 IDENTITY_FACTORY_ABI=`cat $local_dir/../build/contracts/IdentityFactory.json | jq '.abi' | tr -d '\n'`
 IDENTITY_FACTORY_BYTECODE=`cat $local_dir/../build/contracts/IdentityFactory.json | jq '.deployedBytecode' | tr -d '\n'`
@@ -69,11 +66,6 @@ cat >$local_dir/../deployments/${ETH_ENV}.json <<EOF
       "abi": ${PAYMENT_OBLIGATION_ABI},
       "bytecode": ${PAYMENT_OBLIGATION_BYTECODE},
       "address": ${PAYMENT_OBLIGATION_ADDRESS}
-    },
-    "IdentityRegistry": {
-      "abi": ${IDENTITY_REGISTRY_ABI},
-      "bytecode": ${IDENTITY_REGISTRY_BYTECODE},
-      "address": ${IDENTITY_REGISTRY_ADDRESS}
     },
     "IdentityFactory": {
       "abi": ${IDENTITY_FACTORY_ABI},

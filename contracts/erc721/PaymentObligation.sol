@@ -26,6 +26,36 @@ contract PaymentObligation is Initializable, UserMintableERC721 {
   mapping(uint256 => PODetails) internal poDetails_;
 
   /**
+  * Returns the values associated with a token
+  * @param grossAmount string The gross amount of the invoice
+  * @param currency string The currency used in the invoice
+  * @param dueDate string The Due data of the invoice
+  * @param anchorId uint256 The ID of the document as identified
+  * by the set up anchorRegistry
+  * @param documentRoot bytes32 The root hash of the merkle proof/doc
+  */
+  function getTokenDetails(uint256 _tokenId)
+  external
+  view
+  returns (
+    string grossAmount,
+    string currency,
+    string dueDate,
+    uint256 anchorId,
+    bytes32 documentRoot
+  )
+  {
+    anchorId = tokenDetails_[_tokenId].anchorId;
+    return (
+    poDetails_[anchorId].grossAmount,
+    poDetails_[anchorId].currency,
+    poDetails_[anchorId].dueDate,
+    anchorId,
+    tokenDetails_[_tokenId].rootHash
+    );
+  }
+
+  /**
    * @param _anchorRegistry address The address of the anchor registry
    * that is backing this token's mint method.
    * that ensures that the sender is authorized to mint the token
@@ -110,34 +140,6 @@ contract PaymentObligation is Initializable, UserMintableERC721 {
     );
   }
 
-  /**
-  * Returns the values associated with a token
-  * @param grossAmount string The gross amount of the invoice
-  * @param currency string The currency used in the invoice
-  * @param dueDate string The Due data of the invoice
-  * @param anchorId uint256 The ID of the document as identified
-  * by the set up anchorRegistry
-  * @param documentRoot bytes32 The root hash of the merkle proof/doc
-  */
-  function getTokenDetails(uint256 _tokenId)
-  public
-  view
-  returns (
-    string grossAmount,
-    string currency,
-    string dueDate,
-    uint256 anchorId,
-    bytes32 documentRoot
-  )
-  {
-    anchorId = tokenDetails_[_tokenId].anchorId;
-    return (
-    poDetails_[anchorId].grossAmount,
-    poDetails_[anchorId].currency,
-    poDetails_[anchorId].dueDate,
-    anchorId,
-    tokenDetails_[_tokenId].rootHash
-    );
-  }
+
 }
 

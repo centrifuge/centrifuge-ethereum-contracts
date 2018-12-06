@@ -5,17 +5,14 @@ const Identity = artifacts.require("Identity");
 
 
 async function getBasicTestNeeds() {
-    let centrifugeId = web3.utils.randomHex(6);
 
     return {
-        centrifugeId,
-        identity: await Identity.new(centrifugeId),
+        identity: await Identity.new(),
         key: web3.utils.randomHex(32)
     };
 }
 
 contract("KeyManager", function (accounts) {
-
 
     describe("Adding/Retrieving Keys", async function () {
 
