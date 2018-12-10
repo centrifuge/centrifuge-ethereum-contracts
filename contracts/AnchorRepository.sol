@@ -10,7 +10,6 @@ contract AnchorRepository is Initializable {
   event AnchorCommitted(
     address indexed from,
     uint256 indexed anchorId,
-    address indexed centrifugeId,
     bytes32 documentRoot,
     uint32 blockHeight
   );
@@ -23,7 +22,7 @@ contract AnchorRepository is Initializable {
 
   struct PreAnchor {
     bytes32 signingRoot;
-    address centrifugeId;
+    address identity;
     uint32 expirationBlock;
   }
 
@@ -34,15 +33,14 @@ contract AnchorRepository is Initializable {
   // The number of blocks for which a precommit is valid
   uint256 constant internal expirationLength = 15;
 
-  // @param _anchorId Id for an Anchor.
-  // @param _signingRoot merkle tree for a document that does not contain the signatures
-  // @param _centrifugeId Id for the Identity that wants to precommit
-  // @param _signature Signed data
+  /**
+   * @param _anchorId Id for an Anchor.
+   * @param _signingRoot merkle tree for a document that does not contain the signatures
+   * @param _expirationBlock uint256, block number when the precommit expires.
+   */
   function preCommit(
     uint256 _anchorId,
     bytes32 _signingRoot,
-    address _centrifugeId,
-    bytes _signature,
     uint256 _expirationBlock
   )
   external
@@ -58,21 +56,9 @@ contract AnchorRepository is Initializable {
     // do not allow a precommit if there is already a valid one in place
     require(hasValidPreCommit(_anchorId) == false);
 
-    // Construct the signed message and validate the _signature
-    bytes32 message = keccak256(
-      abi.encodePacked(
-        _anchorId,
-        _signingRoot,
-        _centrifugeId,
-        _expirationBlock
-      )
-    );
-    // Validate signature
-    require(isSignatureValid(message, _centrifugeId, _signature));
-
     preCommits[_anchorId] = PreAnchor(
       _signingRoot,
-      _centrifugeId,
+      msg.sender,
       uint32(_expirationBlock)
     );
 
@@ -83,18 +69,16 @@ contract AnchorRepository is Initializable {
     );
   }
 
-  // @param _anchorId Id for an Anchor.
-  // @param _documentRoot merkle tree for a document that will be anchored/commited. It also contains the signatures
-  // @param _centrifugeId Id for the Identity that wants to commit/anchor a document
-  // @param _documentProofs Array containing proofs for the document's signatures.
-  // The documentRoot must be a merkle tree constructed from the signingRoot plus all signatures
-  // @param _signature Signed data
+  /**
+   * @param _anchorId Id for an Anchor.
+   * @param _documentRoot merkle tree for a document that will be anchored/commited. It also contains the signatures
+   * @param _documentProofs Array containing proofs for the document's signatures.
+   * The documentRoot must be a merkle tree constructed from the signingRoot plus all signatures
+   */
   function commit(
     uint256 _anchorId,
     bytes32 _documentRoot,
-    address _centrifugeId,
-    bytes32[] _documentProofs,
-    bytes _signature
+    bytes32[] _documentProofs
   )
   external
   payable
@@ -112,49 +96,43 @@ contract AnchorRepository is Initializable {
           preCommits[_anchorId].signingRoot
         )
       );
-      // check that the precommit has the same _centrifugeId
-      require(preCommits[_anchorId].centrifugeId == _centrifugeId);
+      // check that the precommit has the same _identity
+      require(preCommits[_anchorId].identity == msg.sender);
     }
-
-    // Construct the signed message and validate the _signature
-    bytes32 message = keccak256(
-      abi.encodePacked(_anchorId, _documentRoot, _centrifugeId)
-    );
-    // Validate signature
-    require(isSignatureValid(message, _centrifugeId, _signature));
 
     commits[_anchorId] = _documentRoot;
     emit AnchorCommitted(
       msg.sender,
       _anchorId,
-      _centrifugeId,
       _documentRoot,
       uint32(block.number)
     );
 
   }
 
-  // @param _anchorId Id for an Anchor.
-  // return Struct with anchorId, documentRoot and the centrifugeId
+  /**
+   * @param _anchorId Id for an Anchor.
+   * @return Struct with anchorId, documentRoot and the identity
+   */
   function getAnchorById(uint256 _anchorId)
   public
   view
   returns (
     uint256 anchorId,
-    bytes32 documentRoot,
-    address centrifugeId
+    bytes32 documentRoot
   )
   {
     return (
     _anchorId,
-    commits[_anchorId],
-    preCommits[_anchorId].centrifugeId
+    commits[_anchorId]
     );
   }
 
-  // Check if there is a valid precommit for an anchorID
-  // @param _anchorId Id for an Anchor.
-  // return true if there is a valid precommit for the provided anchorId
+  /**
+   * @dev Check if there is a valid precommit for an anchorID
+   * @param _anchorId Id for an Anchor.
+   * @return true if there is a valid precommit for the provided anchorId
+   */
   function hasValidPreCommit(uint256 _anchorId)
   public
   view
@@ -164,21 +142,5 @@ contract AnchorRepository is Initializable {
     preCommits[_anchorId].expirationBlock != 0x0 &&
     preCommits[_anchorId].expirationBlock > block.number
     );
-  }
-
-  // Validate a signature on
-  // @param _message keccak256 encoded message
-  // @param _centrifugeId Centrifuge Identity identifier
-  // @param _signature Signed message
-  function isSignatureValid(
-    bytes32 _message,
-    address _centrifugeId,
-    bytes _signature
-  )
-  internal
-  view
-  returns (bool)
-  {
-    return (Identity(_centrifugeId).isSignatureValid(_message, _signature));
   }
 }

@@ -1,8 +1,8 @@
 var HDWalletProvider = require("truffle-hdwallet-provider");
 
-let account = process.env.MIGRATE_ADDRESS;
-let endpoint = process.env.ETH_PROVIDER || "http://127.0.0.1:8545";
-let privateKey = process.env.ETH_PRIVATE_KEY || "";
+let account = "0xd77c534aed04d7ce34cd425073a033db4fbe6a9d"//process.env.MIGRATE_ADDRESS;
+let endpoint = "https://rinkeby.infura.io/v3/61181d6472cb498dbefd50537aa1b4fd"//process.env.ETH_PROVIDER || "http://127.0.0.1:8545";
+let privateKey = "0xb5fffc3933d93dc956772c69b42c4bc66123631a24e3465956d80b5b604a2d13"//process.env.ETH_PRIVATE_KEY || "";
 
 module.exports = {
     compilers: {

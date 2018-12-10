@@ -16,6 +16,7 @@ contract MockUserMintableERC721 is UserMintableERC721 {
     address _anchorRegistry,
     string[] _mandatoryFields
   )
+  public
   {
     UserMintableERC721.initialize(
       _name,

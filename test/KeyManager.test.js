@@ -1,4 +1,4 @@
-const {P2P_IDENTITY, P2P_SIGNATURE, ETH_MESSAGE_AUTH}  = require('./constants');
+const {P2P_IDENTITY, P2P_SIGNATURE, ACTION} = require('./constants');
 const shouldRevert = require('./tools/assertTx').shouldRevert;
 const getEvents = require('./tools/contractEvents').getEvents;
 const Identity = artifacts.require("Identity");
@@ -7,36 +7,33 @@ const Identity = artifacts.require("Identity");
 async function getBasicTestNeeds() {
 
     return {
-        identity: await Identity.new(),
         key: web3.utils.randomHex(32)
     };
 }
 
 contract("KeyManager", function (accounts) {
 
+    beforeEach(async function () {
+        this.identity = await Identity.new(accounts[0]);
+    });
+
     describe("Adding/Retrieving Keys", async function () {
 
-        it("Should not add a empty key", async function () {
-            const {identity} = await getBasicTestNeeds();
-            await shouldRevert(identity.addKey("0x", P2P_IDENTITY));
-        })
-
         it("Should not add a key with an empty purpose", async function () {
-            const {identity, key} = await getBasicTestNeeds();
-            await shouldRevert(identity.addKey(key, ""));
-            await shouldRevert(identity.addMultiPurposeKey(key, []));
+            const {key} = await getBasicTestNeeds();
+            await shouldRevert(this.identity.addMultiPurposeKey(key, [], 1));
         })
 
-        it("should not allow adding a key if the sender is not the owner", async function () {
-            const {identity, key} = await getBasicTestNeeds()
-            await shouldRevert(identity.addMultiPurposeKey(key, [P2P_SIGNATURE], {from: accounts[1]}));
-            await shouldRevert(identity.addKey(key, P2P_SIGNATURE, {from: accounts[1]}));
+        it("should not allow adding a key if the sender is not a MANAGEMENT KEY", async function () {
+            const {key} = await getBasicTestNeeds()
+            await shouldRevert(this.identity.addMultiPurposeKey(key, [P2P_SIGNATURE], 1, {from: accounts[1]}));
+            await shouldRevert(this.identity.addKey(key, P2P_SIGNATURE, 1, {from: accounts[1]}));
         })
 
         it("Should add a key with both P2P_IDENTITY and P2P_SIGNATURE purposes and retrieve it", async function () {
-            const {identity, key} = await getBasicTestNeeds();
-            await identity.addMultiPurposeKey(key, [P2P_IDENTITY, P2P_SIGNATURE]);
-            const response = await identity.getKey(key);
+            const {key} = await getBasicTestNeeds();
+            await this.identity.addMultiPurposeKey(key, [P2P_IDENTITY, P2P_SIGNATURE], 1);
+            const response = await this.identity.getKey(key);
             assert.equal(key, response[0]);
             assert.equal(P2P_IDENTITY, response[1][0].toNumber());
             assert.equal(P2P_SIGNATURE, response[1][1].toNumber());
@@ -45,11 +42,11 @@ contract("KeyManager", function (accounts) {
 
 
         it('should add the same purpose only one time to a key', async function () {
-            const {identity, key} = await getBasicTestNeeds();
-            await identity.addKey(key, P2P_IDENTITY);
-            await identity.addMultiPurposeKey(key, [P2P_IDENTITY, P2P_SIGNATURE]);
-            await identity.addKey(key, P2P_SIGNATURE);
-            const response = await identity.getKey(key);
+            const {key} = await getBasicTestNeeds();
+            await this.identity.addKey(key, P2P_IDENTITY, 1);
+            await this.identity.addMultiPurposeKey(key, [P2P_IDENTITY, P2P_SIGNATURE], 1);
+            await this.identity.addKey(key, P2P_SIGNATURE, 1);
+            const response = await this.identity.getKey(key);
             assert.equal(key, response[0]);
             assert.equal(P2P_IDENTITY, response[1][0].toNumber());
             assert.equal(P2P_SIGNATURE, response[1][1].toNumber());
@@ -57,39 +54,39 @@ contract("KeyManager", function (accounts) {
         })
 
         it("Should not find a key", async function () {
-            const {identity, key} = await getBasicTestNeeds();
-            const response = await identity.getKey(key);
-            assert.equal("0x0000000000000000000000000000000000000000000000000000000000000000", response[0]);
+            const {key} = await getBasicTestNeeds();
+            const response = await this.identity.getKey(key);
+            assert.equal(key, response[0]);
             assert.equal(0, response[1].length);
             assert.equal(0, response[2].toNumber());
         })
 
         it("Should revert if trying to revoke an unexisting key", async function () {
             const {identity, key} = await getBasicTestNeeds();
-            await shouldRevert(identity.revokeKey(key));
+            await shouldRevert(this.identity.revokeKey(key));
 
         })
 
         it("Should revoke a key", async function () {
-            const {identity, key} = await getBasicTestNeeds();
-            await identity.addMultiPurposeKey(key, [P2P_IDENTITY, P2P_SIGNATURE]);
-            await identity.revokeKey(key);
-            const response = await identity.getKey(key);
+            const {key} = await getBasicTestNeeds();
+            await this.identity.addMultiPurposeKey(key, [P2P_IDENTITY, P2P_SIGNATURE], 1);
+            await this.identity.revokeKey(key);
+            const response = await this.identity.getKey(key);
             assert.equal(key, response[0]);
             assert.isAbove(response[2].toNumber(), 0);
         })
 
         it("Should add and retrieve keys by purpose", async function () {
-            const {identity, key} = await getBasicTestNeeds();
-            const key2 = web3.utils.randomHex(20);
+            const {key} = await getBasicTestNeeds();
+            const key2 = web3.utils.randomHex(32);
             const key3 = web3.utils.randomHex(32);
-            await identity.addKey(key, P2P_IDENTITY);
-            await identity.addKey(key2, ETH_MESSAGE_AUTH);
-            await identity.addMultiPurposeKey(key3, [P2P_IDENTITY, P2P_SIGNATURE]);
+            await this.identity.addKey(key, P2P_IDENTITY, 1);
+            await this.identity.addKey(key2, ACTION, 1);
+            await this.identity.addMultiPurposeKey(key3, [P2P_IDENTITY, P2P_SIGNATURE],1);
 
-            const P2pIndentityKeys = await identity.getKeysByPurpose(P2P_IDENTITY);
-            const P2pSignatureKeys = await identity.getKeysByPurpose(P2P_SIGNATURE);
-            const EthMessageKeys = await identity.getKeysByPurpose(ETH_MESSAGE_AUTH);
+            const P2pIndentityKeys = await this.identity.getKeysByPurpose(P2P_IDENTITY);
+            const P2pSignatureKeys = await this.identity.getKeysByPurpose(P2P_SIGNATURE);
+            const EthMessageKeys = await this.identity.getKeysByPurpose(ACTION);
 
             assert.equal(P2pIndentityKeys.length, 2);
             assert.equal(P2pSignatureKeys.length, 1);
@@ -97,14 +94,14 @@ contract("KeyManager", function (accounts) {
             assert.equal(P2pIndentityKeys[0], key);
             assert.equal(P2pIndentityKeys[1], key3);
             assert.equal(P2pSignatureKeys[0], key3);
-            assert.equal(EthMessageKeys[0].slice(0,42), key2);
+            assert.equal(EthMessageKeys[0], key2);
         })
     });
 
     describe("Event dispatching", async function () {
         it("Should dispatch a KeyAdded event", async function () {
-            const {identity, key} = await getBasicTestNeeds();
-            await identity.addKey(key, P2P_IDENTITY).then(tx => {
+            const {key} = await getBasicTestNeeds();
+            await this.identity.addKey(key, P2P_IDENTITY, 1).then(tx => {
                 const events = getEvents(tx, "KeyAdded");
                 assert.equal(1, events.length);
                 assert.equal(events[0].purpose.toNumber(), P2P_IDENTITY);
@@ -114,9 +111,9 @@ contract("KeyManager", function (accounts) {
         })
 
         it("Should dispatch a KeyRevoked event", async function () {
-            const {identity, key} = await getBasicTestNeeds();
-            await identity.addKey(key, P2P_IDENTITY);
-            await identity.revokeKey(key).then(tx => {
+            const {key} = await getBasicTestNeeds();
+            await this.identity.addKey(key, P2P_IDENTITY, 1);
+            await this.identity.revokeKey(key).then(tx => {
                 const events = getEvents(tx, "KeyRevoked");
                 assert.equal(1, events.length);
                 assert.equal(events[0].key, key);
@@ -127,8 +124,8 @@ contract("KeyManager", function (accounts) {
 
 
         it("Should dispatch a KeyAdded event", async function () {
-            const {identity, key} = await getBasicTestNeeds();
-            await identity.addKey(key, P2P_IDENTITY).then(tx => {
+            const {key} = await getBasicTestNeeds();
+            await this.identity.addKey(key, P2P_IDENTITY, 1).then(tx => {
                 const events = getEvents(tx, "KeyAdded");
                 assert.equal(1, events.length);
                 assert.equal(events[0].purpose.toNumber(), P2P_IDENTITY);
@@ -137,8 +134,8 @@ contract("KeyManager", function (accounts) {
         })
 
         it("Should dispatch 3 KeyAdded events in a specific order", async function () {
-            const {identity, key} = await getBasicTestNeeds();
-            await identity.addMultiPurposeKey(key, [P2P_IDENTITY, P2P_SIGNATURE]).then(tx => {
+            const {key} = await getBasicTestNeeds();
+            await this.identity.addMultiPurposeKey(key, [P2P_IDENTITY, P2P_SIGNATURE], 1).then(tx => {
                 const events = getEvents(tx, "KeyAdded");
                 assert.equal(2, events.length);
                 assert.equal(events[0].purpose.toNumber(), P2P_IDENTITY);
@@ -148,9 +145,9 @@ contract("KeyManager", function (accounts) {
         })
 
         it("Should dispatch 1 KeyAdded event because one purpose existed", async function () {
-            const {identity, key} = await getBasicTestNeeds();
-            await identity.addKey(key, P2P_IDENTITY);
-            await identity.addMultiPurposeKey(key, [P2P_IDENTITY, P2P_SIGNATURE]).then(tx => {
+            const {key} = await getBasicTestNeeds();
+            await this.identity.addKey(key, P2P_IDENTITY, 1);
+            await this.identity.addMultiPurposeKey(key, [P2P_IDENTITY, P2P_SIGNATURE], 1).then(tx => {
                 const events = getEvents(tx, "KeyAdded");
                 assert.equal(1, events.length);
                 assert.equal(events[0].purpose.toNumber(), P2P_SIGNATURE);
@@ -163,16 +160,16 @@ contract("KeyManager", function (accounts) {
 
         const maxAddMutipleGas = 250000;
         it(` Gas cost for adding a key with 3 purposes should be less then ${maxAddMutipleGas} `, async function () {
-            const {identity, key} = await getBasicTestNeeds();
-            const addMultiPurposeKeyGas = await identity.addMultiPurposeKey.estimateGas(key, [P2P_IDENTITY, P2P_SIGNATURE]);
+            const {key} = await getBasicTestNeeds();
+            const addMultiPurposeKeyGas = await this.identity.addMultiPurposeKey.estimateGas(key, [P2P_IDENTITY, P2P_SIGNATURE], 1);
             console.log('Actual addMultiPurposeKey gas cost:', addMultiPurposeKeyGas)
             assert.isBelow(addMultiPurposeKeyGas, maxAddMutipleGas, `Gas Price for addMultiPurposeKey is to high`)
         })
 
-        const maxAddGas = 120000;
+        const maxAddGas = 140000;
         it(` Gas cost for adding a key with one purpose should be less then ${maxAddGas} `, async function () {
-            const {identity, key} = await getBasicTestNeeds();
-            const addKeyGas = await identity.addKey.estimateGas(key, P2P_IDENTITY);
+            const {key} = await getBasicTestNeeds();
+            const addKeyGas = await this.identity.addKey.estimateGas(key, P2P_IDENTITY, 1);
             console.log('Actual AddKey gas cost:', addKeyGas)
             assert.isBelow(addKeyGas, maxAddGas, `Gas Price for addKey is to high`)
         })
@@ -180,8 +177,8 @@ contract("KeyManager", function (accounts) {
         const maxRevokeGas = 50000;
         it(` Gas cost for revoking a key should be less then ${maxRevokeGas} `, async function () {
             const {identity, key} = await getBasicTestNeeds();
-            await identity.addMultiPurposeKey(key, [1]);
-            const revokeKeyGas = await identity.revokeKey.estimateGas(key);
+            await this.identity.addMultiPurposeKey(key, [P2P_IDENTITY], 1);
+            const revokeKeyGas = await this.identity.revokeKey.estimateGas(key);
             console.log('Actual revokeKey gas cost:', revokeKeyGas)
             assert.isBelow(revokeKeyGas, maxRevokeGas, `Gas Price for revoke is to high`)
         })

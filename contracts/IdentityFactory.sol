@@ -6,14 +6,13 @@ import "contracts/Identity.sol";
 
 contract IdentityFactory is Initializable {
 
-  event IdentityCreated(address indexed centrifugeId);
+  event IdentityCreated(address indexed identity);
 
   /**
   * Deploys a new identity and transfers the ownership to the sender
   */
   function createIdentity() public {
-    Identity identity = new Identity();
-    identity.transferOwnership(msg.sender);
+    Identity identity = new Identity(msg.sender);
     emit IdentityCreated(identity);
   }
 
@@ -22,8 +21,7 @@ contract IdentityFactory is Initializable {
   * @param owner string address owner of the new identity
   */
   function createIdentityFor(address owner) public {
-    Identity identity = new Identity();
-    identity.transferOwnership(owner);
+    Identity identity = new Identity(owner);
     emit IdentityCreated(identity);
   }
 }
