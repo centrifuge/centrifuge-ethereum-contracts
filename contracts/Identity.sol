@@ -9,14 +9,9 @@ import "openzeppelin-eth/contracts/ownership/Ownable.sol";
 contract Identity is Ownable, KeyManager {
   using ECDSA for bytes32;
 
-  uint48 public centrifugeId;
-
-  constructor(uint48 _centrifugeId) public{
-    require(_centrifugeId != 0x0);
-    centrifugeId = _centrifugeId;
+  constructor() public{
     Ownable.initialize(msg.sender);
   }
-
 
   // @param _toSign Hash to be signed. Must be generated with abi.encodePacked(arg1, arg2, arg3)
   // @param _signature Signed data

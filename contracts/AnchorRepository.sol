@@ -3,7 +3,6 @@ pragma solidity ^0.4.24;
 import "zos-lib/contracts/Initializable.sol";
 import "openzeppelin-eth/contracts/cryptography/MerkleProof.sol";
 import "contracts/Identity.sol";
-import "contracts/IdentityRegistry.sol";
 
 
 contract AnchorRepository is Initializable {
@@ -11,7 +10,7 @@ contract AnchorRepository is Initializable {
   event AnchorCommitted(
     address indexed from,
     uint256 indexed anchorId,
-    uint48 indexed centrifugeId,
+    address indexed centrifugeId,
     bytes32 documentRoot,
     uint32 blockHeight
   );
@@ -24,27 +23,16 @@ contract AnchorRepository is Initializable {
 
   struct PreAnchor {
     bytes32 signingRoot;
-    uint48 centrifugeId;
+    address centrifugeId;
     uint32 expirationBlock;
   }
 
-  // address for the Identity Registry
-  address identityRegistry;
   // store precommits
   mapping(uint256 => PreAnchor) public preCommits;
   // store commits
   mapping(uint256 => bytes32) public commits;
   // The number of blocks for which a precommit is valid
   uint256 constant internal expirationLength = 15;
-
-  function initialize(
-    address _identityRegistry
-  )
-  public
-  initializer
-  {
-    identityRegistry = _identityRegistry;
-  }
 
   // @param _anchorId Id for an Anchor.
   // @param _signingRoot merkle tree for a document that does not contain the signatures
@@ -53,7 +41,7 @@ contract AnchorRepository is Initializable {
   function preCommit(
     uint256 _anchorId,
     bytes32 _signingRoot,
-    uint48 _centrifugeId,
+    address _centrifugeId,
     bytes _signature,
     uint256 _expirationBlock
   )
@@ -61,9 +49,6 @@ contract AnchorRepository is Initializable {
   payable
   {
 
-    // not allowing empty string
-    require(_anchorId != 0x0);
-    require(_signingRoot != 0x0);
     // Check if _expirationBlock is within the allowed limit
     require(
       block.number <= _expirationBlock &&
@@ -107,18 +92,13 @@ contract AnchorRepository is Initializable {
   function commit(
     uint256 _anchorId,
     bytes32 _documentRoot,
-    uint48 _centrifugeId,
+    address _centrifugeId,
     bytes32[] _documentProofs,
     bytes _signature
   )
   external
   payable
   {
-    // not allowing empty string
-    require(_anchorId != 0x0);
-    require(_documentRoot != 0x0);
-    require(_centrifugeId != 0x0);
-
     //not allowing to write to an existing anchor
     require(commits[_anchorId] == 0x0);
 
@@ -162,7 +142,7 @@ contract AnchorRepository is Initializable {
   returns (
     uint256 anchorId,
     bytes32 documentRoot,
-    uint48 centrifugeId
+    address centrifugeId
   )
   {
     return (
@@ -192,19 +172,13 @@ contract AnchorRepository is Initializable {
   // @param _signature Signed message
   function isSignatureValid(
     bytes32 _message,
-    uint48 _centrifugeId,
+    address _centrifugeId,
     bytes _signature
   )
   internal
   view
   returns (bool)
   {
-    // get address of the identity associated to the _centrifugeId
-    IdentityRegistry registry = IdentityRegistry(identityRegistry);
-    address identityAddress = registry.getIdentityByCentrifugeId(_centrifugeId);
-
-    if (identityAddress == 0x0)
-      return false;
-    return (Identity(identityAddress).isSignatureValid(_message, _signature));
+    return (Identity(_centrifugeId).isSignatureValid(_message, _signature));
   }
 }

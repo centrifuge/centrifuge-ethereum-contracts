@@ -7,28 +7,17 @@ let identityRecord;
 contract("Identity", function (accounts) {
 
     describe("Identity Creation", async function () {
-
         it("should create identity", async function () {
-            let centrifugeId = web3.utils.randomHex(6);
-
-            let instance = await Identity.new(centrifugeId);
-            let readCentrifugeId = web3.utils.toHex(await instance.centrifugeId.call());
-
-            assert.equal(accounts[0], await instance.owner.call(), "The owner of the contract should be the owner address.");
-            assert.equal(readCentrifugeId, centrifugeId, "The centrifugeId stored should be the same as passed.");
+            await Identity.new();
         });
-
-        it("should not create identity if centrifugeId is 0x0", async function () {
-            let centrifugeId = "0x0";
-            await shouldRevert(Identity.new(centrifugeId));
-        });
-
     });
 
     describe("Should Validate a signature", async function () {
+
         before(async function () {
-            identityRecord = await Identity.new(web3.utils.randomHex(6));
+            identityRecord = await Identity.new();
         });
+
         it("should validate a web3 signature", async function(){
             await identityRecord.addKey(accounts[1], ETH_MESSAGE_AUTH);
             const toSign = web3.utils.randomHex(32);
@@ -36,6 +25,7 @@ contract("Identity", function (accounts) {
             const isSignatureValid = await identityRecord.isSignatureValid(toSign, signature);
             assert.equal(isSignatureValid, true, "signature should be valid");
         });
+
         it("should validate a signature generated with go-centrifuge", async function(){
 
             const address = "0xd77c534aed04d7ce34cd425073a033db4fbe6a9d";
@@ -46,6 +36,7 @@ contract("Identity", function (accounts) {
             const isSignatureValid = await identityRecord.isSignatureValid(msgInHex, signature);
             assert.equal(isSignatureValid, true, "signature should be valid");
         });
+
         it("should be false because of an invalid signature", async function(){
 
             const address = "0xc41a4ba7f7b6df6e3229b7697d3dfc0efa744476";

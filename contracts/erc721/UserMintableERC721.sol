@@ -25,6 +25,18 @@ contract UserMintableERC721 is Initializable, ERC721, ERC721Metadata {
   mapping(uint256 => OwnedAnchor) internal tokenDetails_;
 
   /**
+   * @dev Gets the anchor registry's address that is backing this token
+   * @return address The address of the anchor registry
+   */
+  function anchorRegistry()
+  external
+  view
+  returns (address)
+  {
+    return anchorRegistry_;
+  }
+
+  /**
    * @dev Constructor function
    * @param _name string The name of this token
    * @param _symbol string The shorthand token identifier
@@ -49,17 +61,6 @@ contract UserMintableERC721 is Initializable, ERC721, ERC721Metadata {
   }
 
   /**
-   * @dev Gets the anchor registry's address that is backing this token
-   * @return address The address of the anchor registry
-   */
-  function anchorRegistry()
-  external view
-  returns (address)
-  {
-    return anchorRegistry_;
-  }
-
-  /**
    * @dev Checks if a given document is registered in the the
    * anchor registry of this contract with the given root hash.
    * @param _anchorId bytes32 The ID of the document as identified
@@ -70,7 +71,8 @@ contract UserMintableERC721 is Initializable, ERC721, ERC721Metadata {
     uint256 _anchorId,
     bytes32 _merkleRoot
   )
-  internal view
+  internal
+  view
   returns (bool)
   {
     AnchorRepository ar = AnchorRepository(anchorRegistry_);
@@ -99,7 +101,8 @@ contract UserMintableERC721 is Initializable, ERC721, ERC721Metadata {
     string _leafValue,
     bytes32 _leafSalt
   )
-  internal pure
+  internal
+  pure
   returns (bytes32)
   {
     return sha256(abi.encodePacked(_leafName, _leafValue, _leafSalt));

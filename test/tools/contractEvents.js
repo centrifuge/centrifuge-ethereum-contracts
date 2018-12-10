@@ -13,6 +13,8 @@ module.exports = {
 
                 }
                 break;
+            } else {
+                assert.fail('Did not find event')
             }
         }
     },
