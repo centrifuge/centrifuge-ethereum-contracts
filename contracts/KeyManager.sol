@@ -3,7 +3,7 @@ pragma solidity ^0.4.24;
 import "openzeppelin-eth/contracts/ownership/Ownable.sol";
 
 
-contract KeyManager is Ownable {
+contract KeyManager {
 
   event KeyAdded(
     bytes32 indexed key,
