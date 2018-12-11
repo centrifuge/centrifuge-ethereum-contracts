@@ -3,9 +3,10 @@ const MerkleTree = require('openzeppelin-eth/test/helpers/merkleTree').MerkleTre
 const mineNBlocks = require('./tools/blockHeight').mineNBlocks;
 const shouldRevert = require('./tools/assertTx').shouldRevert;
 const shouldSucceed = require('./tools/assertTx').shouldSucceed;
-const {keccak, bufferToHex, toBuffer} = require('ethereumjs-util');
+const {keccak, bufferToHex} = require('ethereumjs-util');
 const AnchorRepository = artifacts.require("AnchorRepository");
 const Identity = artifacts.require("Identity");
+
 
 
 async function getBasicTestNeeds(accounts) {
@@ -123,38 +124,5 @@ contract("AnchorRepository", function (accounts) {
         })
     });
 
-    describe("check the gas cost for preCommit and commit", async function () {
-
-        const preCommitMaxGas = 95000;
-        const commitMaxGas = 80000
-        it(`should have preCommit gas cost less then ${preCommitMaxGas} `, async function () {
-            const {anchorId, signingRoot, expirationBlock, callOptions} = await getBasicTestNeeds(accounts);
-
-            const preCommitGas = await this.anchorRepository.preCommit.estimateGas(anchorId, signingRoot, expirationBlock, callOptions);
-            console.log('Actual preCommit gas cost:', preCommitGas)
-            assert.isBelow(preCommitGas, preCommitMaxGas, `Gas Price for preCommit is to high`)
-        })
-
-
-        it(`should have commit with no precommit gas cost less then  ${commitMaxGas}`, async function () {
-            const {anchorId, documentRoot, proof, callOptions} = await getBasicTestNeeds(accounts);
-
-            const commitGas = await this.anchorRepository.commit.estimateGas(anchorId, documentRoot, proof, callOptions);
-            console.log('Actual commit without precommit gas cost:', commitGas)
-
-            assert.isBelow(commitGas, commitMaxGas, 'Gas Price for commit must not exceed 80k');
-        })
-
-        it(`should have commit gas cost less then  ${commitMaxGas}`, async function () {
-            const {anchorId, signingRoot, documentRoot, proof, expirationBlock, callOptions} = await getBasicTestNeeds(accounts);
-
-            await shouldSucceed(this.anchorRepository.preCommit(anchorId, signingRoot, expirationBlock, callOptions));
-            const commitGas = await this.anchorRepository.commit.estimateGas(anchorId, documentRoot, proof, callOptions);
-            console.log('Actual commit with precommit gas cost:', commitGas)
-
-            assert.isBelow(commitGas, commitMaxGas, 'Gas Price for commit must not exceed 80k');
-        })
-
-    });
 })
 

@@ -156,34 +156,4 @@ contract("KeyManager", function (accounts) {
 
     })
 
-    describe("Check Gas", async function () {
-
-        const maxAddMutipleGas = 250000;
-        it(` Gas cost for adding a key with 3 purposes should be less then ${maxAddMutipleGas} `, async function () {
-            const {key} = await getBasicTestNeeds();
-            const addMultiPurposeKeyGas = await this.identity.addMultiPurposeKey.estimateGas(key, [P2P_IDENTITY, P2P_SIGNATURE], 1);
-            console.log('Actual addMultiPurposeKey gas cost:', addMultiPurposeKeyGas)
-            assert.isBelow(addMultiPurposeKeyGas, maxAddMutipleGas, `Gas Price for addMultiPurposeKey is to high`)
-        })
-
-        const maxAddGas = 140000;
-        it(` Gas cost for adding a key with one purpose should be less then ${maxAddGas} `, async function () {
-            const {key} = await getBasicTestNeeds();
-            const addKeyGas = await this.identity.addKey.estimateGas(key, P2P_IDENTITY, 1);
-            console.log('Actual AddKey gas cost:', addKeyGas)
-            assert.isBelow(addKeyGas, maxAddGas, `Gas Price for addKey is to high`)
-        })
-
-        const maxRevokeGas = 50000;
-        it(` Gas cost for revoking a key should be less then ${maxRevokeGas} `, async function () {
-            const {identity, key} = await getBasicTestNeeds();
-            await this.identity.addMultiPurposeKey(key, [P2P_IDENTITY], 1);
-            const revokeKeyGas = await this.identity.revokeKey.estimateGas(key);
-            console.log('Actual revokeKey gas cost:', revokeKeyGas)
-            assert.isBelow(revokeKeyGas, maxRevokeGas, `Gas Price for revoke is to high`)
-        })
-
-
-    });
-
 })

@@ -177,48 +177,5 @@ contract("PaymentObligation", function (accounts) {
         });
     });
 
-    describe("check the gas cost for mint", async function () {
-        const mintMaxGas = 533819;
-        it(`should have mint gas cost less then ${mintMaxGas} `, async function () {
-            let documentIdentifer = proof.header.version_id;
-            let validRootHash = proof.header.document_root;
-            let tokenURI = "http://test.com";
 
-            await this.anchorRegistry.setAnchorById(
-                documentIdentifer,
-                validRootHash
-            );
-            const tokenId = 1;
-
-            const mintGasCost = await this.registry.mint.estimateGas(
-                accounts[2],
-                tokenId,
-                tokenURI,
-                documentIdentifer,
-                validRootHash,
-                [
-                    proof.field_proofs[0].value,
-                    proof.field_proofs[1].value,
-                    proof.field_proofs[2].value,
-                    proof.field_proofs[3].value,
-                ],
-                [
-                    proof.field_proofs[0].salt,
-                    proof.field_proofs[1].salt,
-                    proof.field_proofs[2].salt,
-                    proof.field_proofs[3].salt,
-
-                ],
-                [
-                    proof.field_proofs[0].sorted_hashes,
-                    proof.field_proofs[1].sorted_hashes,
-                    proof.field_proofs[2].sorted_hashes,
-                    proof.field_proofs[3].sorted_hashes,
-                ]
-
-            );
-            console.log('Actual mint gas cost:', mintGasCost)
-            assert.isBelow(mintGasCost, mintMaxGas, `Gas Price for mint is to high`)
-        })
-    });
 });

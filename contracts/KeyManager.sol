@@ -45,7 +45,10 @@ contract KeyManager is Ownable {
   {
 
     // Can not add purpose to revoked keys
-    require(keys[_key].revokedAt == 0);
+    require(
+      keys[_key].revokedAt == 0,
+      "Key is revoked"
+    );
 
     if (!keyHasPurpose(_key, _purpose)) {
       keys[_key].keyType = _keyType;
@@ -69,7 +72,10 @@ contract KeyManager is Ownable {
   onlyManagementOrSelf
   {
     // key must have at least one purpose
-    require(_purposes.length > 0);
+    require(
+      _purposes.length > 0,
+      "Key must have at least a purpose"
+    );
     for (uint i = 0; i < _purposes.length; i++) {
       addKey(_key, _purposes[i], _keyType);
     }
@@ -164,7 +170,7 @@ contract KeyManager is Ownable {
   pure
   returns (bytes32)
   {
-    return keccak256(abi.encodePacked(addr));
+    return bytes32(addr);
   }
 
   /**

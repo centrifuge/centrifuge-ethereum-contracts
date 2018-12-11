@@ -50,11 +50,12 @@ contract AnchorRepository is Initializable {
     // Check if _expirationBlock is within the allowed limit
     require(
       block.number <= _expirationBlock &&
-      _expirationBlock <= (block.number + expirationLength)
+      _expirationBlock <= (block.number + expirationLength),
+      "Expiration Block is not within limit"
     );
 
     // do not allow a precommit if there is already a valid one in place
-    require(hasValidPreCommit(_anchorId) == false);
+    require(hasValidPreCommit(_anchorId) == false,"Precommit exists for the given anchor");
 
     preCommits[_anchorId] = PreAnchor(
       _signingRoot,
@@ -88,16 +89,18 @@ contract AnchorRepository is Initializable {
 
     // Check if there is a precommit and enforce it
     if (preCommits[_anchorId].expirationBlock != 0x0) {
-      require(hasValidPreCommit(_anchorId) == true);
+      // check that the precommit has the same _identity
+      require(preCommits[_anchorId].identity == msg.sender,"Precommit owned by someone else");
+      require(hasValidPreCommit(_anchorId) == true,"Precommit is expired");
       require(
         MerkleProof.verify(
           _documentProofs,
           _documentRoot,
           preCommits[_anchorId].signingRoot
-        )
+        ),
+        "Signing root validation failed"
       );
-      // check that the precommit has the same _identity
-      require(preCommits[_anchorId].identity == msg.sender);
+
     }
 
     commits[_anchorId] = _documentRoot;

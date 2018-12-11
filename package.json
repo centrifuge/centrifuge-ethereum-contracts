@@ -1,6 +1,6 @@
 {
   "name": "@centrifuge/ethereum-contracts",
-  "version": "0.2.7",
+  "version": "0.2.8",
   "description": "Centrifuge OS (https://github.com/centrifuge/centrifuge-ethereum-contracts)",
   "publishConfig": {
     "access": "public"
@@ -41,7 +41,6 @@
     "solium": "1.1.8",
     "truffle": "5.0.0-beta.2",
     "truffle-hdwallet-provider": "1.0.0-web3one.1",
-    "zos": "2.0.1",
     "zos-lib": "2.0.1"
   }
 }

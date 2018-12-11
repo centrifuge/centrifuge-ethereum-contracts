@@ -32,8 +32,8 @@ contract Identity is KeyManager {
   returns (bool success)
   {
     require(
-      keyHasPurpose(addressToKey(msg.sender), 1) ||
-      keyHasPurpose(addressToKey(msg.sender), 2),
+      keyHasPurpose(addressToKey(msg.sender), 2) ||
+      keyHasPurpose(addressToKey(msg.sender), 1),
       "Requester must have MANAGEMENT or ACTION purpose"
     );
     // solium-disable-next-line security/no-call-value
