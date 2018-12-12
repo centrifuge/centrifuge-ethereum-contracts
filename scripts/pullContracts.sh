@@ -8,3 +8,7 @@ fi
 rm -Rf $local_dir/../build
 npm install @centrifuge/ethereum-contracts@latest --force --no-save
 cp -rf $local_dir/../node_modules/@centrifuge/ethereum-contracts/build $local_dir/../build
+
+# clean up irrelevant contracts
+rm -f $local_dir/../build/contracts/AnchorRepository.json
+rm -f $local_dir/../build/contracts/IdentityRegistry.json

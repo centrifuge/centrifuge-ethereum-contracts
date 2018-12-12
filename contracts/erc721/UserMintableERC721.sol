@@ -41,7 +41,7 @@ contract UserMintableERC721 is Initializable, ERC721, ERC721Metadata {
    * @param _name string The name of this token
    * @param _symbol string The shorthand token identifier
    * @param _anchorRegistry address The address of the anchor registry
-   / @param _mandatoryFields array of field names that are being proved
+   * @param _mandatoryFields array of field names that are being proved
    * using document root and precise-proofs.
    * that is backing this token's mint method.
    */
@@ -77,7 +77,7 @@ contract UserMintableERC721 is Initializable, ERC721, ERC721Metadata {
   {
     AnchorRepository ar = AnchorRepository(anchorRegistry_);
 
-    (uint256 identifier, bytes32 merkleRoot,) = ar.getAnchorById(_anchorId);
+    (uint256 identifier, bytes32 merkleRoot) = ar.getAnchorById(_anchorId);
 
     if (
       identifier != 0x0 &&

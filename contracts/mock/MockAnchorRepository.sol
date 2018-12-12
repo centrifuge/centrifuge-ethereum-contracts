@@ -11,7 +11,7 @@ import "contracts/AnchorRepository.sol";
 contract MockAnchorRepository {
   // A simplistic representation of a document anchor
   struct Anchor {
-    bytes32 documentRoot; 
+    bytes32 documentRoot;
   }
 
   mapping(uint256 => Anchor) public anchors;
@@ -22,12 +22,12 @@ contract MockAnchorRepository {
    * @param _documentRoot bytes32 The root hash of document
    */
   function setAnchorById(uint256 _anchorId, bytes32 _documentRoot)
-  external payable 
+  external payable
   {
     // not allowing empty vals
     require(_anchorId != 0x0);
     require(_documentRoot != 0x0);
-    
+
     anchors[_anchorId] = Anchor(_documentRoot);
   }
 
@@ -42,14 +42,12 @@ contract MockAnchorRepository {
   view
   returns (
     uint256 identifier,
-    bytes32 merkleRoot,
-    uint48 centrifugeId
+    bytes32 merkleRoot
     )
   {
     return (
       _identifier,
-      anchors[_identifier].documentRoot,
-      0x0
+      anchors[_identifier].documentRoot
     );
   }
 }
