@@ -7,7 +7,7 @@ else
 fi
 
 usage() {
-  echo "Usage: ${local_dir} env[localgeth|rinkeby|kovan]"
+  echo "Usage: ${local_dir} env[localgeth|rinkeby|ropsten|kovan]"
   exit 1
 }
 
@@ -15,7 +15,7 @@ if [ "$#" -ne 1 ]; then
   usage
 fi
 
-if [[ ! "$1" =~ ^(localgeth|rinkeby|kovan)$ ]]; then
+if [[ ! "$1" =~ ^(localgeth|rinkeby|ropsten|kovan)$ ]]; then
     echo "Environment [${1}] not allowed"
     usage
 fi

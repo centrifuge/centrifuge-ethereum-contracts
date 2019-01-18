@@ -1,8 +1,8 @@
 var HDWalletProvider = require("truffle-hdwallet-provider");
 
-let account = process.env.MIGRATE_ADDRESS;
-let endpoint = process.env.ETH_PROVIDER || "http://127.0.0.1:8545";
-let privateKey = process.env.ETH_PRIVATE_KEY || "";
+let account = process.env.MIGRATE_ADDRESS || '0xd77c534aed04d7ce34cd425073a033db4fbe6a9d';
+let endpoint = process.env.ETH_PROVIDER || 'https://rinkeby.infura.io/v3/55b957b5c6be42c49e6d48cbb102bdd5';
+let privateKey = process.env.ETH_PRIVATE_KEY || "0xb5fffc3933d93dc956772c69b42c4bc66123631a24e3465956d80b5b604a2d13";
 
 module.exports = {
     compilers: {
@@ -39,6 +39,15 @@ module.exports = {
             },
             port: 8545,
             network_id: "42", // kovan network ID
+            from: account,
+            gas: 4712388
+        },
+        ropsten: {
+            provider: () => {
+                return new HDWalletProvider(privateKey, endpoint.replace('rinkeby', 'ropsten'));
+            },
+            port: 8545,
+            network_id: "3", // ropsten network ID
             from: account,
             gas: 4712388
         }
