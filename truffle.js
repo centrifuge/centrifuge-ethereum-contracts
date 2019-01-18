@@ -41,6 +41,15 @@ module.exports = {
             network_id: "42", // kovan network ID
             from: account,
             gas: 4712388
+        },
+        ropsten: {
+            provider: () => {
+                return new HDWalletProvider(privateKey, endpoint.replace('rinkeby', 'ropsten'));
+            },
+            port: 8545,
+            network_id: "3", // ropsten network ID
+            from: account,
+            gas: 4712388
         }
     }
 };
