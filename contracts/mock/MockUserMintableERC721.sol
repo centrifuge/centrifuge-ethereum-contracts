@@ -1,4 +1,5 @@
-pragma solidity ^v0.5.0;
+pragma solidity 0.5.0;
+pragma experimental ABIEncoderV2;
 
 import "contracts/erc721/UserMintableERC721.sol";
 
@@ -10,10 +11,10 @@ import "contracts/erc721/UserMintableERC721.sol";
 contract MockUserMintableERC721 is UserMintableERC721 {
 
   constructor(
-    string _name,
-    string _symbol,
+    string memory _name,
+    string memory _symbol,
     address _anchorRegistry,
-    string[] _mandatoryFields
+    string[] memory _mandatoryFields
   )
   public
   {
@@ -26,8 +27,8 @@ contract MockUserMintableERC721 is UserMintableERC721 {
   }
 
   function hashLeafData(
-    string _leafName,
-    string _leafValue,
+    string calldata _leafName,
+    string calldata _leafValue,
     bytes32 _leafSalt
   )
   external pure
@@ -54,8 +55,8 @@ contract MockUserMintableERC721 is UserMintableERC721 {
     uint256 _tokenId,
     uint256 _anchorId,
     bytes32 _merkleRoot,
-    string _tokenURI,
-    string[] _values,
+    string memory _tokenURI,
+    string[] memory _values,
     bytes32[] memory _salts,
     bytes32[][] memory _proofs
   )

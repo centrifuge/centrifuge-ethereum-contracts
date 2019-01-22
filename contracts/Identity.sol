@@ -1,4 +1,4 @@
-pragma solidity ^v0.5.0;
+pragma solidity 0.5.0;
 
 import "zos-lib/contracts/Initializable.sol";
 import "contracts/KeyManager.sol";
@@ -29,7 +29,7 @@ contract Identity is KeyManager {
     bytes memory _data
   )
   public
-  returns (bool success)
+  returns (bool success, bytes memory)
   {
 
     bytes32 _key = addressToKey(msg.sender);

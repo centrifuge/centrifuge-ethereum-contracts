@@ -38,7 +38,7 @@
     "ganache-cli": "6.1.8",
     "husky": "1.0.0-rc.15",
     "nodemon": "1.18.3",
-    "solium": "1.1.8",
+    "solium": "^1.2.2",
     "truffle": "^5.0.2",
     "truffle-hdwallet-provider": "^1.0.2",
     "zos": "^2.1.0",

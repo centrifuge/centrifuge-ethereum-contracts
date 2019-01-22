@@ -1,4 +1,5 @@
-pragma solidity ^v0.5.0;
+pragma solidity 0.5.0;
+pragma experimental ABIEncoderV2;
 
 import "zos-lib/contracts/Initializable.sol";
 import "contracts/lib/MerkleProof.sol";
@@ -37,9 +38,9 @@ contract PaymentObligation is Initializable, UserMintableERC721 {
   external
   view
   returns (
-    string grossAmount,
-    string currency,
-    string dueDate,
+    string memory grossAmount,
+    string memory currency,
+    string memory dueDate,
     uint256 anchorId,
     bytes32 documentRoot
   )
@@ -101,10 +102,10 @@ contract PaymentObligation is Initializable, UserMintableERC721 {
   function mint(
     address _to,
     uint256 _tokenId,
-    string _tokenURI,
+    string memory _tokenURI,
     uint256 _anchorId,
     bytes32 _merkleRoot,
-    string[] _values,
+    string[] memory _values,
     bytes32[] memory _salts,
     bytes32[][] memory _proofs
   )

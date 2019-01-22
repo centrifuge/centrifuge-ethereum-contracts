@@ -1,4 +1,5 @@
-pragma solidity ^v0.5.0;
+pragma solidity 0.5.0;
+
 
 contract KeyManager {
 
@@ -138,8 +139,7 @@ contract KeyManager {
     }
     for (uint i = 0; i < k.purposes.length; i++) {
       if (k.purposes[i] == _purpose) {
-        found = true;
-        return;
+        return true;
       }
     }
   }
@@ -166,7 +166,7 @@ contract KeyManager {
   pure
   returns (bytes32)
   {
-    return bytes32(addr);
+    return bytes32(uint256(addr) << 96);
   }
 
   /**

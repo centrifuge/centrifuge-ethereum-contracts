@@ -1,4 +1,4 @@
-pragma solidity ^v0.5.0;
+pragma solidity 0.5.0;
 
 import "zos-lib/contracts/Initializable.sol";
 import "contracts/Identity.sol";
@@ -13,7 +13,7 @@ contract IdentityFactory is Initializable {
   */
   function createIdentity() public {
     Identity identity = new Identity(msg.sender);
-    emit IdentityCreated(identity);
+    emit IdentityCreated(address(identity));
   }
 
   /**
@@ -22,6 +22,6 @@ contract IdentityFactory is Initializable {
   */
   function createIdentityFor(address owner) public {
     Identity identity = new Identity(owner);
-    emit IdentityCreated(identity);
+    emit IdentityCreated(address(identity));
   }
 }

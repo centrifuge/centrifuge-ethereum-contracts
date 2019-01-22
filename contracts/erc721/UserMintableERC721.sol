@@ -1,4 +1,5 @@
-pragma solidity ^v0.5.0;
+pragma solidity 0.5.0;
+pragma experimental ABIEncoderV2;
 
 import "zos-lib/contracts/Initializable.sol";
 import "openzeppelin-eth/contracts/token/ERC721/ERC721Metadata.sol";
@@ -45,10 +46,10 @@ contract UserMintableERC721 is Initializable, ERC721, ERC721Metadata {
    * that is backing this token's mint method.
    */
   function initialize(
-    string _name,
-    string _symbol,
+    string memory _name,
+    string memory _symbol,
     address _anchorRegistry,
-    string[] _mandatoryFields
+    string[] memory _mandatoryFields
   )
   public
   initializer
@@ -96,8 +97,8 @@ contract UserMintableERC721 is Initializable, ERC721, ERC721Metadata {
    * @return byte32 keccak256 hash of the concatenated plain-text values
    */
   function _hashLeafData(
-    string _leafName,
-    string _leafValue,
+    string memory _leafName,
+    string memory _leafValue,
     bytes32 _leafSalt
   )
   internal
@@ -129,8 +130,8 @@ contract UserMintableERC721 is Initializable, ERC721, ERC721Metadata {
     uint256 _tokenId,
     uint256 _anchorId,
     bytes32 _merkleRoot,
-    string _tokenURI,
-    string[] _values,
+    string memory _tokenURI,
+    string[] memory _values,
     bytes32[] memory _salts,
     bytes32[][] memory _proofs
   )
