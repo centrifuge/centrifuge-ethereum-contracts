@@ -1,4 +1,4 @@
-pragma solidity ^0.4.24;
+pragma solidity ^v0.5.0;
 
 import "contracts/AnchorRepository.sol";
 

@@ -1,5 +1,4 @@
-pragma solidity ^0.4.24;
-pragma experimental ABIEncoderV2;
+pragma solidity ^v0.5.0;
 
 import "contracts/erc721/UserMintableERC721.sol";
 
@@ -57,8 +56,8 @@ contract MockUserMintableERC721 is UserMintableERC721 {
     bytes32 _merkleRoot,
     string _tokenURI,
     string[] _values,
-    bytes32[] _salts,
-    bytes32[][] _proofs
+    bytes32[] memory _salts,
+    bytes32[][] memory _proofs
   )
   public
   {

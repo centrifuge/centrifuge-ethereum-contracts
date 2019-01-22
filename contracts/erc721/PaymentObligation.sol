@@ -1,8 +1,7 @@
-pragma solidity ^0.4.24;
-pragma experimental ABIEncoderV2;
+pragma solidity ^v0.5.0;
 
 import "zos-lib/contracts/Initializable.sol";
-import "contracts/lib/MerkleProofSha256.sol";
+import "contracts/lib/MerkleProof.sol";
 import "contracts/erc721/UserMintableERC721.sol";
 import "contracts/Identity.sol";
 
@@ -106,8 +105,8 @@ contract PaymentObligation is Initializable, UserMintableERC721 {
     uint256 _anchorId,
     bytes32 _merkleRoot,
     string[] _values,
-    bytes32[] _salts,
-    bytes32[][] _proofs
+    bytes32[] memory _salts,
+    bytes32[][] memory _proofs
   )
   public
   {

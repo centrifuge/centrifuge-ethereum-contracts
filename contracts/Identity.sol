@@ -1,8 +1,8 @@
-pragma solidity ^0.4.24;
+pragma solidity ^v0.5.0;
 
 import "zos-lib/contracts/Initializable.sol";
 import "contracts/KeyManager.sol";
-import "openzeppelin-eth/contracts/cryptography/ECDSA.sol";
+import "contracts/lib/ECDSA.sol";
 
 
 contract Identity is KeyManager {
@@ -26,7 +26,7 @@ contract Identity is KeyManager {
   function execute(
     address _to,
     uint256 _value,
-    bytes _data
+    bytes memory _data
   )
   public
   returns (bool success)
@@ -50,7 +50,7 @@ contract Identity is KeyManager {
    */
   function isSignedWithPurpose(
     bytes32 _toSign,
-    bytes _signature,
+    bytes memory _signature,
     uint256 _purpose
   )
   public

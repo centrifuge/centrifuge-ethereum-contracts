@@ -1,11 +1,10 @@
-pragma solidity ^0.4.24;
-pragma experimental ABIEncoderV2;
+pragma solidity ^v0.5.0;
 
 import "zos-lib/contracts/Initializable.sol";
 import "openzeppelin-eth/contracts/token/ERC721/ERC721Metadata.sol";
 import "openzeppelin-eth/contracts/token/ERC721/ERC721.sol";
 import "contracts/AnchorRepository.sol";
-import "contracts/lib/MerkleProofSha256.sol";
+import "contracts/lib/MerkleProof.sol";
 
 
 contract UserMintableERC721 is Initializable, ERC721, ERC721Metadata {
@@ -132,8 +131,8 @@ contract UserMintableERC721 is Initializable, ERC721, ERC721Metadata {
     bytes32 _merkleRoot,
     string _tokenURI,
     string[] _values,
-    bytes32[] _salts,
-    bytes32[][] _proofs
+    bytes32[] memory _salts,
+    bytes32[][] memory _proofs
   )
   internal
   {
@@ -145,7 +144,7 @@ contract UserMintableERC721 is Initializable, ERC721, ERC721Metadata {
 
     for (uint i = 0; i < mandatoryFields.length; i++) {
       require(
-        MerkleProofSha256.verifyProof(
+        MerkleProof.verifySha256(
           _proofs[i],
           _merkleRoot,
           _hashLeafData(mandatoryFields[i], _values[i], _salts[i])

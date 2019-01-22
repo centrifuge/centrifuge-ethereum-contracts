@@ -1,4 +1,4 @@
-pragma solidity ^0.4.24;
+pragma solidity ^v0.5.0;
 
 contract KeyManager {
 
@@ -62,7 +62,7 @@ contract KeyManager {
   */
   function addMultiPurposeKey(
     bytes32 _key,
-    uint256[] _purposes,
+    uint256[] memory _purposes,
     uint256 _keyType
   )
   public
@@ -107,7 +107,7 @@ contract KeyManager {
   view
   returns (
     bytes32 key,
-    uint256[] purposes,
+    uint256[] memory purposes,
     uint256 revokedAt
   )
   {
@@ -151,8 +151,7 @@ contract KeyManager {
   function getKeysByPurpose(uint256 _purpose)
   public
   view
-  returns (bytes32[]
-  )
+  returns (bytes32[] memory)
   {
     return keysByPurpose[_purpose];
   }

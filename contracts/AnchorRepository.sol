@@ -1,7 +1,7 @@
-pragma solidity ^0.4.24;
+pragma solidity ^v0.5.0;
 
 import "zos-lib/contracts/Initializable.sol";
-import "openzeppelin-eth/contracts/cryptography/MerkleProof.sol";
+import "contracts/lib/MerkleProof.sol";
 import "contracts/Identity.sol";
 
 
@@ -79,7 +79,7 @@ contract AnchorRepository is Initializable {
   function commit(
     uint256 _anchorId,
     bytes32 _documentRoot,
-    bytes32[] _documentProofs
+    bytes32[] calldata _documentProofs
   )
   external
   payable
