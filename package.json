@@ -30,7 +30,7 @@
     }
   },
   "dependencies": {
-    "openzeppelin-eth": "^2.0.2"
+    "openzeppelin-eth": "OpenZeppelin/openzeppelin-eth.git#merge-v2.1"
   },
   "devDependencies": {
     "ethereumjs-util": "5.2.0",
@@ -39,8 +39,9 @@
     "husky": "1.0.0-rc.15",
     "nodemon": "1.18.3",
     "solium": "1.1.8",
-    "truffle": "5.0.0-beta.2",
-    "truffle-hdwallet-provider": "1.0.0-web3one.1",
-    "zos-lib": "2.0.1"
+    "truffle": "^5.0.2",
+    "truffle-hdwallet-provider": "^1.0.2",
+    "zos": "^2.1.0",
+    "zos-lib": "^2.1.0"
   }
 }
