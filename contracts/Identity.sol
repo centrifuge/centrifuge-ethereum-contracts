@@ -1,6 +1,6 @@
-pragma solidity 0.5.0;
+pragma solidity ^0.5.0;
 
-import "zos-lib/contracts/Initializable.sol";
+import "../node_modules/zos-lib/contracts/Initializable.sol";
 import "contracts/KeyManager.sol";
 import "contracts/lib/ECDSA.sol";
 
