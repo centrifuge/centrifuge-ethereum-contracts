@@ -1,5 +1,5 @@
 const ACTION = require('./constants').ACTION;
-const MerkleTree = require('openzeppelin-eth/test/helpers/merkleTree').MerkleTree;
+const MerkleTree = require('./tools/merkleTree').MerkleTree;
 const mineNBlocks = require('./tools/blockHeight').mineNBlocks;
 const shouldRevert = require('./tools/assertTx').shouldRevert;
 const shouldSucceed = require('./tools/assertTx').shouldSucceed;

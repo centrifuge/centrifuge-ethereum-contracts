@@ -1,6 +1,7 @@
 pragma solidity ^0.5.0;
 
 
+
 contract KeyManager {
 
   event KeyAdded(
@@ -166,7 +167,7 @@ contract KeyManager {
   pure
   returns (bytes32)
   {
-    return bytes32(uint256(addr) << 96);
+    return bytes32(uint256(addr));
   }
 
   /**
