@@ -7,6 +7,7 @@ const IdentityFactory = artifacts.require("IdentityFactory");
 const AnchorRepository = artifacts.require("AnchorRepository");
 const Identity = artifacts.require("Identity");
 const PaymentObligation = artifacts.require("PaymentObligation");
+const UserMintableERC721 = artifacts.require("UserMintableERC721");
 const proof = require('./erc721/proof.json');
 
 async function getBasicTestNeeds(accounts) {
@@ -38,8 +39,14 @@ contract("Gas costs", function (accounts) {
         this.identity = await Identity.new(accounts[0]);
         await this.identity.addKey(addressToBytes32(accounts[1]), ACTION, 1);
         this.identityFactory = await IdentityFactory.new();
+        this.nftRegistry = await UserMintableERC721.new();
+        await this.nftRegistry.initialize(
+            "Centrifuge Payment Obligations",
+            "CENT_PAY_OB",
+            this.anchorRepository.address
+        );
         this.poRegistry = await PaymentObligation.new();
-        this.poRegistry.initialize(this.anchorRepository.address)
+        this.poRegistry.initialize(this.nftRegistry.address)
 
     });
 
@@ -143,7 +150,7 @@ contract("Gas costs", function (accounts) {
     });
 
     describe("check the gas cost for mint", async function () {
-        const mintMaxGas = 533819;
+        const mintMaxGas = 540000;
         it(`should have mint gas cost less then ${mintMaxGas} `, async function () {
             let documentIdentifer = proof.header.version_id;
             let validRootHash = proof.header.document_root;
@@ -188,7 +195,7 @@ contract("Gas costs", function (accounts) {
     });
 
     describe("check the gas cost for mint with the identity proxy for ACTION key", async function () {
-        const mintMaxGas = 533819;
+        const mintMaxGas = 540000;
         it(`should have mint gas cost less then ${mintMaxGas} `, async function () {
             let documentIdentifer = proof.header.version_id;
             let validRootHash = proof.header.document_root;
