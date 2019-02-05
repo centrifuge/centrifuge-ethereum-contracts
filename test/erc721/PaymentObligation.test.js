@@ -1,4 +1,5 @@
 const shouldRevert = require('../tools/assertTx').shouldRevert
+let UserMintableERC721 = artifacts.require("UserMintableERC721");
 let PaymentObligation = artifacts.require("PaymentObligation");
 let MockAnchorRegistry = artifacts.require("MockAnchorRepository");
 let proof = require('./proof.json');
@@ -8,8 +9,14 @@ contract("PaymentObligation", function (accounts) {
 
     beforeEach(async function () {
         this.anchorRegistry = await MockAnchorRegistry.new();
+        this.nftRegistry = await UserMintableERC721.new();
+        await this.nftRegistry.initialize(
+            "Centrifuge Payment Obligations",
+            "CENT_PAY_OB",
+            this.anchorRegistry.address
+        );
         this.registry = await PaymentObligation.new();
-        this.registry.initialize(this.anchorRegistry.address)
+        await this.registry.initialize(this.nftRegistry.address)
     });
 
     describe("mint", async function () {
@@ -50,14 +57,12 @@ contract("PaymentObligation", function (accounts) {
                     proof.field_proofs[2].sorted_hashes,
                     proof.field_proofs[3].sorted_hashes,
                 ]
-            )
-                .then(function (tx, logs) {
-                    // Check mint event
-                    const event = tx.logs[1].args;
-                    assert.equal(event.to.toLowerCase(), accounts[2].toLowerCase());
-                    assert.equal(event.tokenId, tokenId);
-                    assert.equal(event.tokenURI, tokenURI);
-                });
+            ).then(function (tx) {
+                const event = tx.logs[0].args;
+                assert.equal(event.to.toLowerCase(), accounts[2].toLowerCase());
+                assert.equal(event.tokenId, tokenId);
+                assert.equal(event.tokenURI, tokenURI);
+            });
 
             // check token details
             let tokenDetails = await this.registry.getTokenDetails(tokenId);
@@ -69,7 +74,7 @@ contract("PaymentObligation", function (accounts) {
             assert.equal(tokenDetails[4], validRootHash);
 
             //check token uri
-            let tokenUri = await this.registry.tokenURI(tokenId);
+             let tokenUri = await this.nftRegistry.tokenURI(tokenId);
             assert.equal(tokenUri, tokenURI)
         });
 
@@ -121,7 +126,7 @@ contract("PaymentObligation", function (accounts) {
             );
             const tokenId = 1;
 
-            this.registry.mint(
+            await this.registry.mint(
                 accounts[2],
                 tokenId,
                 tokenURI,

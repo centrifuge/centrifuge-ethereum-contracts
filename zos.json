@@ -5,6 +5,7 @@
   "contracts": {
     "IdentityFactory": "IdentityFactory",
     "AnchorRepository": "AnchorRepository",
+    "UserMintableERC721": "UserMintableERC721",
     "PaymentObligation": "PaymentObligation"
   },
   "dependencies": {

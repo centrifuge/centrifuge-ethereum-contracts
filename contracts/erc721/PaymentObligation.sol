@@ -7,7 +7,7 @@ import "contracts/erc721/UserMintableERC721.sol";
 import "contracts/Identity.sol";
 
 
-contract PaymentObligation is Initializable, UserMintableERC721 {
+contract PaymentObligation is Initializable {
 
   event PaymentObligationMinted(
     address to,
@@ -15,8 +15,11 @@ contract PaymentObligation is Initializable, UserMintableERC721 {
     string tokenURI
   );
 
+  UserMintableERC721 private tokenRegistry_;
+
   // hardcoded supported fields for minting a PaymentObligation
   string[] internal mandatoryFields_;
+
   struct PODetails {
     string grossAmount;
     string currency;
@@ -45,40 +48,35 @@ contract PaymentObligation is Initializable, UserMintableERC721 {
     bytes32 documentRoot
   )
   {
-    anchorId = tokenDetails_[_tokenId].anchorId;
+    (anchorId, documentRoot) = tokenRegistry_.getTokenDetails(_tokenId);
     return (
     poDetails_[anchorId].grossAmount,
     poDetails_[anchorId].currency,
     poDetails_[anchorId].dueDate,
     anchorId,
-    tokenDetails_[_tokenId].rootHash
+    documentRoot
     );
   }
 
   /**
-   * @param _anchorRegistry address The address of the anchor registry
+   * @param _tokenRegistry address The address of the nft registry implemtation
    * that is backing this token's mint method.
    * that ensures that the sender is authorized to mint the token
    */
   function initialize(
-    address _anchorRegistry
+    address _tokenRegistry
   )
   public
   initializer
   {
+    // initializing must be here or contract does not pass zos validation
     mandatoryFields_ = [
       "invoice.gross_amount",
       "invoice.currency",
       "invoice.due_date",
       "collaborators[0]" // owner of the document
     ];
-
-    UserMintableERC721.initialize(
-      "Centrifuge Payment Obligations",
-       "CENT_PAY_OB",
-       _anchorRegistry,
-       mandatoryFields_
-    );
+    tokenRegistry_ = UserMintableERC721(_tokenRegistry);
   }
 
   /**
@@ -112,13 +110,14 @@ contract PaymentObligation is Initializable, UserMintableERC721 {
   public
   {
 
-    // TODO handle colaborator validation against centrifuge identity
-    super._mintAnchor(
+    // TODO handle collaborator validation against centrifuge identity
+    tokenRegistry_.mintAnchor(
       _to,
       _tokenId,
       _anchorId,
       _merkleRoot,
       _tokenURI,
+      mandatoryFields_,
       _values,
       _salts,
       _proofs
@@ -140,6 +139,4 @@ contract PaymentObligation is Initializable, UserMintableERC721 {
     );
   }
 
-
 }
-

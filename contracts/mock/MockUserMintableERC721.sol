@@ -13,16 +13,14 @@ contract MockUserMintableERC721 is UserMintableERC721 {
   constructor(
     string memory _name,
     string memory _symbol,
-    address _anchorRegistry,
-    string[] memory _mandatoryFields
+    address _anchorRegistry
   )
   public
   {
     UserMintableERC721.initialize(
       _name,
-        _symbol,
-        _anchorRegistry,
-        _mandatoryFields
+      _symbol,
+      _anchorRegistry
     );
   }
 
@@ -50,27 +48,4 @@ contract MockUserMintableERC721 is UserMintableERC721 {
     );
   }
 
-  function mintAnchor(
-    address _to,
-    uint256 _tokenId,
-    uint256 _anchorId,
-    bytes32 _merkleRoot,
-    string memory _tokenURI,
-    string[] memory _values,
-    bytes32[] memory _salts,
-    bytes32[][] memory _proofs
-  )
-  public
-  {
-    super._mintAnchor(
-      _to,
-      _tokenId,
-      _anchorId,
-      _merkleRoot,
-      _tokenURI,
-      _values,
-      _salts,
-      _proofs
-    );
-  }
 }

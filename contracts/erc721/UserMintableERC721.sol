@@ -2,19 +2,16 @@ pragma solidity ^0.5.0;
 pragma experimental ABIEncoderV2;
 
 import "zos-lib/contracts/Initializable.sol";
+import "openzeppelin-eth/contracts/token/ERC721/ERC721Enumerable.sol";
 import "openzeppelin-eth/contracts/token/ERC721/ERC721Metadata.sol";
 import "openzeppelin-eth/contracts/token/ERC721/ERC721.sol";
 import "contracts/AnchorRepository.sol";
 import "contracts/lib/MerkleProof.sol";
 
 
-contract UserMintableERC721 is Initializable, ERC721, ERC721Metadata {
+contract UserMintableERC721 is Initializable, ERC721, ERC721Enumerable, ERC721Metadata {
   // anchor registry
   address internal anchorRegistry_;
-
-  // array of field names that are being proved using the document root and precise-proofs
-  string[] public mandatoryFields;
-
   // The ownable anchor
   struct OwnedAnchor {
     uint256 anchorId;
@@ -37,27 +34,97 @@ contract UserMintableERC721 is Initializable, ERC721, ERC721Metadata {
   }
 
   /**
+  * Returns the values associated with a token
+  * @param anchorId uint256 The ID of the document as identified
+  * by the set up anchorRegistry
+  * @param documentRoot bytes32 The root hash of the merkle proof/doc
+  */
+  function getTokenDetails(uint256 _tokenId)
+  external
+  view
+  returns (
+    uint256 anchorId,
+    bytes32 documentRoot
+  )
+  {
+    return (
+    tokenDetails_[_tokenId].anchorId,
+    tokenDetails_[_tokenId].rootHash
+    );
+  }
+
+  /**
    * @dev Constructor function
    * @param _name string The name of this token
    * @param _symbol string The shorthand token identifier
    * @param _anchorRegistry address The address of the anchor registry
-   * @param _mandatoryFields array of field names that are being proved
    * using document root and precise-proofs.
    * that is backing this token's mint method.
    */
   function initialize(
     string memory _name,
     string memory _symbol,
-    address _anchorRegistry,
-    string[] memory _mandatoryFields
+    address _anchorRegistry
   )
   public
   initializer
   {
     anchorRegistry_ = _anchorRegistry;
-    mandatoryFields = _mandatoryFields;
     ERC721.initialize();
+    ERC721Enumerable.initialize();
     ERC721Metadata.initialize(_name, _symbol);
+  }
+
+  /**
+   * @dev Mints a token after validating the given merkle proof
+   * and comparing it to the anchor registry's stored hash/doc ID.
+   * @param _to address The recipient of the minted token
+   * @param _tokenId uint256 The ID for the minted token
+   * @param _anchorId bytes32 The ID of the document as identified
+   * by the set up anchorRegistry.
+   * @param _merkleRoot bytes32 The root hash of the merkle proof/doc
+   * @param _tokenURI string The metadata uri
+   * @param _values string[] The values of the leafs that are being proved
+   * using precise-proofs
+   * @param _salts bytes32[] The salts for the field that is being proved
+   * Will be concatenated for proof verification as outlined in
+   * precise-proofs library.
+   * @param _proofs bytes32[][] Documents proofs that are needed
+   * for proof verification as outlined in precise-proofs library.
+   */
+  function mintAnchor(
+    address _to,
+    uint256 _tokenId,
+    uint256 _anchorId,
+    bytes32 _merkleRoot,
+    string memory _tokenURI,
+    string[] memory _fields,
+    string[] memory _values,
+    bytes32[] memory _salts,
+    bytes32[][] memory _proofs
+  )
+  public
+  {
+
+    require(
+      _isValidAnchor(_anchorId, _merkleRoot),
+      "document needs to be registered in registry"
+    );
+
+    for (uint i = 0; i < _fields.length; i++) {
+      require(
+        MerkleProof.verifySha256(
+          _proofs[i],
+          _merkleRoot,
+          _hashLeafData(_fields[i], _values[i], _salts[i])
+        ),
+        _fields[i]
+      );
+    }
+
+    super._mint(_to, _tokenId);
+    tokenDetails_[_tokenId] = OwnedAnchor(_anchorId, _merkleRoot);
+    _setTokenURI(_tokenId, _tokenURI);
   }
 
   /**
@@ -107,57 +174,5 @@ contract UserMintableERC721 is Initializable, ERC721, ERC721Metadata {
   {
     return sha256(abi.encodePacked(_leafName, _leafValue, _leafSalt));
   }
-
-  /**
-   * @dev Mints a token after validating the given merkle proof
-   * and comparing it to the anchor registry's stored hash/doc ID.
-   * @param _to address The recipient of the minted token
-   * @param _tokenId uint256 The ID for the minted token
-   * @param _anchorId bytes32 The ID of the document as identified
-   * by the set up anchorRegistry.
-   * @param _merkleRoot bytes32 The root hash of the merkle proof/doc
-   * @param _tokenURI string The metadata uri
-   * @param _values string[] The values of the leafs that are being proved
-   * using precise-proofs
-   * @param _salts bytes32[] The salts for the field that is being proved
-   * Will be concatenated for proof verification as outlined in
-   * precise-proofs library.
-   * @param _proofs bytes32[][] Documents proofs that are needed
-   * for proof verification as outlined in precise-proofs library.
-   */
-  function _mintAnchor(
-    address _to,
-    uint256 _tokenId,
-    uint256 _anchorId,
-    bytes32 _merkleRoot,
-    string memory _tokenURI,
-    string[] memory _values,
-    bytes32[] memory _salts,
-    bytes32[][] memory _proofs
-  )
-  internal
-  {
-
-    require(
-      _isValidAnchor(_anchorId, _merkleRoot),
-      "document needs to be registered in registry"
-    );
-
-    for (uint i = 0; i < mandatoryFields.length; i++) {
-      require(
-        MerkleProof.verifySha256(
-          _proofs[i],
-          _merkleRoot,
-          _hashLeafData(mandatoryFields[i], _values[i], _salts[i])
-        ),
-        mandatoryFields[i]
-      );
-    }
-
-    super._mint(_to, _tokenId);
-    tokenDetails_[_tokenId] = OwnedAnchor(_anchorId, _merkleRoot);
-    _setTokenURI(_tokenId, _tokenURI);
-  }
-
 
 }

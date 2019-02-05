@@ -1,22 +1,25 @@
 {
   "name": "@centrifuge/ethereum-contracts",
-  "version": "0.4.0",
+  "version": "0.5.0",
   "description": "Centrifuge OS (https://github.com/centrifuge/centrifuge-ethereum-contracts)",
   "publishConfig": {
     "access": "public"
   },
   "files": [
     "build",
-    "contracts"
+    "contracts",
+    "zos.json",
+    "zos.*.json"
   ],
   "homepage": "https://github.com/centrifuge/centrifuge-ethereum-contracts#readme",
   "scripts": {
-    "compile": "rm -rf build && truffle compile",
+    "clean": "rm -rf build && rm -rf zos.dev*.json",
+    "compile":  "npm run clean && truffle compile",
     "lint:sol:fix": "solium -d contracts/ --fix",
     "test": "npm run compile && NODE_ENV=test truffle test",
     "start-ganache": "ganache-cli  --networkId 99999 -p 8545 -m \"tumble gas embody bright agree pony smoke laptop index sight shallow hungry\"",
     "re-test": "nodemon --exec 'truffle test'",
-    "migrate": "truffle migrate"
+    "migrate": "npm run clean && truffle migrate"
   },
   "nodemonConfig": {
     "ignore": [
@@ -39,9 +42,9 @@
     "husky": "1.0.0-rc.15",
     "nodemon": "1.18.3",
     "solium": "^1.2.2",
-    "truffle": "^5.0.3",
+    "truffle": "^5.0.2",
     "truffle-hdwallet-provider": "^1.0.2",
-    "zos": "^2.1.1",
-    "zos-lib": "^2.1.0"
+    "zos": "^2.1.2",
+    "zos-lib": "^2.1.2"
   }
 }

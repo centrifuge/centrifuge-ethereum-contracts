@@ -38,7 +38,7 @@ contract("UserMintableERC721", function (accounts) {
     beforeEach(async function () {
         this.anchorRegistry = await MockAnchorRegistry.new();
         this.registry = await UserMintableERC721.new();
-        await this.registry.initialize("ERC-721 Document Anchor", "TDA", this.anchorRegistry.address, mandatoryFields)
+        await this.registry.initialize("ERC-721 Document Anchor", "TDA", this.anchorRegistry.address)
     });
 
     describe("UserMintableERC721", async function () {
@@ -46,7 +46,7 @@ contract("UserMintableERC721", function (accounts) {
         it("should be deployable as an independent registry", async function () {
             let anchorRegistry = await MockAnchorRegistry.new();
             let instance = await UserMintableERC721.new();
-            await instance.initialize("ERC721 Document Anchor 2", "TDA2", anchorRegistry.address, mandatoryFields);
+            await instance.initialize("ERC721 Document Anchor 2", "TDA2", anchorRegistry.address);
 
             assert.equal("ERC721 Document Anchor 2", await instance.name.call(), "The registry should be deployed with the specific name");
             assert.equal("TDA2", await instance.symbol.call(), "The registry should be deployed with the specific symbol");
@@ -60,7 +60,7 @@ contract("UserMintableERC721", function (accounts) {
 
 
         it("should be able to check if documents are registered on the anchor registry", async function () {
-            let mockRegistry = await MockUserMintableERC721.new("ERC-721 Document Anchor", "TDA", this.anchorRegistry.address, mandatoryFields);
+            let mockRegistry = await MockUserMintableERC721.new("ERC-721 Document Anchor", "TDA", this.anchorRegistry.address);
 
             await this.anchorRegistry.setAnchorById(
                 "0xaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
@@ -106,7 +106,7 @@ contract("UserMintableERC721", function (accounts) {
 
     describe("_hashLeafData", async function () {
         it("should hash the leaf data the same way JS does", async function () {
-            let mockRegistry = await MockUserMintableERC721.new("ERC-721 Document Anchor", "TDA", this.anchorRegistry.address, mandatoryFields);
+            let mockRegistry = await MockUserMintableERC721.new("ERC-721 Document Anchor", "TDA", this.anchorRegistry.address);
 
             let leafName_ = "valueA";
             let leafValue_ = "Foo";
@@ -123,7 +123,7 @@ contract("UserMintableERC721", function (accounts) {
     describe("mintAnchor", async function () {
 
         it("should mint a token if the Merkle proofs validates", async function () {
-            let mockRegistry = await MockUserMintableERC721.new("ERC-721 Document Anchor", "TDA", this.anchorRegistry.address, mandatoryFields);
+            let mockRegistry = await MockUserMintableERC721.new("ERC-721 Document Anchor", "TDA", this.anchorRegistry.address);
             let documentIdentifer = proof.header.version_id;
             let validRootHash = proof.header.document_root;
             let tokenURI = "http://test.com";
@@ -138,6 +138,7 @@ contract("UserMintableERC721", function (accounts) {
                 documentIdentifer,
                 validRootHash,
                 tokenURI,
+                mandatoryFields,
                 [
                     proof.field_proofs[0].value,
                     proof.field_proofs[1].value
@@ -156,7 +157,7 @@ contract("UserMintableERC721", function (accounts) {
 
 
         it("should fail minting a token if the document idenfitier is not found", async function () {
-            let mockRegistry = await MockUserMintableERC721.new("ERC-721 Document Anchor", "TDA", this.anchorRegistry.address, mandatoryFields);
+            let mockRegistry = await MockUserMintableERC721.new("ERC-721 Document Anchor", "TDA", this.anchorRegistry.address);
             let documentIdentifer = proof.header.version_id;
             let invalidRootHash = "0x1e5e444f4c4c7278f5f31aeb407c3804e7c34f79f72b8438be665f8cee935744"
             let tokenURI = "http://test.com";
@@ -172,8 +173,8 @@ contract("UserMintableERC721", function (accounts) {
                 tokenId,
                 documentIdentifer,
                 invalidRootHash,
-                tokenURI
-                ,
+                tokenURI,
+                mandatoryFields,
                 [
                     proof.field_proofs[0].value,
                     proof.field_proofs[1].value
