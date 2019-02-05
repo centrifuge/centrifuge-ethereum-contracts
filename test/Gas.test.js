@@ -1,5 +1,5 @@
 const {ACTION, P2P_IDENTITY, P2P_SIGNATURE} = require('./constants');
-const MerkleTree = require('openzeppelin-eth/test/helpers/merkleTree').MerkleTree;
+const MerkleTree = require('./tools/merkleTree').MerkleTree;
 const shouldSucceed = require('./tools/assertTx').shouldSucceed;
 const addressToBytes32 = require('./tools/utils').addressToBytes32;
 const {keccak, bufferToHex, toBuffer} = require('ethereumjs-util');

@@ -1,4 +1,6 @@
-pragma solidity ^0.4.24;
+pragma solidity ^0.5.0;
+
+
 
 contract KeyManager {
 
@@ -62,7 +64,7 @@ contract KeyManager {
   */
   function addMultiPurposeKey(
     bytes32 _key,
-    uint256[] _purposes,
+    uint256[] memory _purposes,
     uint256 _keyType
   )
   public
@@ -107,7 +109,7 @@ contract KeyManager {
   view
   returns (
     bytes32 key,
-    uint256[] purposes,
+    uint256[] memory purposes,
     uint256 revokedAt
   )
   {
@@ -138,8 +140,7 @@ contract KeyManager {
     }
     for (uint i = 0; i < k.purposes.length; i++) {
       if (k.purposes[i] == _purpose) {
-        found = true;
-        return;
+        return true;
       }
     }
   }
@@ -151,8 +152,7 @@ contract KeyManager {
   function getKeysByPurpose(uint256 _purpose)
   public
   view
-  returns (bytes32[]
-  )
+  returns (bytes32[] memory)
   {
     return keysByPurpose[_purpose];
   }
@@ -167,7 +167,7 @@ contract KeyManager {
   pure
   returns (bytes32)
   {
-    return bytes32(addr);
+    return bytes32(uint256(addr));
   }
 
   /**
