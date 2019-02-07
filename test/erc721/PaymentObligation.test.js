@@ -16,15 +16,16 @@ contract("PaymentObligation", function (accounts) {
 
 
         it("should mint a token if the Merkle proofs validates", async function () {
-            let documentIdentifer = proof.header.version_id;
-            let validRootHash = proof.header.document_root;
-            let tokenURI = "http://test.com";
+            const documentIdentifer = proof.header.version_id;
+            const validRootHash = proof.header.document_root;
+            const tokenURI = "http://test.com";
+            const tokenId = 1;
 
             await this.anchorRegistry.setAnchorById(
                 documentIdentifer,
                 validRootHash
             );
-            const tokenId = 1;
+
             await this.registry.mint(
                 accounts[2],
                 tokenId,
@@ -74,14 +75,16 @@ contract("PaymentObligation", function (accounts) {
         });
 
         it("should not mint a token if the a Merkle proof fails", async function () {
-            let documentIdentifer = proof.header.version_id;
-            let validRootHash = proof.header.document_root;
-            let tokenURI = "http://test.com";
+            const documentIdentifer = proof.header.version_id;
+            const validRootHash = proof.header.document_root;
+            const tokenURI = "http://test.com";
+            const tokenId = 1;
+
             await this.anchorRegistry.setAnchorById(
                 documentIdentifer,
                 validRootHash
             );
-            const tokenId = 1;
+
             await shouldRevert(this.registry.mint(
                 accounts[2],
                 tokenId,
@@ -121,7 +124,7 @@ contract("PaymentObligation", function (accounts) {
             );
             const tokenId = 1;
 
-            this.registry.mint(
+            await this.registry.mint(
                 accounts[2],
                 tokenId,
                 tokenURI,
@@ -174,6 +177,83 @@ contract("PaymentObligation", function (accounts) {
                     proof.field_proofs[3].sorted_hashes,
                 ]
             ));
+        });
+
+        it("should return the accounts owned tokens", async function () {
+            const documentIdentifer = proof.header.version_id;
+            const validRootHash = proof.header.document_root;
+            const tokenURI = "http://test.com";
+            const tokenId = 1;
+            const otherDocumentIdentifer = 0x112;
+            const otherTokenId = 2;
+
+
+            await this.anchorRegistry.setAnchorById(
+                documentIdentifer,
+                validRootHash
+            );
+
+            await this.anchorRegistry.setAnchorById(
+                otherDocumentIdentifer,
+                validRootHash
+            );
+
+            await this.registry.mint(
+                accounts[2],
+                tokenId,
+                tokenURI,
+                documentIdentifer,
+                validRootHash,
+                [
+                    proof.field_proofs[0].value,
+                    proof.field_proofs[1].value,
+                    proof.field_proofs[2].value,
+                    proof.field_proofs[3].value,
+                ],
+                [
+                    proof.field_proofs[0].salt,
+                    proof.field_proofs[1].salt,
+                    proof.field_proofs[2].salt,
+                    proof.field_proofs[3].salt,
+
+                ],
+                [
+                    proof.field_proofs[0].sorted_hashes,
+                    proof.field_proofs[1].sorted_hashes,
+                    proof.field_proofs[2].sorted_hashes,
+                    proof.field_proofs[3].sorted_hashes,
+                ]
+            );
+
+            await this.registry.mint(
+                accounts[2],
+                otherDocumentIdentifer,
+                tokenURI,
+                otherDocumentIdentifer,
+                validRootHash,
+                [
+                    proof.field_proofs[0].value,
+                    proof.field_proofs[1].value,
+                    proof.field_proofs[2].value,
+                    proof.field_proofs[3].value,
+                ],
+                [
+                    proof.field_proofs[0].salt,
+                    proof.field_proofs[1].salt,
+                    proof.field_proofs[2].salt,
+                    proof.field_proofs[3].salt,
+
+                ],
+                [
+                    proof.field_proofs[0].sorted_hashes,
+                    proof.field_proofs[1].sorted_hashes,
+                    proof.field_proofs[2].sorted_hashes,
+                    proof.field_proofs[3].sorted_hashes,
+                ]
+            );
+
+           let tokens = await this.registry.tokensOfOwner(accounts[2]);
+            assert.equal(tokens.length, 2);
         });
     });
 

@@ -17,6 +17,7 @@ contract PaymentObligation is Initializable, UserMintableERC721 {
 
   // hardcoded supported fields for minting a PaymentObligation
   string[] internal mandatoryFields_;
+
   struct PODetails {
     string grossAmount;
     string currency;
@@ -26,7 +27,7 @@ contract PaymentObligation is Initializable, UserMintableERC721 {
   mapping(uint256 => PODetails) internal poDetails_;
 
   /**
-  * Returns the values associated with a token
+  * @dev Returns the values associated with a token
   * @param grossAmount string The gross amount of the invoice
   * @param currency string The currency used in the invoice
   * @param dueDate string The Due data of the invoice
@@ -75,9 +76,9 @@ contract PaymentObligation is Initializable, UserMintableERC721 {
 
     UserMintableERC721.initialize(
       "Centrifuge Payment Obligations",
-       "CENT_PAY_OB",
-       _anchorRegistry,
-       mandatoryFields_
+      "CENT_PAY_OB",
+      _anchorRegistry,
+      mandatoryFields_
     );
   }
 
@@ -140,6 +141,23 @@ contract PaymentObligation is Initializable, UserMintableERC721 {
     );
   }
 
+  /**
+   * @dev Gets the list of token IDs of the requested owner
+   * @param owner address owning the tokens
+   * @return uint256[] List of token IDs owned by the requested address
+   */
+  function tokensOfOwner(
+    address owner
+  )
+  public
+  view
+  returns (
+    uint256[] memory
+  )
+  {
+    return super._tokensOfOwner(owner);
+
+  }
 
 }
 
