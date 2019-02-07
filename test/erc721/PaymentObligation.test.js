@@ -16,13 +16,13 @@ contract("PaymentObligation", function (accounts) {
 
 
         it("should mint a token if the Merkle proofs validates", async function () {
-            const documentIdentifer = proof.header.version_id;
+            const documentIdentifier = proof.header.version_id;
             const validRootHash = proof.header.document_root;
             const tokenURI = "http://test.com";
             const tokenId = 1;
 
             await this.anchorRegistry.setAnchorById(
-                documentIdentifer,
+                documentIdentifier,
                 validRootHash
             );
 
@@ -30,7 +30,7 @@ contract("PaymentObligation", function (accounts) {
                 accounts[2],
                 tokenId,
                 tokenURI,
-                documentIdentifer,
+                documentIdentifier,
                 validRootHash,
                 [
                     proof.field_proofs[0].value,
@@ -66,7 +66,7 @@ contract("PaymentObligation", function (accounts) {
             assert.equal(tokenDetails[0], proof.field_proofs[0].value)
             assert.equal(tokenDetails[1], proof.field_proofs[1].value)
             assert.equal(tokenDetails[2], proof.field_proofs[2].value)
-            assert.equal(web3.utils.toHex(tokenDetails[3]), documentIdentifer)
+            assert.equal(web3.utils.toHex(tokenDetails[3]), documentIdentifier)
             assert.equal(tokenDetails[4], validRootHash);
 
             //check token uri
@@ -75,13 +75,13 @@ contract("PaymentObligation", function (accounts) {
         });
 
         it("should not mint a token if the a Merkle proof fails", async function () {
-            const documentIdentifer = proof.header.version_id;
+            const documentIdentifier = proof.header.version_id;
             const validRootHash = proof.header.document_root;
             const tokenURI = "http://test.com";
             const tokenId = 1;
 
             await this.anchorRegistry.setAnchorById(
-                documentIdentifer,
+                documentIdentifier,
                 validRootHash
             );
 
@@ -89,7 +89,7 @@ contract("PaymentObligation", function (accounts) {
                 accounts[2],
                 tokenId,
                 tokenURI,
-                documentIdentifer,
+                documentIdentifier,
                 validRootHash,
                 [
                     'Some Random Value',
@@ -114,12 +114,12 @@ contract("PaymentObligation", function (accounts) {
         });
 
         it("should not mint a token if the anchorId has been used before", async function () {
-            let documentIdentifer = proof.header.version_id;
+            let documentIdentifier = proof.header.version_id;
             let validRootHash = proof.header.document_root;
             let tokenURI = "http://test.com";
 
             await this.anchorRegistry.setAnchorById(
-                documentIdentifer,
+                documentIdentifier,
                 validRootHash
             );
             const tokenId = 1;
@@ -128,7 +128,7 @@ contract("PaymentObligation", function (accounts) {
                 accounts[2],
                 tokenId,
                 tokenURI,
-                documentIdentifer,
+                documentIdentifier,
                 validRootHash,
                 [
                     proof.field_proofs[0].value,
@@ -155,7 +155,7 @@ contract("PaymentObligation", function (accounts) {
                 accounts[2],
                 tokenId,
                 tokenURI,
-                documentIdentifer,
+                documentIdentifier,
                 validRootHash,
                 [
                     proof.field_proofs[0].value,
@@ -180,7 +180,7 @@ contract("PaymentObligation", function (accounts) {
         });
 
         it("should return the tokens owned by an account", async function () {
-            const documentIdentifer = proof.header.version_id;
+            const documentIdentifier = proof.header.version_id;
             const validRootHash = proof.header.document_root;
             const tokenURI = "http://test.com";
             const tokenId = 1;
@@ -189,7 +189,7 @@ contract("PaymentObligation", function (accounts) {
 
 
             await this.anchorRegistry.setAnchorById(
-                documentIdentifer,
+                documentIdentifier,
                 validRootHash
             );
 
@@ -202,7 +202,7 @@ contract("PaymentObligation", function (accounts) {
                 accounts[2],
                 tokenId,
                 tokenURI,
-                documentIdentifer,
+                documentIdentifier,
                 validRootHash,
                 [
                     proof.field_proofs[0].value,
