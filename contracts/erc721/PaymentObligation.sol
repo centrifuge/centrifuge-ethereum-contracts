@@ -141,23 +141,5 @@ contract PaymentObligation is Initializable, UserMintableERC721 {
     );
   }
 
-  /**
-   * @dev Gets the list of token IDs of the requested owner
-   * @param owner address owning the tokens
-   * @return uint256[] List of token IDs owned by the requested address
-   */
-  function tokensOfOwner(
-    address owner
-  )
-  public
-  view
-  returns (
-    uint256[] memory
-  )
-  {
-    return super._tokensOfOwner(owner);
-
-  }
-
 }
 
