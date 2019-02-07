@@ -227,7 +227,7 @@ contract("PaymentObligation", function (accounts) {
 
             await this.registry.mint(
                 accounts[2],
-                otherDocumentIdentifer,
+                otherTokenId,
                 tokenURI,
                 otherDocumentIdentifer,
                 validRootHash,
