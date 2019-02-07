@@ -179,7 +179,7 @@ contract("PaymentObligation", function (accounts) {
             ));
         });
 
-        it("should return the accounts owned tokens", async function () {
+        it("should return the tokens owned by an account", async function () {
             const documentIdentifer = proof.header.version_id;
             const validRootHash = proof.header.document_root;
             const tokenURI = "http://test.com";
