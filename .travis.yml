@@ -16,12 +16,9 @@ jobs:
     - npm run start-ganache &
     - npm run test
   - stage: Deploy and publish
-    if: "(NOT type IN (pull_request)) AND (branch = develop)"
     script:
     - "./scripts/pullContracts.sh"
-    - "./scripts/migrate.sh rinkeby"
-    - "./scripts/migrate.sh kovan"
-    - "./scripts/migrate.sh ropsten"
+
     deploy:
       provider: npm
       skip_cleanup: true
