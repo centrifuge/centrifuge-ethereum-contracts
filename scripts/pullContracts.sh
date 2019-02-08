@@ -8,8 +8,5 @@ fi
 rm -Rf $local_dir/../build
 npm install @centrifuge/ethereum-contracts@latest --force --no-save
 mkdir -p $local_dir/../build/contracts
-ls -l -- $local_dir/../node_modules/@centrifuge/ethereum-contracts/build/contracts/Migrations.json >/dev/null 2>&1  && cp -R -p $local_dir/../node_modules/@centrifuge/ethereum-contracts/build/contracts/Migrations.json $local_dir/../build/contracts/
-ls -l -- $local_dir/../node_modules/@centrifuge/ethereum-contracts/zos*.json >/dev/null 2>&1 && cp -R -p $local_dir/../node_modules/@centrifuge/ethereum-contracts/zos*.json $local_dir/../
-
-
+cp -R -p $local_dir/../node_modules/@centrifuge/ethereum-contracts/build/contracts/Migrations.json $local_dir/../build/contracts/
 
