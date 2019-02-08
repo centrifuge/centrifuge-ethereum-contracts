@@ -11,14 +11,9 @@ env:
   secure: RymZPAUgaq7nxQsu4Cj0GmEyQ/KlLfvB8hoMzK94l+t+0yrUPe1bA/nGGCYD1KOJeG8mHbSg3QdQ+RC+xaV5TOGDSP2CNCUewgwrqVcWKsXzZFmqk1qEvwI5m30oY8C/0VQEg9KnxvDU7STvGFBh4hCRMWWib/GI0rnK3vbGognd+4AZGKCpzVwluGADnt9g125iWoljGoD26Gf9EaiGpGe1shUEPDnMe1vw69nD7TB/2lcFdyDH7wzeswKPmlv9LGxG9AFh11IuNkAtmtRUqSqrh72e1JHe+zB4/DQc34wiZcOp81J8bwFbtLGY63cfG6qBgt3im1dEpCnz7ZOyiNE+DkNI8QqsCfC/ic1yP0ka718oMcM4dpc/KgW9Nt88n98lCwwQMBdWhPtZdf2QnDtIb+S2SSS4WIRjjTA1VHWqlD7wzaLQvScJQV0wNoTlbkfFstzh1RF5BS7a/OMTIPZKGNOnYdtsDm2DgQmRBaYmJjYLsHaHYxpPWjX71VT7g7FsLH0x9DGkTjEKm8VyXR1HqU1XNka0wdqEkSPCHgkXBqHRKYlUiE+nwexyHeubopRhdButdIkjV9RHPiiRK7mIjLqXT6+KoCVRSk5Y410yZDe9xmus3cIkPgfh5PxsqkXTXjXilXXP75CQlk8JwFi3BRzAAU0thjgcz8tGYO8=
 jobs:
   include:
-  - stage: tests
-    script:
-    - npm run start-ganache &
-    - npm run test
   - stage: Deploy and publish
     script:
     - "./scripts/pullContracts.sh"
-
     deploy:
       provider: npm
       skip_cleanup: true
