@@ -8,7 +8,6 @@
   "files": [
     "build",
     "contracts",
-    "deployments",
     "zos.json",
     "zos.*.json"
   ],
