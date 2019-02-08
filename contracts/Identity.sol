@@ -44,12 +44,12 @@ contract Identity is KeyManager {
 
   /**
    * @dev Checks the purpose of keys used for signing
-   * @param _toSign bytes32 Hash to be signed. Must be generated with abi.encodePacked(arg1, arg2, arg3)
+   * @param _message bytes32 message to be verified. Must be generated with abi.encodePacked(arg1, arg2, arg3)
    * @param _signature bytes Signed data
    * @param _purpose uint256 of the key
    */
   function isSignedWithPurpose(
-    bytes32 _toSign,
+    bytes32 _message,
     bytes memory _signature,
     uint256 _purpose
   )
@@ -58,12 +58,12 @@ contract Identity is KeyManager {
   returns (bool valid)
   {
     bytes32 pbKey = addressToKey(
-      _toSign.toEthSignedMessageHash().recover(_signature)
+      _message.toEthSignedMessageHash().recover(_signature)
     );
 
-    if (!keyHasPurpose(pbKey, _purpose) || keys[pbKey].revokedAt > 0) {
-      return false;
+    if (keyHasPurpose(pbKey, _purpose) && keys[pbKey].revokedAt == 0) {
+      return true;
     }
-    return true;
+    return false;
   }
 }

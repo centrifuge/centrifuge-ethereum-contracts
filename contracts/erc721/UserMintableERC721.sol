@@ -4,11 +4,12 @@ pragma experimental ABIEncoderV2;
 import "zos-lib/contracts/Initializable.sol";
 import "openzeppelin-eth/contracts/token/ERC721/ERC721Metadata.sol";
 import "openzeppelin-eth/contracts/token/ERC721/ERC721.sol";
+import "openzeppelin-eth/contracts/token/ERC721/ERC721Enumerable.sol";
 import "contracts/AnchorRepository.sol";
 import "contracts/lib/MerkleProof.sol";
 
 
-contract UserMintableERC721 is Initializable, ERC721, ERC721Metadata {
+contract UserMintableERC721 is Initializable, ERC721,ERC721Enumerable, ERC721Metadata {
   // anchor registry
   address internal anchorRegistry_;
 
@@ -57,6 +58,7 @@ contract UserMintableERC721 is Initializable, ERC721, ERC721Metadata {
     anchorRegistry_ = _anchorRegistry;
     mandatoryFields = _mandatoryFields;
     ERC721.initialize();
+    ERC721Enumerable.initialize();
     ERC721Metadata.initialize(_name, _symbol);
   }
 

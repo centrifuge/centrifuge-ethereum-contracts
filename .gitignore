@@ -20,4 +20,6 @@ node_modules/
 deployments/local.json
 deployments/local-ganache.json
 
+#zos
+zos.dev*
 .zos.session
