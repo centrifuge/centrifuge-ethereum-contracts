@@ -20,9 +20,9 @@ contract MockUserMintableERC721 is UserMintableERC721 {
   {
     UserMintableERC721.initialize(
       _name,
-        _symbol,
-        _anchorRegistry,
-        _mandatoryFields
+      _symbol,
+      _anchorRegistry,
+      _mandatoryFields
     );
   }
 
@@ -37,17 +37,17 @@ contract MockUserMintableERC721 is UserMintableERC721 {
     return super._hashLeafData(_leafName, _leafValue, _leafSalt);
   }
 
-  function isValidAnchor(
-    uint256 _documentId,
-    bytes32 _merkleRoot
+  function getDocumentRoot(
+    uint256 _anchorId,
+    string calldata _nextAnchorId,
+    bytes32 _salt,
+    bytes32[] calldata _proof
   )
-  public view
-  returns (bool)
+  external
+  view
+  returns (bytes32 documentRoot)
   {
-    return super._isValidAnchor(
-      _documentId,
-      _merkleRoot
-    );
+    return super._getDocumentRoot(_anchorId, _nextAnchorId, _salt, _proof);
   }
 
   function mintAnchor(

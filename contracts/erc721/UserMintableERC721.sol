@@ -66,28 +66,47 @@ contract UserMintableERC721 is Initializable, ERC721,ERC721Enumerable, ERC721Met
    * @dev Checks if a given document is registered in the the
    * anchor registry of this contract with the given root hash.
    * @param _anchorId bytes32 The ID of the document as identified
+   * @param _nextAnchorId string the next id to be anchored for a document change
    * by the set up anchorRegistry.
-   * @param _merkleRoot bytes32 The root hash of the merkle proof/doc
+   * @param _salt bytes32 salt for leaf construction
+   * @param _proof bytes32[] proofs for _nextAnchorId
    */
-  function _isValidAnchor(
+  function _getDocumentRoot(
     uint256 _anchorId,
-    bytes32 _merkleRoot
+    string memory _nextAnchorId,
+    bytes32 _salt,
+    bytes32[] memory _proof
   )
   internal
   view
-  returns (bool)
+  returns (bytes32 documentRoot)
   {
     AnchorRepository ar = AnchorRepository(anchorRegistry_);
-
     (uint256 identifier, bytes32 merkleRoot) = ar.getAnchorById(_anchorId);
+    require(
+      merkleRoot != 0x0,
+      "Document in not anchored in the registry"
+    );
 
-    if (
-      identifier != 0x0 &&
-      _anchorId == identifier && merkleRoot != 0x0 && _merkleRoot == merkleRoot
-    ) {
-      return true;
-    }
-    return false;
+    uint nextAnchorIdInt = parseInt(_nextAnchorId);
+
+    require(
+      MerkleProof.verifySha256(
+        _proof,
+        merkleRoot,
+        _hashLeafData("next_version", _nextAnchorId, _salt)
+      ),
+      "Next version proof is not valid"
+    );
+
+    (uint256 nextIdentifier, bytes32 nextMerkleRoot) = ar.getAnchorById(nextAnchorIdInt);
+
+    require(
+      nextMerkleRoot == 0x0,
+      "Document has a newer version on chain"
+    );
+
+    return merkleRoot;
   }
 
   /**
@@ -140,11 +159,6 @@ contract UserMintableERC721 is Initializable, ERC721,ERC721Enumerable, ERC721Met
   internal
   {
 
-    require(
-      _isValidAnchor(_anchorId, _merkleRoot),
-      "document needs to be registered in registry"
-    );
-
     for (uint i = 0; i < mandatoryFields.length; i++) {
       require(
         MerkleProof.verifySha256(
@@ -159,6 +173,35 @@ contract UserMintableERC721 is Initializable, ERC721,ERC721Enumerable, ERC721Met
     super._mint(_to, _tokenId);
     tokenDetails_[_tokenId] = OwnedAnchor(_anchorId, _merkleRoot);
     _setTokenURI(_tokenId, _tokenURI);
+  }
+
+  function parseInt(string memory _a) internal pure returns (uint _parsedInt) {
+    return parseInt(_a, 0);
+  }
+
+  function parseInt(string memory _a, uint _b) internal pure returns (uint _parsedInt) {
+    bytes memory bresult = bytes(_a);
+    uint mint = 0;
+    bool decimals = false;
+    for (uint i = 0; i < bresult.length; i++) {
+      if ((uint(uint8(bresult[i])) >= 48) && (uint(uint8(bresult[i])) <= 57)) {
+        if (decimals) {
+          if (_b == 0) {
+            break;
+          } else {
+            _b--;
+          }
+        }
+        mint *= 10;
+        mint += uint(uint8(bresult[i])) - 48;
+      } else if (uint(uint8(bresult[i])) == 46) {
+        decimals = true;
+      }
+    }
+    if (_b > 0) {
+      mint *= 10 ** _b;
+    }
+    return mint;
   }
 
 

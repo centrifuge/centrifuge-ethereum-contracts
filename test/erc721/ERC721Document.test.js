@@ -41,7 +41,7 @@ contract("UserMintableERC721", function (accounts) {
         await this.registry.initialize("ERC-721 Document Anchor", "TDA", this.anchorRegistry.address, mandatoryFields)
     });
 
-    describe("UserMintableERC721", async function () {
+    describe("UserMintableERC721 Deployment", async function () {
 
         it("should be deployable as an independent registry", async function () {
             let anchorRegistry = await MockAnchorRegistry.new();
@@ -57,54 +57,102 @@ contract("UserMintableERC721", function (accounts) {
         // it("should fail to deploy with an invalid anchor registry", async function () {
         //     await shouldRevert(UserMintableERC721.new("ERC721 Document Anchor", "TDA", "0x1"));
         // });
-
-
-        it("should be able to check if documents are registered on the anchor registry", async function () {
-            let mockRegistry = await MockUserMintableERC721.new("ERC-721 Document Anchor", "TDA", this.anchorRegistry.address, mandatoryFields);
-
-            await this.anchorRegistry.setAnchorById(
-                "0xaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
-                "0xbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb"
-            );
-
-            assert.equal(
-                false,
-                await mockRegistry.isValidAnchor.call(
-                    "0x0000000000000000000000000000000000000000000000000000000000000000",
-                    "0x0000000000000000000000000000000000000000000000000000000000000000"
-                ),
-                "Registry check should fail for 0x0000000000000000000000000000000000000000000000000000000000000000 data"
-            );
-            assert.equal(
-                false,
-                await mockRegistry.isValidAnchor.call(
-                    "0x9aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa9",
-                    "0x9bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb9"
-                ),
-                "Registry check should fail for not-found anchor"
-            );
-            assert.equal(
-                false,
-                await mockRegistry.isValidAnchor.call(
-                    "0xaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
-                    "0x9bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb9"
-                ),
-                "Registry check should fail for wrong anchor merkle root"
-            );
-
-            assert.equal(
-                true,
-                await mockRegistry.isValidAnchor.call(
-                    "0xaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
-                    "0xbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb"
-                ),
-                "Registry check should succeed with correct data"
-            );
-        });
     });
 
 
+    describe("_getDocumentRoot", async function () {
+
+        it("Should return the correct anchored document root", async function () {
+            let mockRegistry = await MockUserMintableERC721.new("ERC-721 Document Anchor", "TDA", this.anchorRegistry.address, mandatoryFields);
+            let documentIdentifer = proof.header.version_id;
+            let validRootHash = proof.header.document_root;
+
+            await this.anchorRegistry.setAnchorById(
+                documentIdentifer,
+                validRootHash
+            );
+
+            const anchoredRoot = await mockRegistry.getDocumentRoot(
+                documentIdentifer,
+                proof.field_proofs[4].value,
+                proof.field_proofs[4].salt,
+                proof.field_proofs[4].sorted_hashes
+            )
+
+            assert.equal(
+                anchoredRoot,
+                validRootHash
+            );
+        })
+
+        it("Should fail when there is a newer version of the document ", async function () {
+            let mockRegistry = await MockUserMintableERC721.new("ERC-721 Document Anchor", "TDA", this.anchorRegistry.address, mandatoryFields);
+            let documentIdentifer = proof.header.version_id;
+            let validRootHash = proof.header.document_root;
+
+            await this.anchorRegistry.setAnchorById(
+                documentIdentifer,
+                validRootHash
+            );
+
+            //anchor next identifier
+            await this.anchorRegistry.setAnchorById(
+                proof.field_proofs[4].value,
+                validRootHash
+            );
+
+            shouldRevert(
+                await mockRegistry.getDocumentRoot(
+                    documentIdentifer,
+                    proof.field_proofs[4].value,
+                    proof.field_proofs[4].salt,
+                    proof.field_proofs[4].sorted_hashes
+                ),
+                "Document has a newer version on chain"
+            )
+        })
+
+        it("Should fail if the next version proof is not valid", async function () {
+            let mockRegistry = await MockUserMintableERC721.new("ERC-721 Document Anchor", "TDA", this.anchorRegistry.address, mandatoryFields);
+            let documentIdentifer = proof.header.version_id;
+            let validRootHash = proof.header.document_root;
+
+            await this.anchorRegistry.setAnchorById(
+                documentIdentifer,
+                validRootHash
+            );
+
+            shouldRevert(
+                await mockRegistry.getDocumentRoot(
+                    documentIdentifer,
+                    "0x3333444",
+                    proof.field_proofs[4].salt,
+                    proof.field_proofs[4].sorted_hashes
+                ),
+                "Next version proof is not valid"
+            );
+        })
+
+        it("Should fail if the document anchor is not in the registry", async function () {
+            let mockRegistry = await MockUserMintableERC721.new("ERC-721 Document Anchor", "TDA", this.anchorRegistry.address, mandatoryFields);
+            let documentIdentifer = proof.header.version_id;
+
+            shouldRevert(
+                await mockRegistry.getDocumentRoot(
+                    documentIdentifer,
+                    "0x3333444",
+                    proof.field_proofs[4].salt,
+                    proof.field_proofs[4].sorted_hashes
+                ),
+                "Document in not anchored in the registry"
+            );
+        })
+
+
+    });
+
     describe("_hashLeafData", async function () {
+
         it("should hash the leaf data the same way JS does", async function () {
             let mockRegistry = await MockUserMintableERC721.new("ERC-721 Document Anchor", "TDA", this.anchorRegistry.address, mandatoryFields);
 
@@ -120,7 +168,7 @@ contract("UserMintableERC721", function (accounts) {
     });
 
 
-    describe("mintAnchor", async function () {
+    /*describe("mintAnchor", async function () {
 
         it("should mint a token if the Merkle proofs validates", async function () {
             let mockRegistry = await MockUserMintableERC721.new("ERC-721 Document Anchor", "TDA", this.anchorRegistry.address, mandatoryFields);
@@ -188,5 +236,5 @@ contract("UserMintableERC721", function (accounts) {
                 ]
             ))
         });
-    });
+    });*/
 });

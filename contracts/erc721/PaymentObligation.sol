@@ -16,7 +16,7 @@ contract PaymentObligation is Initializable, UserMintableERC721 {
   );
 
   // hardcoded supported fields for minting a PaymentObligation
-  string[] internal mandatoryFields_;
+  string[] public mandatoryFields_;
 
   struct PODetails {
     string grossAmount;
@@ -90,7 +90,6 @@ contract PaymentObligation is Initializable, UserMintableERC721 {
    * @param _tokenURI string The metadata uri
    * @param _anchorId bytes32 The ID of the document as identified
    * by the set up anchorRegistry.
-   * @param _merkleRoot bytes32 The root hash of the merkle proof/doc
    * It needs to start with a collaborator prefix, ex: collaborator[0]
    * @param _values string[] The values of the leafs that are being proved
    * using precise-proofs
@@ -105,20 +104,22 @@ contract PaymentObligation is Initializable, UserMintableERC721 {
     uint256 _tokenId,
     string memory _tokenURI,
     uint256 _anchorId,
-    bytes32 _merkleRoot,
     string[] memory _values,
     bytes32[] memory _salts,
     bytes32[][] memory _proofs
   )
   public
   {
+    uint nextVersionIndex = mandatoryFields_.length;
+    bytes32 merkleRoot = super._getDocumentRoot(_anchorId, _values[nextVersionIndex], _salts[nextVersionIndex], _proofs[nextVersionIndex]);
+
 
     // TODO handle colaborator validation against centrifuge identity
     super._mintAnchor(
       _to,
       _tokenId,
       _anchorId,
-      _merkleRoot,
+      merkleRoot,
       _tokenURI,
       _values,
       _salts,
