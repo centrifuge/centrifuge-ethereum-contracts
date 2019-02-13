@@ -71,7 +71,8 @@ contract PaymentObligation is Initializable, UserMintableERC721 {
       "invoice.gross_amount",
       "invoice.currency",
       "invoice.due_date",
-      "collaborators[0]" // owner of the document
+      "collaborators[0]", // owner of the document
+      "nfts[0x36841f022eab07f599432c2e410ceccd13a607b1000000000000000000000000]" // Nft uniqueness, this has  to be constructed using the contract address
     ];
 
     UserMintableERC721.initialize(
