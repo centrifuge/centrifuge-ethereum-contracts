@@ -143,7 +143,8 @@ contract("Gas costs", function (accounts) {
     });
 
     describe("check the gas cost for mint", async function () {
-        const mintMaxGas = 533819;
+        //TODO Check gas cost again after removing string operations
+        const mintMaxGas = 733819;
         it(`should have mint gas cost less then ${mintMaxGas} `, async function () {
             let documentIdentifer = proof.header.version_id;
             let validRootHash = proof.header.document_root;
@@ -161,18 +162,19 @@ contract("Gas costs", function (accounts) {
                 tokenId,
                 tokenURI,
                 documentIdentifer,
-                validRootHash,
                 [
                     proof.field_proofs[0].value,
                     proof.field_proofs[1].value,
                     proof.field_proofs[2].value,
                     proof.field_proofs[3].value,
+                    proof.field_proofs[4].value,
                 ],
                 [
                     proof.field_proofs[0].salt,
                     proof.field_proofs[1].salt,
                     proof.field_proofs[2].salt,
                     proof.field_proofs[3].salt,
+                    proof.field_proofs[4].salt,
 
                 ],
                 [
@@ -180,6 +182,7 @@ contract("Gas costs", function (accounts) {
                     proof.field_proofs[1].sorted_hashes,
                     proof.field_proofs[2].sorted_hashes,
                     proof.field_proofs[3].sorted_hashes,
+                    proof.field_proofs[4].sorted_hashes,
                 ]
             );
             console.log('Actual mint gas cost:', mintGasCost)
@@ -188,7 +191,8 @@ contract("Gas costs", function (accounts) {
     });
 
     describe("check the gas cost for mint with the identity proxy for ACTION key", async function () {
-        const mintMaxGas = 533819;
+        //TODO Check gas cost again after removing string operations
+        const mintMaxGas = 733819;
         it(`should have mint gas cost less then ${mintMaxGas} `, async function () {
             let documentIdentifer = proof.header.version_id;
             let validRootHash = proof.header.document_root;
@@ -206,18 +210,19 @@ contract("Gas costs", function (accounts) {
                 tokenId,
                 tokenURI,
                 documentIdentifer,
-                validRootHash,
                 [
                     proof.field_proofs[0].value,
                     proof.field_proofs[1].value,
                     proof.field_proofs[2].value,
                     proof.field_proofs[3].value,
+                    proof.field_proofs[4].value,
                 ],
                 [
                     proof.field_proofs[0].salt,
                     proof.field_proofs[1].salt,
                     proof.field_proofs[2].salt,
                     proof.field_proofs[3].salt,
+                    proof.field_proofs[4].salt,
 
                 ],
                 [
@@ -225,6 +230,7 @@ contract("Gas costs", function (accounts) {
                     proof.field_proofs[1].sorted_hashes,
                     proof.field_proofs[2].sorted_hashes,
                     proof.field_proofs[3].sorted_hashes,
+                    proof.field_proofs[4].sorted_hashes,
                 ]
             ).encodeABI();
 

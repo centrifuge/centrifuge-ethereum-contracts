@@ -63,50 +63,67 @@ contract UserMintableERC721 is Initializable, ERC721,ERC721Enumerable, ERC721Met
   }
 
   /**
-   * @dev Checks if a given document is registered in the the
+   * @dev Retrieve the register document Root and validate if it's the latest version
    * anchor registry of this contract with the given root hash.
    * @param _anchorId bytes32 The ID of the document as identified
-   * @param _nextAnchorId string the next id to be anchored for a document change
-   * by the set up anchorRegistry.
-   * @param _salt bytes32 salt for leaf construction
-   * @param _proof bytes32[] proofs for _nextAnchorId
    */
   function _getDocumentRoot(
-    uint256 _anchorId,
-    string memory _nextAnchorId,
-    bytes32 _salt,
-    bytes32[] memory _proof
+    uint256 _anchorId
   )
   internal
   view
   returns (bytes32 documentRoot)
   {
     AnchorRepository ar = AnchorRepository(anchorRegistry_);
-    (uint256 identifier, bytes32 merkleRoot) = ar.getAnchorById(_anchorId);
+    (, bytes32 merkleRoot) = ar.getAnchorById(_anchorId);
     require(
       merkleRoot != 0x0,
       "Document in not anchored in the registry"
     );
 
-    uint nextAnchorIdInt = parseInt(_nextAnchorId);
+    return merkleRoot;
+  }
 
-    require(
-      MerkleProof.verifySha256(
-        _proof,
-        merkleRoot,
-        _hashLeafData("next_version", _nextAnchorId, _salt)
-      ),
-      "Next version proof is not valid"
-    );
 
-    (uint256 nextIdentifier, bytes32 nextMerkleRoot) = ar.getAnchorById(nextAnchorIdInt);
+  /**
+   * @dev Retrieve the register document Root and validate if it's the latest version
+   * anchor registry of this contract with the given root hash.
+   * @param _documentRoot bytes32 the anchored document root
+   * @param _nextAnchorId string the next id to be anchored for a document change
+   * by the set up anchorRegistry.
+   * @param _salt bytes32 salt for leaf construction
+   * @param _proof bytes32[] proofs for _nextAnchorId
+   */
+  function _isLatestDocumentVersion(
+    bytes32 _documentRoot,
+    string memory _nextAnchorId,
+    bytes32 _salt,
+    bytes32[] memory _proof
+  )
+  internal
+  view
+  returns(uint nextAnchorId)
+  {
+    AnchorRepository ar = AnchorRepository(anchorRegistry_);
+
+    nextAnchorId = parseInt(_nextAnchorId);
+    (,bytes32 nextMerkleRoot) = ar.getAnchorById(nextAnchorId);
 
     require(
       nextMerkleRoot == 0x0,
       "Document has a newer version on chain"
     );
 
-    return merkleRoot;
+    require(
+      MerkleProof.verifySha256(
+        _proof,
+        _documentRoot,
+        _hashLeafData("next_version", _nextAnchorId, _salt)
+      ),
+      "Next version proof is not valid"
+    );
+
+    return nextAnchorId;
   }
 
   /**
@@ -175,6 +192,10 @@ contract UserMintableERC721 is Initializable, ERC721,ERC721Enumerable, ERC721Met
     _setTokenURI(_tokenId, _tokenURI);
   }
 
+
+
+  //TODO remove all this functions when values in bytes. next_version seems to contain decimal values.
+
   function parseInt(string memory _a) internal pure returns (uint _parsedInt) {
     return parseInt(_a, 0);
   }
@@ -202,6 +223,46 @@ contract UserMintableERC721 is Initializable, ERC721,ERC721Enumerable, ERC721Met
       mint *= 10 ** _b;
     }
     return mint;
+  }
+
+  function strConcat(string memory _a, string memory _b) internal pure returns (string memory _concatenatedString) {
+    return strConcat(_a, _b, "", "", "");
+  }
+
+  function strConcat(string memory _a, string memory _b, string memory _c) internal pure returns (string memory _concatenatedString) {
+    return strConcat(_a, _b, _c, "", "");
+  }
+
+  function strConcat(string memory _a, string memory _b, string memory _c, string memory _d) internal pure returns (string memory _concatenatedString) {
+    return strConcat(_a, _b, _c, _d, "");
+  }
+
+  function strConcat(string memory _a, string memory _b, string memory _c, string memory _d, string memory _e) internal pure returns (string memory _concatenatedString) {
+    bytes memory _ba = bytes(_a);
+    bytes memory _bb = bytes(_b);
+    bytes memory _bc = bytes(_c);
+    bytes memory _bd = bytes(_d);
+    bytes memory _be = bytes(_e);
+    string memory abcde = new string(_ba.length + _bb.length + _bc.length + _bd.length + _be.length);
+    bytes memory babcde = bytes(abcde);
+    uint k = 0;
+    uint i = 0;
+    for (i = 0; i < _ba.length; i++) {
+      babcde[k++] = _ba[i];
+    }
+    for (i = 0; i < _bb.length; i++) {
+      babcde[k++] = _bb[i];
+    }
+    for (i = 0; i < _bc.length; i++) {
+      babcde[k++] = _bc[i];
+    }
+    for (i = 0; i < _bd.length; i++) {
+      babcde[k++] = _bd[i];
+    }
+    for (i = 0; i < _be.length; i++) {
+      babcde[k++] = _be[i];
+    }
+    return string(babcde);
   }
 
 

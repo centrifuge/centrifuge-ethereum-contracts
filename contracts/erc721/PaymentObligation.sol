@@ -110,9 +110,19 @@ contract PaymentObligation is Initializable, UserMintableERC721 {
   )
   public
   {
-    uint nextVersionIndex = mandatoryFields_.length;
-    bytes32 merkleRoot = super._getDocumentRoot(_anchorId, _values[nextVersionIndex], _salts[nextVersionIndex], _proofs[nextVersionIndex]);
+    // Get the document root from AnchorRepository
+    bytes32 merkleRoot = super._getDocumentRoot(
+      _anchorId
+    );
 
+    // Validate the it is the latest version on chain
+    uint nextVersionIndex = mandatoryFields_.length;
+    super._isLatestDocumentVersion(
+        merkleRoot,
+        _values[nextVersionIndex],
+        _salts[nextVersionIndex],
+        _proofs[nextVersionIndex]
+    );
 
     // TODO handle colaborator validation against centrifuge identity
     super._mintAnchor(

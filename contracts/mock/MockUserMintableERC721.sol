@@ -38,17 +38,34 @@ contract MockUserMintableERC721 is UserMintableERC721 {
   }
 
   function getDocumentRoot(
-    uint256 _anchorId,
+    uint256 _anchorId
+  )
+  external
+  view
+  returns (bytes32 documentRoot)
+  {
+    return super._getDocumentRoot(_anchorId);
+  }
+
+
+  function isLatestDocumentVersion(
+    bytes32 _documentRoot,
     string calldata _nextAnchorId,
     bytes32 _salt,
     bytes32[] calldata _proof
   )
   external
   view
-  returns (bytes32 documentRoot)
+  returns (uint nextAnchorId)
   {
-    return super._getDocumentRoot(_anchorId, _nextAnchorId, _salt, _proof);
+    return super._isLatestDocumentVersion(
+      _documentRoot,
+      _nextAnchorId,
+      _salt,
+      _proof
+    );
   }
+
 
   function mintAnchor(
     address _to,

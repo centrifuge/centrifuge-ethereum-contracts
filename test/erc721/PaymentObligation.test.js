@@ -76,7 +76,7 @@ contract("PaymentObligation", function (accounts) {
             assert.equal(tokenUri, tokenURI)
         });
 
-       /* it("should not mint a token if the a Merkle proof fails", async function () {
+        it("should not mint a token if the a Merkle proof fails", async function () {
             const documentIdentifier = proof.header.version_id;
             const validRootHash = proof.header.document_root;
             const tokenURI = "http://test.com";
@@ -92,18 +92,19 @@ contract("PaymentObligation", function (accounts) {
                 tokenId,
                 tokenURI,
                 documentIdentifier,
-                validRootHash,
                 [
                     'Some Random Value',
                     proof.field_proofs[1].value,
                     proof.field_proofs[2].value,
                     proof.field_proofs[3].value,
+                    proof.field_proofs[4].value,
                 ],
                 [
                     proof.field_proofs[0].salt,
                     proof.field_proofs[1].salt,
                     proof.field_proofs[2].salt,
                     proof.field_proofs[3].salt,
+                    proof.field_proofs[4].salt,
 
                 ],
                 [
@@ -111,6 +112,7 @@ contract("PaymentObligation", function (accounts) {
                     proof.field_proofs[1].sorted_hashes,
                     proof.field_proofs[2].sorted_hashes,
                     proof.field_proofs[3].sorted_hashes,
+                    proof.field_proofs[4].sorted_hashes,
                 ]
             ));
         });
@@ -131,18 +133,19 @@ contract("PaymentObligation", function (accounts) {
                 tokenId,
                 tokenURI,
                 documentIdentifier,
-                validRootHash,
                 [
                     proof.field_proofs[0].value,
                     proof.field_proofs[1].value,
                     proof.field_proofs[2].value,
                     proof.field_proofs[3].value,
+                    proof.field_proofs[4].value,
                 ],
                 [
                     proof.field_proofs[0].salt,
                     proof.field_proofs[1].salt,
                     proof.field_proofs[2].salt,
                     proof.field_proofs[3].salt,
+                    proof.field_proofs[4].salt,
 
                 ],
                 [
@@ -150,36 +153,41 @@ contract("PaymentObligation", function (accounts) {
                     proof.field_proofs[1].sorted_hashes,
                     proof.field_proofs[2].sorted_hashes,
                     proof.field_proofs[3].sorted_hashes,
+                    proof.field_proofs[4].sorted_hashes,
                 ]
             );
 
-            await shouldRevert(this.registry.mint(
-                accounts[2],
-                tokenId,
-                tokenURI,
-                documentIdentifier,
-                validRootHash,
-                [
-                    proof.field_proofs[0].value,
-                    proof.field_proofs[1].value,
-                    proof.field_proofs[2].value,
-                    proof.field_proofs[3].value,
-                ],
-                [
-                    proof.field_proofs[0].salt,
-                    proof.field_proofs[1].salt,
-                    proof.field_proofs[2].salt,
-                    proof.field_proofs[3].salt,
+            await shouldRevert(
+                this.registry.mint(
+                    accounts[2],
+                    tokenId,
+                    tokenURI,
+                    documentIdentifier,
+                    [
+                        proof.field_proofs[0].value,
+                        proof.field_proofs[1].value,
+                        proof.field_proofs[2].value,
+                        proof.field_proofs[3].value,
+                        proof.field_proofs[4].value,
+                    ],
+                    [
+                        proof.field_proofs[0].salt,
+                        proof.field_proofs[1].salt,
+                        proof.field_proofs[2].salt,
+                        proof.field_proofs[3].salt,
+                        proof.field_proofs[4].salt,
 
-                ],
-                [
-                    proof.field_proofs[0].sorted_hashes,
-                    proof.field_proofs[1].sorted_hashes,
-                    proof.field_proofs[2].sorted_hashes,
-                    proof.field_proofs[3].sorted_hashes,
-                ]
-            ));
-        });*/
+                    ],
+                    [
+                        proof.field_proofs[0].sorted_hashes,
+                        proof.field_proofs[1].sorted_hashes,
+                        proof.field_proofs[2].sorted_hashes,
+                        proof.field_proofs[3].sorted_hashes,
+                        proof.field_proofs[4].sorted_hashes,
+                    ]
+                )
+            );
+        });
     });
 
 
