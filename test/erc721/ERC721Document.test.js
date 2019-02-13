@@ -128,12 +128,6 @@ contract("UserMintableERC721", function (accounts) {
                 '0x4e738fd412c2ff130d0dac552aaa52766638',
                 validRootHash
             );
-            console.log( web3.utils.toHex(await mockRegistry.isLatestDocumentVersion(
-                validRootHash,
-                proof.field_proofs[4].value,
-                proof.field_proofs[4].salt,
-                proof.field_proofs[4].sorted_hashes
-            )))
             await shouldRevert(
                   mockRegistry.isLatestDocumentVersion(
                     validRootHash,
