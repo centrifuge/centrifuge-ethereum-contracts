@@ -86,7 +86,7 @@ contract UserMintableERC721 is Initializable, ERC721,ERC721Enumerable, ERC721Met
 
 
   /**
-   * @dev Retrieve the register document Root and validate if it's the latest version
+   * @dev Validate if it's the latest version
    * anchor registry of this contract with the given root hash.
    * @param _documentRoot bytes32 the anchored document root
    * @param _nextAnchorId string the next id to be anchored for a document change
