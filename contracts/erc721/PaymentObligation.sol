@@ -16,12 +16,12 @@ contract PaymentObligation is Initializable, UserMintableERC721 {
   );
 
   // hardcoded supported fields for minting a PaymentObligation
-  string[] public mandatoryFields_;
+  bytes[] public mandatoryFields_;
 
   struct PODetails {
-    string grossAmount;
-    string currency;
-    string dueDate;
+    bytes grossAmount;
+    bytes currency;
+    bytes dueDate;
   }
 
   mapping(uint256 => PODetails) internal poDetails_;
@@ -39,9 +39,9 @@ contract PaymentObligation is Initializable, UserMintableERC721 {
   external
   view
   returns (
-    string memory grossAmount,
-    string memory currency,
-    string memory dueDate,
+    bytes memory grossAmount,
+    bytes memory currency,
+    bytes memory dueDate,
     uint256 anchorId,
     bytes32 documentRoot
   )
@@ -56,6 +56,44 @@ contract PaymentObligation is Initializable, UserMintableERC721 {
     );
   }
 
+
+  function testBytes()
+  external
+  view
+  returns (
+    bytes memory result
+  )
+  {
+
+    bytes memory readRoles = hex"000000130000000000000001000000020000000000000000";
+    bytes memory reactAction = hex"00000013000000000000000100000004";
+    bytes memory nftRole = hex"000000010000000000000001000000000000000000000000000000000000000000000000000000040000000000000000";
+
+
+    bytes8 readRuleIndex = extractIndex(readRoles,4);
+    bytes8 readRuleRoleIndex = extractIndex(readRoles,16);
+    bytes memory readRolesProp = abi.encodePacked(hex"00000013",readRuleIndex,hex"00000002",readRuleRoleIndex);
+    bytes memory readActionProp = abi.encodePacked(hex"00000013",readRuleRoleIndex,hex"00000004");
+
+    bytes8 nftIndex = extractIndex(nftRole,40);
+    bytes memory nftRoleProp = abi.encodePacked(hex"00000001",hex"0000000000000001000000000000000000000000000000000000000000000000",hex"00000004",nftIndex);
+
+    return readRolesProp;
+    // 0x00000014ec644d919d64ba6aebd8e4c094d6cea27051b857000000000000000000000000
+    // 0x00000014ec644d919d64ba6aebd8e4c094d6cea27051b857000000000000000000000000
+    // 0x14644d919d64ba6aebd8e4c094d6cea27051b857000000000000000000000000
+    //0x000000130000000000000001000000020000000000000000
+   /* bytes memory tokenBytes = hex"53cfb4da00b5752be86e31cbb93eee439f96b4758c144221e8ec28cb54f0cd62";
+    uint256 token = 0x53cfb4da00b5752be86e31cbb93eee439f96b4758c144221e8ec28cb54f0cd62;
+
+    if(abi.encode(token) == tokenBytes) {
+      return hex"0000";
+    }
+
+    return abi.encode(token);*/
+  }
+
+
   /**
    * @param _anchorRegistry address The address of the anchor registry
    * that is backing this token's mint method.
@@ -67,13 +105,10 @@ contract PaymentObligation is Initializable, UserMintableERC721 {
   public
   initializer
   {
-    mandatoryFields_ = [
-      "invoice.gross_amount",
-      "invoice.currency",
-      "invoice.due_date",
-      "collaborators[0]", // owner of the document
-      "nfts[0x36841f022eab07f599432c2e410ceccd13a607b1000000000000000000000000]" // Nft uniqueness, this has  to be constructed using the contract address
-    ];
+    mandatoryFields_.push(hex"010000000000000e"); //"invoice.gross_amount",
+    mandatoryFields_.push(hex"010000000000000d"); //invoice.currency
+    mandatoryFields_.push(hex"0100000000000016"); // invoice.due_date
+    mandatoryFields_.push(hex"000000110000000000000000"); //collaborators[0]
 
     UserMintableERC721.initialize(
       "Centrifuge Payment Obligations",
@@ -105,7 +140,8 @@ contract PaymentObligation is Initializable, UserMintableERC721 {
     uint256 _tokenId,
     string memory _tokenURI,
     uint256 _anchorId,
-    string[] memory _values,
+    uint256 _nextAnchorId,
+    bytes[] memory _values,
     bytes32[] memory _salts,
     bytes32[][] memory _proofs
   )
@@ -116,13 +152,22 @@ contract PaymentObligation is Initializable, UserMintableERC721 {
       _anchorId
     );
 
-    // Validate the it is the latest version on chain
-    uint nextVersionIndex = mandatoryFields_.length;
+    // Enforce that there is not a newer version of the document on chain
+    uint nextVersionIndex = 5;
     super._isLatestDocumentVersion(
-        merkleRoot,
-        _values[nextVersionIndex],
-        _salts[nextVersionIndex],
-        _proofs[nextVersionIndex]
+      merkleRoot,
+      _nextAnchorId,
+      _salts[nextVersionIndex],
+      _proofs[nextVersionIndex]
+    );
+
+    // Enforce that only one token per document/registry is minted
+    uint nftUniqueIndex = 4;
+    super._isNftUnique(
+      merkleRoot,
+      _tokenId,
+      _salts[nftUniqueIndex],
+      _proofs[nftUniqueIndex]
     );
 
     // TODO handle colaborator validation against centrifuge identity

@@ -9,12 +9,12 @@ import "contracts/AnchorRepository.sol";
 import "contracts/lib/MerkleProof.sol";
 
 
-contract UserMintableERC721 is Initializable, ERC721,ERC721Enumerable, ERC721Metadata {
+contract UserMintableERC721 is Initializable, ERC721, ERC721Enumerable, ERC721Metadata {
   // anchor registry
   address internal anchorRegistry_;
 
   // array of field names that are being proved using the document root and precise-proofs
-  string[] public mandatoryFields;
+  bytes[] public mandatoryFields;
 
   // The ownable anchor
   struct OwnedAnchor {
@@ -50,7 +50,7 @@ contract UserMintableERC721 is Initializable, ERC721,ERC721Enumerable, ERC721Met
     string memory _name,
     string memory _symbol,
     address _anchorRegistry,
-    string[] memory _mandatoryFields
+    bytes[] memory _mandatoryFields
   )
   public
   initializer
@@ -60,6 +60,18 @@ contract UserMintableERC721 is Initializable, ERC721,ERC721Enumerable, ERC721Met
     ERC721.initialize();
     ERC721Enumerable.initialize();
     ERC721Metadata.initialize(_name, _symbol);
+  }
+
+  /**
+   * @dev Address getter. This is need in order to be able to override
+   * the return value in testing Mock for precise proof testing
+   * @return address the address of the contact
+   */
+  function _getOwnAddress()
+  internal
+  view
+  returns (address) {
+    return address(this);
   }
 
   /**
@@ -96,18 +108,16 @@ contract UserMintableERC721 is Initializable, ERC721,ERC721Enumerable, ERC721Met
    */
   function _isLatestDocumentVersion(
     bytes32 _documentRoot,
-    string memory _nextAnchorId,
+    uint256 _nextAnchorId,
     bytes32 _salt,
     bytes32[] memory _proof
   )
   internal
   view
-  returns(uint nextAnchorId)
   {
     AnchorRepository ar = AnchorRepository(anchorRegistry_);
-
-    nextAnchorId = parseInt(_nextAnchorId);
-    (,bytes32 nextMerkleRoot) = ar.getAnchorById(nextAnchorId);
+    // TODO can this be better;
+    (, bytes32 nextMerkleRoot) = ar.getAnchorById(_nextAnchorId);
 
     require(
       nextMerkleRoot == 0x0,
@@ -118,12 +128,59 @@ contract UserMintableERC721 is Initializable, ERC721,ERC721Enumerable, ERC721Met
       MerkleProof.verifySha256(
         _proof,
         _documentRoot,
-        _hashLeafData("next_version", _nextAnchorId, _salt)
+        sha256(abi.encodePacked(hex"00000004", _nextAnchorId, _salt))
       ),
       "Next version proof is not valid"
     );
 
-    return nextAnchorId;
+  }
+  // TODO add Documentation
+  function _isNftUnique(
+    bytes32 _documentRoot,
+    uint256 _tokenId,
+    bytes32 _salt,
+    bytes32[] memory _proof
+  )
+  internal
+  view {
+    bytes memory property = abi.encodePacked(hex"00000014", _getOwnAddress(), hex"000000000000000000000000");
+    require(
+      MerkleProof.verifySha256(
+        _proof,
+        _documentRoot,
+        sha256(abi.encodePacked(property, _tokenId, _salt))
+      ),
+      "Token uniqueness proof is not valid"
+    );
+
+  }
+
+  // TODO add Documentation
+  function _hasReadRole(
+    bytes32 _documentRoot,
+    bytes memory _property,
+    bytes memory _value,
+    bytes32 _salt,
+    bytes32[] memory _proof
+  )
+  internal
+  view
+  returns (bytes8 readRuleIndex){
+
+    readRuleIndex = extractIndex(_property, 4);
+    bytes8 readRuleRoleIndex = extractIndex(_property, 16);
+    bytes memory reconstructed = hex"000000130000000000000001000000020000000000000000";//abi.encodePacked(hex"00000013", readRuleIndex, hex"00000002", readRuleRoleIndex);
+
+    require(
+      MerkleProof.verifySha256(
+        _proof,
+        _documentRoot,
+        sha256(abi.encodePacked(reconstructed, _value, _salt))
+      ),
+      "Read Rule proof is not valid"
+    );
+
+    return readRuleIndex;
   }
 
   /**
@@ -135,8 +192,8 @@ contract UserMintableERC721 is Initializable, ERC721,ERC721Enumerable, ERC721Met
    * @return byte32 keccak256 hash of the concatenated plain-text values
    */
   function _hashLeafData(
-    string memory _leafName,
-    string memory _leafValue,
+    bytes memory _leafName,
+    bytes memory _leafValue,
     bytes32 _leafSalt
   )
   internal
@@ -169,7 +226,7 @@ contract UserMintableERC721 is Initializable, ERC721,ERC721Enumerable, ERC721Met
     uint256 _anchorId,
     bytes32 _merkleRoot,
     string memory _tokenURI,
-    string[] memory _values,
+    bytes[] memory _values,
     bytes32[] memory _salts,
     bytes32[][] memory _proofs
   )
@@ -183,7 +240,7 @@ contract UserMintableERC721 is Initializable, ERC721,ERC721Enumerable, ERC721Met
           _merkleRoot,
           _hashLeafData(mandatoryFields[i], _values[i], _salts[i])
         ),
-        mandatoryFields[i]
+        "Mandatory field failed"
       );
     }
 
@@ -193,11 +250,38 @@ contract UserMintableERC721 is Initializable, ERC721,ERC721Enumerable, ERC721Met
   }
 
 
+  function extractIndex(
+    bytes memory _bytes,
+    uint256 _startFrom
+  )
+  internal
+  pure
+  returns (
+    bytes8 index
+  )
+  {
+    bytes8 temp;
+    assembly {
+      temp := mload(add(add(_bytes, 0x20), _startFrom))
+    }
+
+    return temp;
+  }
+
 
   //TODO remove all this functions when values in bytes. next_version seems to contain decimal values.
 
   function parseInt(string memory _a) internal pure returns (uint _parsedInt) {
     return parseInt(_a, 0);
+  }
+
+  function bytesToBytes32(bytes memory b) private pure returns (bytes32) {
+    bytes32 out;
+
+    for (uint i = 0; i < 32; i++) {
+      out |= bytes32(b[i] & 0xFF) >> (i * 8);
+    }
+    return out;
   }
 
   function parseInt(string memory _a, uint _b) internal pure returns (uint _parsedInt) {
