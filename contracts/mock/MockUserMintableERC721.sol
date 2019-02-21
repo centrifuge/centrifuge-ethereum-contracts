@@ -28,35 +28,6 @@ contract MockUserMintableERC721 is UserMintableERC721 {
     );
   }
 
-
-
-  function _getOwnAddress()
-  internal
-  view
-  returns (address) {
-    return onwAddress_;
-  }
-
-  function setOwnAddress(address _ownAddress)
-  public
-  {
-    onwAddress_ = _ownAddress;
-  }
-
-
-  function hashLeafData(
-    bytes calldata _leafName,
-    bytes calldata _leafValue,
-    bytes32 _leafSalt
-  )
-  external pure
-  returns (bytes32)
-  {
-    return super._hashLeafData(_leafName, _leafValue, _leafSalt);
-  }
-
-
-
   function getDocumentRoot(
     uint256 _anchorId
   )
@@ -78,7 +49,7 @@ contract MockUserMintableERC721 is UserMintableERC721 {
   external
   view
   {
-     super._isLatestDocumentVersion(
+    super._isLatestDocumentVersion(
       _documentRoot,
       _nextAnchorId,
       _salt,
@@ -94,8 +65,9 @@ contract MockUserMintableERC721 is UserMintableERC721 {
     bytes32[] calldata _proof
   )
   external
-  view
-  returns (bytes8 readRuleIndex){
+  pure
+  returns (bytes8 readRuleIndex)
+  {
 
     return super._hasReadRole(
       _documentRoot,
@@ -106,15 +78,54 @@ contract MockUserMintableERC721 is UserMintableERC721 {
     );
   }
 
-  function isNftUnique(
+  function hasReadAction(
+    bytes32 _documentRoot,
+    bytes8 _readRuleIndex,
+    bytes32 _salt,
+    bytes32[] calldata _proof
+  )
+  external
+  pure
+  {
+    super._hasReadAction(
+      _documentRoot,
+      _readRuleIndex,
+      _salt,
+      _proof
+    );
+  }
+
+  function tokenHasRole(
+    bytes32 _documentRoot,
+    uint256 _tokenId,
+    bytes calldata _property,
+    bytes calldata _roleIndex,
+    bytes32 _salt,
+    bytes32[] calldata _proof
+  )
+  external
+  view
+  {
+    super._tokenHasRole(
+      _documentRoot,
+      _tokenId,
+      _property,
+      _roleIndex,
+      _salt,
+      _proof
+    );
+  }
+
+  function oneTokenPerDocument(
     bytes32 _documentRoot,
     uint256 _tokenId,
     bytes32 _salt,
     bytes32[] calldata _proof
   )
   external
-  view {
-    super._isNftUnique(
+  view
+  {
+    super._oneTokenPerDocument(
       _documentRoot,
       _tokenId,
       _salt,
@@ -146,4 +157,19 @@ contract MockUserMintableERC721 is UserMintableERC721 {
       _proofs
     );
   }
+
+  function setOwnAddress(address _ownAddress)
+  public
+  {
+    onwAddress_ = _ownAddress;
+  }
+
+  function _getOwnAddress()
+  internal
+  view
+  returns (address)
+  {
+    return onwAddress_;
+  }
+
 }

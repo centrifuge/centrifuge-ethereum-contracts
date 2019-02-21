@@ -11,20 +11,6 @@ contract MockPaymentObligation is Initializable, PaymentObligation {
 
   address onwAddress_ = address(this);
 
-  function _getOwnAddress()
-  internal
-  view
-  returns (address) {
-    return onwAddress_;
-  }
-
-  function setOwnAddress(address _ownAddress)
-  public
-  {
-    onwAddress_ = _ownAddress;
-  }
-
-
   /**
    * @param _anchorRegistry address The address of the anchor registry
    * that is backing this token's mint method.
@@ -38,6 +24,20 @@ contract MockPaymentObligation is Initializable, PaymentObligation {
   {
 
     PaymentObligation.initialize(_anchorRegistry);
+  }
+
+  function setOwnAddress(address _ownAddress)
+  public
+  {
+    onwAddress_ = _ownAddress;
+  }
+
+  function _getOwnAddress()
+  internal
+  view
+  returns (address)
+  {
+    return onwAddress_;
   }
 
 }

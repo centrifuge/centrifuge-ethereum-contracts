@@ -39,9 +39,14 @@ contract("UserMintableERC721", function (accounts) {
 
     let nextVersion = proof.field_proofs[5];
     let nftUnique = proof.field_proofs[4];
+    let tokenId = nftUnique.value;
     let readRole = proof.field_proofs[6];
+    let tokenRole = proof.field_proofs[7];
+    let readRoleAction = proof.field_proofs[8];
     let documentIdentifer = proof.header.version_id;
     let validRootHash = proof.header.document_root;
+    let readRuleIndex = "0x" + readRole.property.substr(10, 16);
+    let contractAddress = "0x910e4e12FC1f0fFBA5D9Bf79ad5760155d3f62C8";
 
 
     beforeEach(async function () {
@@ -50,7 +55,7 @@ contract("UserMintableERC721", function (accounts) {
         await this.registry.initialize("ERC-721 Document Anchor", "TDA", this.anchorRegistry.address, mandatoryFields)
     });
 
-    /* describe("UserMintableERC721 Deployment", async function () {
+     describe("UserMintableERC721 Deployment", async function () {
 
          it("should be deployable as an independent registry", async function () {
              let anchorRegistry = await MockAnchorRegistry.new();
@@ -62,7 +67,7 @@ contract("UserMintableERC721", function (accounts) {
              assert.equal(anchorRegistry.address, await instance.anchorRegistry.call(), "The registry should be deployed with the specific anchor registry");
          });
 
-         // TODO this is more complex.
+         // TODO Should we check the interface of the anchorRegistry?
          // it("should fail to deploy with an invalid anchor registry", async function () {
          //     await shouldRevert(UserMintableERC721.new("ERC721 Document Anchor", "TDA", "0x1"));
          // });
@@ -130,7 +135,6 @@ contract("UserMintableERC721", function (accounts) {
 
              //anchor next identifier
              await this.anchorRegistry.setAnchorById(
-                 // TODO remove this and use value from the json when string conversion is not a problem anymore
                  nextVersion.value,
                  validRootHash
              );
@@ -164,16 +168,16 @@ contract("UserMintableERC721", function (accounts) {
          })
 
 
-     });*/
+     });
 
 
-    describe("_isNftUnique", async function () {
+    describe("_oneTokenPerDocument", async function () {
 
-        it("Should fail the uniqueness because the contract address does not match", async function () {
+        it("Should fail if the contract address does not match", async function () {
             let mockRegistry = await MockUserMintableERC721.new("ERC-721 Document Anchor", "TDA", this.anchorRegistry.address, mandatoryFields);
 
 
-            await shouldRevert(mockRegistry.isNftUnique(
+            await shouldRevert(mockRegistry.oneTokenPerDocument(
                 validRootHash,
                 nftUnique.value,
                 nftUnique.salt,
@@ -181,21 +185,19 @@ contract("UserMintableERC721", function (accounts) {
                 ),
                 "Token uniqueness proof is not valid"
             );
-        })
+        });
 
-        it("Should pass", async function () {
+        it("Should pass with a valid proof", async function () {
             let mockRegistry = await MockUserMintableERC721.new("ERC-721 Document Anchor", "TDA", this.anchorRegistry.address, mandatoryFields);
 
-            await mockRegistry.setOwnAddress("0x910e4e12FC1f0fFBA5D9Bf79ad5760155d3f62C8");
+            await mockRegistry.setOwnAddress(contractAddress);
 
-            await mockRegistry.isNftUnique(
+            await mockRegistry.oneTokenPerDocument(
                 validRootHash,
                 nftUnique.value,
                 nftUnique.salt,
                 nftUnique.sorted_hashes
             )
-
-
         })
 
     });
@@ -203,20 +205,20 @@ contract("UserMintableERC721", function (accounts) {
 
     describe("_hasReadRule", async function () {
 
-        /*it("Should fail the uniqueness because the contract does not match", async function () {
+        it("Should fail if the proof is not valid", async function () {
             let mockRegistry = await MockUserMintableERC721.new("ERC-721 Document Anchor", "TDA", this.anchorRegistry.address, mandatoryFields);
 
 
             await shouldRevert(mockRegistry.hasReadRole(
                 validRootHash,
-                readRule.prop,
-                readRule.value,
-                readRule.salt,
-                readRule.sorted_hashes
-            ),
-                "Token uniqueness proof is not valid"
+                "0x1",
+                readRole.value,
+                readRole.salt,
+                readRole.sorted_hashes
+                ),
+                "Read Rule proof is not valid"
             );
-        })*/
+        })
 
         it("Should pass and extract the proper index ", async function () {
             let mockRegistry = await MockUserMintableERC721.new("ERC-721 Document Anchor", "TDA", this.anchorRegistry.address, mandatoryFields);
@@ -229,29 +231,110 @@ contract("UserMintableERC721", function (accounts) {
                 readRole.sorted_hashes
             )
 
-            console.log(index);
+            assert.equal(index, readRuleIndex)
         })
 
     });
 
-    /*describe("_hashLeafData", async function () {
+    describe("_hasReadAction", async function () {
 
-        it("should hash the leaf data the same way JS does", async function () {
+        it("Should fail if read rule index is not valud", async function () {
             let mockRegistry = await MockUserMintableERC721.new("ERC-721 Document Anchor", "TDA", this.anchorRegistry.address, mandatoryFields);
 
-            let leafName_ = "valueA";
-            let leafValue_ = "Foo";
-            let salt_ = "aoXdxhE+aM2mhDyvNwoFT6pgcaM4wmdD+LunX0tPupw=";
 
-            let validLeafHash = produceValidLeafHash(leafName_, leafValue_, salt_);
+            await shouldRevert(mockRegistry.hasReadAction(
+                validRootHash,
+                "0x0000000000000022",
+                readRoleAction.salt,
+                readRoleAction.sorted_hashes
+                ),
+                "Read Action is not valid"
+            );
+        })
 
-            let res = await mockRegistry.hashLeafData.call(leafName_, leafValue_, base64ToHex(salt_));
-            assert.equal(validLeafHash, res, "Solidity hashing should be the same as JS hashing");
-        });
-    });*/
+        it("Should pass with the proper proof ", async function () {
+            let mockRegistry = await MockUserMintableERC721.new("ERC-721 Document Anchor", "TDA", this.anchorRegistry.address, mandatoryFields);
+
+            await mockRegistry.hasReadAction(
+                validRootHash,
+                readRuleIndex,
+                readRoleAction.salt,
+                readRoleAction.sorted_hashes
+            )
+        })
+
+    });
+
+    describe("_tokenHasRole", async function () {
+
+        it("Should fail if the contract address does not match", async function () {
+            let mockRegistry = await MockUserMintableERC721.new("ERC-721 Document Anchor", "TDA", this.anchorRegistry.address, mandatoryFields);
+
+            await shouldRevert(mockRegistry.tokenHasRole(
+                validRootHash,
+                tokenId,
+                tokenRole.property,
+                readRole.value,
+                tokenRole.salt,
+                tokenRole.sorted_hashes
+                ),
+                "Token Role not valid"
+            );
+        })
 
 
-    /* describe("mintAnchor", async function () {
+        it("Should fail if the token Id does not match", async function () {
+            let mockRegistry = await MockUserMintableERC721.new("ERC-721 Document Anchor", "TDA", this.anchorRegistry.address, mandatoryFields);
+
+            await mockRegistry.setOwnAddress(contractAddress);
+            await shouldRevert(mockRegistry.tokenHasRole(
+                validRootHash,
+                "0x1",
+                tokenRole.property,
+                readRole.value,
+                tokenRole.salt,
+                tokenRole.sorted_hashes
+                ),
+                "Token Role not valid"
+            );
+        })
+
+        it("Should fail if the role index does not macth ", async function () {
+
+            let mockRegistry = await MockUserMintableERC721.new("ERC-721 Document Anchor", "TDA", this.anchorRegistry.address, mandatoryFields);
+
+            await mockRegistry.setOwnAddress(contractAddress);
+            await shouldRevert(mockRegistry.tokenHasRole(
+                validRootHash,
+                tokenId,
+                tokenRole.property,
+                "0x1",
+                tokenRole.salt,
+                tokenRole.sorted_hashes
+                ),
+                "Token Role not valid"
+            );
+        })
+
+        it("Should pass with a valid proof ", async function () {
+
+            let mockRegistry = await MockUserMintableERC721.new("ERC-721 Document Anchor", "TDA", this.anchorRegistry.address, mandatoryFields);
+
+            await mockRegistry.setOwnAddress(contractAddress);
+            await mockRegistry.tokenHasRole(
+                validRootHash,
+                tokenId,
+                tokenRole.property,
+                readRole.value,
+                tokenRole.salt,
+                tokenRole.sorted_hashes
+            )
+        })
+
+    });
+
+
+     describe("_mintAnchor", async function () {
 
          it("should mint a token if the Merkle proofs validates", async function () {
              let mockRegistry = await MockUserMintableERC721.new("ERC-721 Document Anchor", "TDA", this.anchorRegistry.address, mandatoryFields);
@@ -316,5 +399,5 @@ contract("UserMintableERC721", function (accounts) {
                  ]
              ))
          });
-     });*/
+     });
 });

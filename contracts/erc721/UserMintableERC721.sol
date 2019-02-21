@@ -63,147 +63,6 @@ contract UserMintableERC721 is Initializable, ERC721, ERC721Enumerable, ERC721Me
   }
 
   /**
-   * @dev Address getter. This is need in order to be able to override
-   * the return value in testing Mock for precise proof testing
-   * @return address the address of the contact
-   */
-  function _getOwnAddress()
-  internal
-  view
-  returns (address) {
-    return address(this);
-  }
-
-  /**
-   * @dev Retrieve the register document Root and validate if it's the latest version
-   * anchor registry of this contract with the given root hash.
-   * @param _anchorId bytes32 The ID of the document as identified
-   */
-  function _getDocumentRoot(
-    uint256 _anchorId
-  )
-  internal
-  view
-  returns (bytes32 documentRoot)
-  {
-    AnchorRepository ar = AnchorRepository(anchorRegistry_);
-    (, bytes32 merkleRoot) = ar.getAnchorById(_anchorId);
-    require(
-      merkleRoot != 0x0,
-      "Document in not anchored in the registry"
-    );
-
-    return merkleRoot;
-  }
-
-
-  /**
-   * @dev Validate if it's the latest version
-   * anchor registry of this contract with the given root hash.
-   * @param _documentRoot bytes32 the anchored document root
-   * @param _nextAnchorId string the next id to be anchored for a document change
-   * by the set up anchorRegistry.
-   * @param _salt bytes32 salt for leaf construction
-   * @param _proof bytes32[] proofs for _nextAnchorId
-   */
-  function _isLatestDocumentVersion(
-    bytes32 _documentRoot,
-    uint256 _nextAnchorId,
-    bytes32 _salt,
-    bytes32[] memory _proof
-  )
-  internal
-  view
-  {
-    AnchorRepository ar = AnchorRepository(anchorRegistry_);
-    // TODO can this be better;
-    (, bytes32 nextMerkleRoot) = ar.getAnchorById(_nextAnchorId);
-
-    require(
-      nextMerkleRoot == 0x0,
-      "Document has a newer version on chain"
-    );
-
-    require(
-      MerkleProof.verifySha256(
-        _proof,
-        _documentRoot,
-        sha256(abi.encodePacked(hex"00000004", _nextAnchorId, _salt))
-      ),
-      "Next version proof is not valid"
-    );
-
-  }
-  // TODO add Documentation
-  function _isNftUnique(
-    bytes32 _documentRoot,
-    uint256 _tokenId,
-    bytes32 _salt,
-    bytes32[] memory _proof
-  )
-  internal
-  view {
-    bytes memory property = abi.encodePacked(hex"00000014", _getOwnAddress(), hex"000000000000000000000000");
-    require(
-      MerkleProof.verifySha256(
-        _proof,
-        _documentRoot,
-        sha256(abi.encodePacked(property, _tokenId, _salt))
-      ),
-      "Token uniqueness proof is not valid"
-    );
-
-  }
-
-  // TODO add Documentation
-  function _hasReadRole(
-    bytes32 _documentRoot,
-    bytes memory _property,
-    bytes memory _value,
-    bytes32 _salt,
-    bytes32[] memory _proof
-  )
-  internal
-  view
-  returns (bytes8 readRuleIndex){
-
-    readRuleIndex = extractIndex(_property, 4);
-    bytes8 readRuleRoleIndex = extractIndex(_property, 16);
-    bytes memory reconstructed = hex"000000130000000000000001000000020000000000000000";//abi.encodePacked(hex"00000013", readRuleIndex, hex"00000002", readRuleRoleIndex);
-
-    require(
-      MerkleProof.verifySha256(
-        _proof,
-        _documentRoot,
-        sha256(abi.encodePacked(reconstructed, _value, _salt))
-      ),
-      "Read Rule proof is not valid"
-    );
-
-    return readRuleIndex;
-  }
-
-  /**
-   * @dev Hashes a leaf's data according to precise-proof leaf
-   * concatenation rules. Using keccak256 hashing.
-   * @param _leafName string The leaf's name that is being proved
-   * @param _leafValue string The leaf's value that is being proved
-   * @param _leafSalt bytes32 The leaf's that is being proved
-   * @return byte32 keccak256 hash of the concatenated plain-text values
-   */
-  function _hashLeafData(
-    bytes memory _leafName,
-    bytes memory _leafValue,
-    bytes32 _leafSalt
-  )
-  internal
-  pure
-  returns (bytes32)
-  {
-    return sha256(abi.encodePacked(_leafName, _leafValue, _leafSalt));
-  }
-
-  /**
    * @dev Mints a token after validating the given merkle proof
    * and comparing it to the anchor registry's stored hash/doc ID.
    * @param _to address The recipient of the minted token
@@ -212,7 +71,7 @@ contract UserMintableERC721 is Initializable, ERC721, ERC721Enumerable, ERC721Me
    * by the set up anchorRegistry.
    * @param _merkleRoot bytes32 The root hash of the merkle proof/doc
    * @param _tokenURI string The metadata uri
-   * @param _values string[] The values of the leafs that are being proved
+   * @param _values bytes[] The values of the leafs that are being proved
    * using precise-proofs
    * @param _salts bytes32[] The salts for the field that is being proved
    * Will be concatenated for proof verification as outlined in
@@ -238,7 +97,7 @@ contract UserMintableERC721 is Initializable, ERC721, ERC721Enumerable, ERC721Me
         MerkleProof.verifySha256(
           _proofs[i],
           _merkleRoot,
-          _hashLeafData(mandatoryFields[i], _values[i], _salts[i])
+          sha256(abi.encodePacked(mandatoryFields[i], _values[i], _salts[i]))
         ),
         "Mandatory field failed"
       );
@@ -249,7 +108,267 @@ contract UserMintableERC721 is Initializable, ERC721, ERC721Enumerable, ERC721Me
     _setTokenURI(_tokenId, _tokenURI);
   }
 
+  /**
+   * @dev Address getter. This is need in order to be able to override
+   * the return value in testing Mock for precise proof testing
+   * @return address the address of the contact
+   */
+  function _getOwnAddress()
+  internal
+  view
+  returns (address)
+  {
+    return address(this);
+  }
 
+  /**
+   * @dev Retrieve the document root from the linked
+   * anchor registry for the given id.
+   * @param _anchorId bytes32 The ID of the document as identified
+   * @return The anchored documentRoot
+   */
+  function _getDocumentRoot(
+    uint256 _anchorId
+  )
+  internal
+  view
+  returns (bytes32 documentRoot)
+  {
+    AnchorRepository ar = AnchorRepository(anchorRegistry_);
+    (, bytes32 merkleRoot) = ar.getAnchorById(_anchorId);
+    require(
+      merkleRoot != 0x0,
+      "Document in not anchored in the registry"
+    );
+
+    return merkleRoot;
+  }
+
+
+  /**
+   * @dev Checks if the provided next id is part of the
+   * document root using precise-proofs and it's not anchored
+   * in the registry
+   * @param _documentRoot bytes32 the anchored document root
+   * @param _nextAnchorId uint256 the next id to be anchored
+   * @param _salt bytes32 salt for leaf construction
+   * @param _proof bytes32[] proofs for _nextAnchorId
+   */
+  function _isLatestDocumentVersion(
+    bytes32 _documentRoot,
+    uint256 _nextAnchorId,
+    bytes32 _salt,
+    bytes32[] memory _proof
+  )
+  internal
+  view
+  {
+    AnchorRepository ar = AnchorRepository(anchorRegistry_);
+    (, bytes32 nextMerkleRoot) = ar.getAnchorById(_nextAnchorId);
+
+    require(
+      nextMerkleRoot == 0x0,
+      "Document has a newer version on chain"
+    );
+
+    require(
+      MerkleProof.verifySha256(
+        _proof,
+        _documentRoot,
+        sha256(
+          abi.encodePacked(
+            hex"00000004",
+            _nextAnchorId,
+            _salt
+          )
+        )
+      ),
+      "Next version proof is not valid"
+    );
+
+  }
+  /**
+   * @dev Checks that the document has no other token
+   * minted in this registry for the provided document
+   * @param _documentRoot bytes32 the anchored document root
+   * @param _tokenId uint256 The ID for the token to be minted
+   * @param _salt bytes32 salt for leaf construction
+   * @param _proof bytes32[] proofs for _nextAnchorId
+   */
+  function _oneTokenPerDocument(
+    bytes32 _documentRoot,
+    uint256 _tokenId,
+    bytes32 _salt,
+    bytes32[] memory _proof
+  )
+  internal
+  view
+  {
+    // Reconstruct the property
+    // the property format: nfts[registryAddress]
+    bytes memory property = abi.encodePacked(
+      hex"00000014",
+      _getOwnAddress(),
+      hex"000000000000000000000000"
+    );
+    require(
+      MerkleProof.verifySha256(
+        _proof,
+        _documentRoot,
+        sha256(abi.encodePacked(property, _tokenId, _salt))
+      ),
+      "Token uniqueness proof is not valid"
+    );
+
+  }
+
+  /**
+   * @dev Checks that the document has a read rule set
+   * using precise proofs and extract the index of the role
+   * @param _documentRoot bytes32 the anchored document root
+   * @param _property bytes property for leaf construction
+   * @param _value bytes value for leaf construction
+   * @param _salt bytes32 salt for leaf construction
+   * @param _proof bytes32[] proofs for _nextAnchorId
+   * @return bytes8 the index of the read rule
+   */
+  function _hasReadRole(
+    bytes32 _documentRoot,
+    bytes memory _property,
+    bytes memory _value,
+    bytes32 _salt,
+    bytes32[] memory _proof
+  )
+  internal
+  pure
+  returns (bytes8 readRuleIndex)
+  {
+    // Extract the indexes
+    readRuleIndex = extractIndex(_property, 4);
+    bytes8 readRuleRoleIndex = extractIndex(_property, 16);
+    // Reconstruct the property
+    // the property format: read_rules[readRuleIndex].roles[readRuleRoleIndex]
+    bytes memory property = abi.encodePacked(
+      hex"00000013",
+      readRuleIndex,
+      hex"00000002",
+      readRuleRoleIndex
+    );
+
+    require(
+      MerkleProof.verifySha256(
+        _proof,
+        _documentRoot,
+        sha256(
+          abi.encodePacked(
+            property,
+            _value,
+            _salt
+          )
+        )
+      ),
+      "Read Rule proof is not valid"
+    );
+
+    return readRuleIndex;
+  }
+
+  /**
+   * @dev Checks that the document has a read action set
+   * to the read role using precise proofs
+   * @param _documentRoot bytes32 the anchored document root
+   * @param _readRuleIndex bytes8 read rule index used for leaf construction
+   * @param _salt bytes32 salt for leaf construction
+   * @param _proof bytes32[] proofs for _nextAnchorId
+   */
+  function _hasReadAction(
+    bytes32 _documentRoot,
+    bytes8 _readRuleIndex,
+    bytes32 _salt,
+    bytes32[] memory _proof
+  )
+  internal
+  pure
+  {
+    // Reconstruct the property
+    // the property format: read_rules[_readRuleIndex].action
+    bytes memory property = abi.encodePacked(
+      hex"00000013",
+      _readRuleIndex,
+      hex"00000004"
+    );
+
+    require(
+      MerkleProof.verifySha256(
+        _proof,
+        _documentRoot,
+        sha256(
+          abi.encodePacked(
+            property,
+            hex"0000000000000001",
+            _salt
+          )
+        )
+      ),
+      "Read Action is not valid"
+    );
+  }
+
+  /**
+   * @dev Checks that provided document read role is assigned to the
+   * token to me minted
+   * @param _documentRoot bytes32 the anchored document root
+   * @param _tokenId uint256 The ID for the minted token
+   * @param _property bytes property for leaf construction
+   * @param _roleIndex bytes the value of the defined read role
+   * used to contract the property for precise proofs
+   * @param _salt bytes32 salt for leaf construction
+   * @param _proof bytes32[] proofs for _nextAnchorId
+   */
+  function _tokenHasRole(
+    bytes32 _documentRoot,
+    uint256 _tokenId,
+    bytes memory _property,
+    bytes memory _roleIndex,
+    bytes32 _salt,
+    bytes32[] memory _proof
+  )
+  internal
+  view
+  {
+    // Extract the token index
+    bytes8 tokenIndex = extractIndex(_property, 40);
+    // Reconstruct the property
+    // the property format: roles[roleIndex].nfts[tokenIndex]
+    bytes memory property = abi.encodePacked(
+      hex"00000001",
+      _roleIndex,
+      hex"00000004",
+      tokenIndex
+    );
+    // Reconstruct the value
+    bytes memory value = abi.encodePacked(
+      _getOwnAddress(),
+      _tokenId
+    );
+
+    require(
+      MerkleProof.verifySha256(
+        _proof,
+        _documentRoot,
+        sha256(abi.encodePacked(property, value, _salt))
+      ),
+      "Token Role not valid"
+    );
+  }
+
+  /**
+   * @dev Parses bytes and extract a bytes8 value from
+   * the given starting point
+   * @param _bytes bytes the parse to extract value from
+   * @param _startFrom uint256 where to start from
+   * @return bytes8 the index found, it defaults to 0x00000000000000
+   */
   function extractIndex(
     bytes memory _bytes,
     uint256 _startFrom
@@ -261,92 +380,12 @@ contract UserMintableERC721 is Initializable, ERC721, ERC721Enumerable, ERC721Me
   )
   {
     bytes8 temp;
+    // solium-disable-next-line security/no-inline-assembly
     assembly {
       temp := mload(add(add(_bytes, 0x20), _startFrom))
     }
 
     return temp;
-  }
-
-
-  //TODO remove all this functions when values in bytes. next_version seems to contain decimal values.
-
-  function parseInt(string memory _a) internal pure returns (uint _parsedInt) {
-    return parseInt(_a, 0);
-  }
-
-  function bytesToBytes32(bytes memory b) private pure returns (bytes32) {
-    bytes32 out;
-
-    for (uint i = 0; i < 32; i++) {
-      out |= bytes32(b[i] & 0xFF) >> (i * 8);
-    }
-    return out;
-  }
-
-  function parseInt(string memory _a, uint _b) internal pure returns (uint _parsedInt) {
-    bytes memory bresult = bytes(_a);
-    uint mint = 0;
-    bool decimals = false;
-    for (uint i = 0; i < bresult.length; i++) {
-      if ((uint(uint8(bresult[i])) >= 48) && (uint(uint8(bresult[i])) <= 57)) {
-        if (decimals) {
-          if (_b == 0) {
-            break;
-          } else {
-            _b--;
-          }
-        }
-        mint *= 10;
-        mint += uint(uint8(bresult[i])) - 48;
-      } else if (uint(uint8(bresult[i])) == 46) {
-        decimals = true;
-      }
-    }
-    if (_b > 0) {
-      mint *= 10 ** _b;
-    }
-    return mint;
-  }
-
-  function strConcat(string memory _a, string memory _b) internal pure returns (string memory _concatenatedString) {
-    return strConcat(_a, _b, "", "", "");
-  }
-
-  function strConcat(string memory _a, string memory _b, string memory _c) internal pure returns (string memory _concatenatedString) {
-    return strConcat(_a, _b, _c, "", "");
-  }
-
-  function strConcat(string memory _a, string memory _b, string memory _c, string memory _d) internal pure returns (string memory _concatenatedString) {
-    return strConcat(_a, _b, _c, _d, "");
-  }
-
-  function strConcat(string memory _a, string memory _b, string memory _c, string memory _d, string memory _e) internal pure returns (string memory _concatenatedString) {
-    bytes memory _ba = bytes(_a);
-    bytes memory _bb = bytes(_b);
-    bytes memory _bc = bytes(_c);
-    bytes memory _bd = bytes(_d);
-    bytes memory _be = bytes(_e);
-    string memory abcde = new string(_ba.length + _bb.length + _bc.length + _bd.length + _be.length);
-    bytes memory babcde = bytes(abcde);
-    uint k = 0;
-    uint i = 0;
-    for (i = 0; i < _ba.length; i++) {
-      babcde[k++] = _ba[i];
-    }
-    for (i = 0; i < _bb.length; i++) {
-      babcde[k++] = _bb[i];
-    }
-    for (i = 0; i < _bc.length; i++) {
-      babcde[k++] = _bc[i];
-    }
-    for (i = 0; i < _bd.length; i++) {
-      babcde[k++] = _bd[i];
-    }
-    for (i = 0; i < _be.length; i++) {
-      babcde[k++] = _be[i];
-    }
-    return string(babcde);
   }
 
 
