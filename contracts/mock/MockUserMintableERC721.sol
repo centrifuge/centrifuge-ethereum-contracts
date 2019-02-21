@@ -161,7 +161,7 @@ contract MockUserMintableERC721 is UserMintableERC721 {
   function setOwnAddress(address _ownAddress)
   public
   {
-    onwAddress_ = _ownAddress;
+    ownAddress_ = _ownAddress;
   }
 
   function _getOwnAddress()
