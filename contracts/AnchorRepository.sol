@@ -1,4 +1,4 @@
-pragma solidity ^0.5.0;
+pragma solidity 0.5.0;
 
 import "zos-lib/contracts/Initializable.sol";
 import "contracts/lib/MerkleProof.sol";
@@ -44,7 +44,6 @@ contract AnchorRepository is Initializable {
     uint256 _expirationBlock
   )
   external
-  payable
   {
 
     // Check if _expirationBlock is within the allowed limit
@@ -82,7 +81,6 @@ contract AnchorRepository is Initializable {
     bytes32[] calldata _documentProofs
   )
   external
-  payable
   {
     //not allowing to write to an existing anchor
     require(commits[_anchorId] == 0x0);

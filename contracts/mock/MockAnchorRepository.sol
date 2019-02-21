@@ -1,4 +1,4 @@
-pragma solidity ^0.5.0;
+pragma solidity 0.5.0;
 
 import "contracts/AnchorRepository.sol";
 
@@ -22,7 +22,7 @@ contract MockAnchorRepository {
    * @param _documentRoot bytes32 The root hash of document
    */
   function setAnchorById(uint256 _anchorId, bytes32 _documentRoot)
-  external payable
+  external
   {
     // not allowing empty vals
     require(_anchorId != 0x0);
