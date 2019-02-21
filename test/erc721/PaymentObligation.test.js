@@ -40,7 +40,7 @@ contract("PaymentObligation", function (accounts) {
                 validRootHash
             );
 
-           await this.registry.setOwnAddress(contractAddress);
+            await this.registry.setOwnAddress(contractAddress);
 
             await this.registry.mint(
                 accounts[2],
@@ -102,12 +102,7 @@ contract("PaymentObligation", function (accounts) {
             assert.equal(tokenUri, tokenURI)
         });
 
-        /*it("should not mint a token if the a Merkle proof fails", async function () {
-            const documentIdentifier = proof.header.version_id;
-            const validRootHash = proof.header.document_root;
-            const tokenURI = "http://test.com";
-            const tokenId = 1;
-
+       it("should not mint a token if the a Merkle proof fails", async function () {
             await this.anchorRegistry.setAnchorById(
                 documentIdentifier,
                 validRootHash
@@ -118,74 +113,86 @@ contract("PaymentObligation", function (accounts) {
                 tokenId,
                 tokenURI,
                 documentIdentifier,
+                nextDocumentIdentifier,
                 [
-                    'Some Random Value',
-                    proof.field_proofs[1].value,
-                    proof.field_proofs[2].value,
-                    proof.field_proofs[3].value,
-                    proof.field_proofs[3].value,
-                    proof.field_proofs[5].value,
+                    readRole.property,
+                    tokenRole.property
                 ],
                 [
-                    proof.field_proofs[0].salt,
-                    proof.field_proofs[1].salt,
-                    proof.field_proofs[2].salt,
-                    proof.field_proofs[3].salt,
-                    proof.field_proofs[3].salt,
-                    proof.field_proofs[5].salt,
+                    "0x1",
+                    currency.value,
+                    due_date.value,
+                    readRole.value,
+                ],
+                [
+                    grossAmount.salt,
+                    currency.salt,
+                    due_date.salt,
+                    nextVersion.salt,
+                    nftUnique.salt,
+                    readRole.salt,
+                    readRoleAction.salt,
+                    tokenRole.salt,
 
                 ],
                 [
-                    proof.field_proofs[0].sorted_hashes,
-                    proof.field_proofs[1].sorted_hashes,
-                    proof.field_proofs[2].sorted_hashes,
-                    proof.field_proofs[3].sorted_hashes,
-                    proof.field_proofs[3].sorted_hashes,
-                    proof.field_proofs[5].sorted_hashes,
+                    grossAmount.sorted_hashes,
+                    currency.sorted_hashes,
+                    due_date.sorted_hashes,
+                    nextVersion.sorted_hashes,
+                    nftUnique.sorted_hashes,
+                    readRole.sorted_hashes,
+                    readRoleAction.sorted_hashes,
+                    tokenRole.sorted_hashes,
                 ]
             ));
         });
 
         it("should not mint a token if the anchorId has been used before", async function () {
-            let documentIdentifier = proof.header.version_id;
-            let validRootHash = proof.header.document_root;
-            let tokenURI = "http://test.com";
 
             await this.anchorRegistry.setAnchorById(
                 documentIdentifier,
                 validRootHash
             );
-            const tokenId = 1;
+
+            await this.registry.setOwnAddress(contractAddress);
 
             await this.registry.mint(
                 accounts[2],
                 tokenId,
                 tokenURI,
                 documentIdentifier,
+                nextDocumentIdentifier,
                 [
-                    proof.field_proofs[0].value,
-                    proof.field_proofs[1].value,
-                    proof.field_proofs[2].value,
-                    proof.field_proofs[3].value,
-                    proof.field_proofs[3].value,
-                    proof.field_proofs[5].value,
+                    readRole.property,
+                    tokenRole.property
                 ],
                 [
-                    proof.field_proofs[0].salt,
-                    proof.field_proofs[1].salt,
-                    proof.field_proofs[2].salt,
-                    proof.field_proofs[3].salt,
-                    proof.field_proofs[3].salt,
-                    proof.field_proofs[5].salt,
+                    grossAmount.value,
+                    currency.value,
+                    due_date.value,
+                    readRole.value,
+                ],
+                [
+                    grossAmount.salt,
+                    currency.salt,
+                    due_date.salt,
+                    nextVersion.salt,
+                    nftUnique.salt,
+                    readRole.salt,
+                    readRoleAction.salt,
+                    tokenRole.salt,
 
                 ],
                 [
-                    proof.field_proofs[0].sorted_hashes,
-                    proof.field_proofs[1].sorted_hashes,
-                    proof.field_proofs[2].sorted_hashes,
-                    proof.field_proofs[3].sorted_hashes,
-                    proof.field_proofs[3].sorted_hashes,
-                    proof.field_proofs[5].sorted_hashes,
+                    grossAmount.sorted_hashes,
+                    currency.sorted_hashes,
+                    due_date.sorted_hashes,
+                    nextVersion.sorted_hashes,
+                    nftUnique.sorted_hashes,
+                    readRole.sorted_hashes,
+                    readRoleAction.sorted_hashes,
+                    tokenRole.sorted_hashes,
                 ]
             );
 
@@ -195,34 +202,41 @@ contract("PaymentObligation", function (accounts) {
                     tokenId,
                     tokenURI,
                     documentIdentifier,
+                    nextDocumentIdentifier,
                     [
-                        proof.field_proofs[0].value,
-                        proof.field_proofs[1].value,
-                        proof.field_proofs[2].value,
-                        proof.field_proofs[3].value,
-                        //proof.field_proofs[3].value,
-                        proof.field_proofs[5].value,
+                        readRole.property,
+                        tokenRole.property
                     ],
                     [
-                        proof.field_proofs[0].salt,
-                        proof.field_proofs[1].salt,
-                        proof.field_proofs[2].salt,
-                        proof.field_proofs[3].salt,
-                        //proof.field_proofs[3].salt,
-                        proof.field_proofs[5].salt,
+                        grossAmount.value,
+                        currency.value,
+                        due_date.value,
+                        readRole.value,
+                    ],
+                    [
+                        grossAmount.salt,
+                        currency.salt,
+                        due_date.salt,
+                        nextVersion.salt,
+                        nftUnique.salt,
+                        readRole.salt,
+                        readRoleAction.salt,
+                        tokenRole.salt,
 
                     ],
                     [
-                        proof.field_proofs[0].sorted_hashes,
-                        proof.field_proofs[1].sorted_hashes,
-                        proof.field_proofs[2].sorted_hashes,
-                        proof.field_proofs[3].sorted_hashes,
-                        //proof.field_proofs[3].sorted_hashes,
-                        proof.field_proofs[5].sorted_hashes,
+                        grossAmount.sorted_hashes,
+                        currency.sorted_hashes,
+                        due_date.sorted_hashes,
+                        nextVersion.sorted_hashes,
+                        nftUnique.sorted_hashes,
+                        readRole.sorted_hashes,
+                        readRoleAction.sorted_hashes,
+                        tokenRole.sorted_hashes,
                     ]
                 )
             );
-        });*/
+        });
     });
 
 

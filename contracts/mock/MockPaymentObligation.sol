@@ -9,7 +9,7 @@ import "../erc721/PaymentObligation.sol";
 
 contract MockPaymentObligation is Initializable, PaymentObligation {
 
-  address onwAddress_ = address(this);
+  address ownAddress_ = address(this);
 
   /**
    * @param _anchorRegistry address The address of the anchor registry
@@ -29,7 +29,7 @@ contract MockPaymentObligation is Initializable, PaymentObligation {
   function setOwnAddress(address _ownAddress)
   public
   {
-    onwAddress_ = _ownAddress;
+    ownAddress_ = _ownAddress;
   }
 
   function _getOwnAddress()
@@ -37,7 +37,7 @@ contract MockPaymentObligation is Initializable, PaymentObligation {
   view
   returns (address)
   {
-    return onwAddress_;
+    return ownAddress_;
   }
 
 }

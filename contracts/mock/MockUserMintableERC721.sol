@@ -10,7 +10,7 @@ import "contracts/erc721/UserMintableERC721.sol";
  */
 contract MockUserMintableERC721 is UserMintableERC721 {
 
-  address onwAddress_ = address(this);
+  address ownAddress_ = address(this);
 
   constructor(
     string memory _name,
@@ -169,7 +169,7 @@ contract MockUserMintableERC721 is UserMintableERC721 {
   view
   returns (address)
   {
-    return onwAddress_;
+    return ownAddress_;
   }
 
 }
