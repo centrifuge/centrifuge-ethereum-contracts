@@ -46,12 +46,11 @@ contract PaymentObligation is Initializable, UserMintableERC721 {
     bytes32 documentRoot
   )
   {
-    anchorId = tokenDetails_[_tokenId].anchorId;
     return (
-      poDetails_[anchorId].grossAmount,
-      poDetails_[anchorId].currency,
-      poDetails_[anchorId].dueDate,
-      anchorId,
+      poDetails_[_tokenId].grossAmount,
+      poDetails_[_tokenId].currency,
+      poDetails_[_tokenId].dueDate,
+      tokenDetails_[_tokenId].anchorId,
       tokenDetails_[_tokenId].rootHash
     );
   }
@@ -113,6 +112,12 @@ contract PaymentObligation is Initializable, UserMintableERC721 {
   )
   public
   {
+    // First check if the tokenId exists
+    require(
+      !_exists(_tokenId),
+      "Token exists"
+    );
+
     // Get the document root from AnchorRepository
     bytes32 merkleRoot = super._getDocumentRoot(
       _anchorId
@@ -172,10 +177,7 @@ contract PaymentObligation is Initializable, UserMintableERC721 {
       _proofs
     );
 
-    // Store fields values
-    // use the anchorId as a key in order to prevent double minting
-    // for the same anchor and save storage
-    poDetails_[_anchorId] = PODetails(
+    poDetails_[_tokenId] = PODetails(
       _values[0],
       _values[1],
       _values[2]

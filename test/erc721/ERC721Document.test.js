@@ -8,32 +8,6 @@ let MockUserMintableERC721 = artifacts.require("MockUserMintableERC721");
 let proof = require('./proof.json');
 const mandatoryFields = [proof.field_proofs[0].property, proof.field_proofs[1].property];
 
-const base64ToHex = function (_base64String) {
-    return bufferToHex(Buffer.from(_base64String, "base64"));
-}
-
-const produceValidLeafHash = function (_leafName, _leafValue, _salt) {
-    let leafName = Buffer.from(_leafName, "utf8");
-    let leafValue = Buffer.from(_leafValue, "utf8");
-    let salt = Buffer.from(_salt, "base64");
-
-    return bufferToHex(sha256(Buffer.concat([leafName, leafValue, salt])));
-};
-
-const getValidProofHashes = function () {
-    /**
-     * This is a proof coming from the precise-proofs library via
-     * https://github.com/centrifuge/precise-proofs/blob/master/examples/simple.go
-     * using sha256 as the hashing algorithm
-     *
-     */
-    return [
-        base64ToHex("JrxNtvtMwWnJMKh1OV6pqUkdBnrWt0u9qf+MShO6QcM="),
-        base64ToHex("hLEULVXQaL5hd4J7NooO8QptJ+AEICkIAOQyifGN3/g="),
-        base64ToHex("4YQrPgzU2NXdmlC8ycoMxEurnTHxCy8cjB42rPdvm2Q=")
-    ];
-}
-
 contract("UserMintableERC721", function (accounts) {
 
 
@@ -365,6 +339,57 @@ contract("UserMintableERC721", function (accounts) {
              )
 
          });
+
+         it("should fail when minting an existing token", async function () {
+             let mockRegistry = await MockUserMintableERC721.new("ERC-721 Document Anchor", "TDA", this.anchorRegistry.address, mandatoryFields);
+             let tokenURI = "http://test.com";
+             await this.anchorRegistry.setAnchorById(
+                 documentIdentifer,
+                 validRootHash
+             );
+             const tokenId = 1;
+             await mockRegistry.mintAnchor(
+                 accounts[2],
+                 tokenId,
+                 documentIdentifer,
+                 validRootHash,
+                 tokenURI,
+                 [
+                     proof.field_proofs[0].value,
+                     proof.field_proofs[1].value
+                 ],
+                 [
+                     proof.field_proofs[0].salt,
+                     proof.field_proofs[1].salt
+                 ],
+                 [
+                     proof.field_proofs[0].sorted_hashes,
+                     proof.field_proofs[1].sorted_hashes
+                 ]
+             )
+
+             await shouldRevert(mockRegistry.mintAnchor(
+                 accounts[2],
+                 tokenId,
+                 documentIdentifer,
+                 validRootHash,
+                 tokenURI,
+                 [
+                     proof.field_proofs[0].value,
+                     proof.field_proofs[1].value
+                 ],
+                 [
+                     proof.field_proofs[0].salt,
+                     proof.field_proofs[1].salt
+                 ],
+                 [
+                     proof.field_proofs[0].sorted_hashes,
+                     proof.field_proofs[1].sorted_hashes
+                 ]
+             ))
+
+         });
+
 
 
          it("should fail minting a token if the document proofs do not validate", async function () {

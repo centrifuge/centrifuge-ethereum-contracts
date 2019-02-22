@@ -24,7 +24,6 @@ contract("PaymentObligation", function (accounts) {
     let contractAddress = "0x910e4e12FC1f0fFBA5D9Bf79ad5760155d3f62C8";
 
 
-
     beforeEach(async function () {
         this.anchorRegistry = await MockAnchorRegistry.new();
         this.registry = await MockPaymentObligation.new();
@@ -33,7 +32,7 @@ contract("PaymentObligation", function (accounts) {
 
     describe("mint", async function () {
 
-       it("should mint a token if the Merkle proofs validates", async function () {
+        it("should mint a token if the Merkle proofs validates", async function () {
 
             await this.anchorRegistry.setAnchorById(
                 documentIdentifier,
@@ -102,7 +101,7 @@ contract("PaymentObligation", function (accounts) {
             assert.equal(tokenUri, tokenURI)
         });
 
-       it("should not mint a token if the a Merkle proof fails", async function () {
+        it("should not mint a token if the a Merkle proof fails", async function () {
             await this.anchorRegistry.setAnchorById(
                 documentIdentifier,
                 validRootHash
@@ -148,7 +147,7 @@ contract("PaymentObligation", function (accounts) {
             ));
         });
 
-        it("should not mint a token if the anchorId has been used before", async function () {
+        it("should fail if the token exists", async function () {
 
             await this.anchorRegistry.setAnchorById(
                 documentIdentifier,
@@ -234,7 +233,8 @@ contract("PaymentObligation", function (accounts) {
                         readRoleAction.sorted_hashes,
                         tokenRole.sorted_hashes,
                     ]
-                )
+                ),
+                "Token exists"
             );
         });
     });
