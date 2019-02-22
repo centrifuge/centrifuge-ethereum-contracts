@@ -63,10 +63,10 @@ contract KeyManager {
   */
   function addMultiPurposeKey(
     bytes32 key,
-    uint256[] memory purposes,
+    uint256[] calldata purposes,
     uint256 keyType
   )
-  public
+  external
   onlyManagementOrSelf
   {
     // key must have at least one purpose
@@ -84,7 +84,7 @@ contract KeyManager {
    * @param key Hash of the public key to be revoked
    */
   function revokeKey(bytes32 key)
-  public
+  external
   onlyManagementOrSelf
   {
     // check if key exists
@@ -128,7 +128,7 @@ contract KeyManager {
     bytes32 key,
     uint256 purpose
   )
-  public
+  external
   view
   returns (bool found)
   {
@@ -149,7 +149,7 @@ contract KeyManager {
    * @return array of hashes containing all the keys for the provided purpose
    */
   function getKeysByPurpose(uint256 purpose)
-  public
+  external
   view
   returns (bytes32[] memory)
   {

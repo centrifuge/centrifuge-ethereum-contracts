@@ -57,14 +57,14 @@ contract PaymentObligation is Initializable, UserMintableERC721 {
 
 
   /**
-   * @param anchorRegistry address The address of the anchor registry
+   * @param registry address The address of the anchor registry
    * that is backing this token's mint method.
    * that ensures that the sender is authorized to mint the token
    */
   function initialize(
-    address anchorRegistry
+    address registry
   )
-  public
+  external
   initializer
   {
     // compact property for "invoice.gross_amount",invoice = 1, gross_amount = 14
@@ -77,7 +77,7 @@ contract PaymentObligation is Initializable, UserMintableERC721 {
     UserMintableERC721.initialize(
       "Centrifuge Payment Obligations",
       "CENT_PAY_OB",
-      anchorRegistry,
+      registry,
       _mandatoryFields
     );
   }
@@ -114,7 +114,7 @@ contract PaymentObligation is Initializable, UserMintableERC721 {
     bytes32[] memory salts,
     bytes32[][] memory proofs
   )
-  public
+  external
   {
     // First check if the tokenId exists
     require(

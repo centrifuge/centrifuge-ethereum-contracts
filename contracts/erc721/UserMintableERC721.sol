@@ -60,7 +60,7 @@ contract UserMintableERC721 is Initializable, ERC721, ERC721Enumerable, ERC721Me
     address registry,
     bytes[] memory mandatoryFields
   )
-  public
+  external
   initializer
   {
     _anchorRegistry = registry;

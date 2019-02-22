@@ -116,7 +116,7 @@ contract AnchorRepository is Initializable {
    * @return Struct with anchorId, documentRoot and the identity
    */
   function getAnchorById(uint256 id)
-  public
+  external
   view
   returns (
     uint256 anchorId,

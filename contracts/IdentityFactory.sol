@@ -11,7 +11,9 @@ contract IdentityFactory is Initializable {
   /**
   * Deploys a new identity and transfers the ownership to the sender
   */
-  function createIdentity() public {
+  function createIdentity()
+  external
+  {
     Identity identity_ = new Identity(msg.sender);
     emit IdentityCreated(address(identity_));
   }
@@ -20,7 +22,11 @@ contract IdentityFactory is Initializable {
   * Deploys a new identity and transfers the ownership to the provided address
   * @param owner string address owner of the new identity
   */
-  function createIdentityFor(address owner) public {
+  function createIdentityFor(
+    address owner
+  )
+  external
+  {
     Identity identity_ = new Identity(owner);
     emit IdentityCreated(address(identity_));
   }
