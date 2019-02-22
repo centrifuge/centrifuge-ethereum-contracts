@@ -8,6 +8,7 @@ import "openzeppelin-eth/contracts/token/ERC721/ERC721Enumerable.sol";
 import "contracts/AnchorRepository.sol";
 import "contracts/lib/MerkleProof.sol";
 
+
 /**
  * @title UserMintableERC721
  * Base contract for minting NFTs using documents from the Centrifuge protocol
