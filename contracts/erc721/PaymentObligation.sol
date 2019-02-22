@@ -67,9 +67,9 @@ contract PaymentObligation is Initializable, UserMintableERC721 {
   public
   initializer
   {
-    mandatoryFields_.push(hex"010000000000000e"); //"invoice.gross_amount",
-    mandatoryFields_.push(hex"010000000000000d"); //invoice.currency
-    mandatoryFields_.push(hex"0100000000000016"); // invoice.due_date
+    mandatoryFields_.push(hex"010000000000000e"); // compact property for "invoice.gross_amount",invoice = 1, gross_amount = 14
+    mandatoryFields_.push(hex"010000000000000d"); // compact property for invoice.currency, invoice = 1, currency = 13
+    mandatoryFields_.push(hex"0100000000000016"); // compact property for  invoice.due_date, invoice = 1, due_date = 22
 
     UserMintableERC721.initialize(
       "Centrifuge Payment Obligations",
@@ -80,7 +80,7 @@ contract PaymentObligation is Initializable, UserMintableERC721 {
   }
 
   /**
-   * @dev Mints a token after validating the given merkle proof
+   * @dev Mints a token after validating the given merkle proofs
    * and comparing it to the anchor registry's stored hash/doc ID.
    * @param _to address The recipient of the minted token
    * @param _tokenId uint256 The ID for the minted token
@@ -88,7 +88,8 @@ contract PaymentObligation is Initializable, UserMintableERC721 {
    * @param _anchorId uint256 The ID of the document as identified
    * by the set up anchorRegistry.
    * @param _nextAnchorId uint256 The id that will be anchored when a change
-   * is made to the document
+   * is made to the document. It is not part of the values array in order
+   * to avoid a bytes to uint conversion in the contract
    * @param _properties bytes[] The properties of the leafs that are being proved
    * using precise-proofs
    * @param _values bytes[] The values of the leafs that are being proved
@@ -124,7 +125,7 @@ contract PaymentObligation is Initializable, UserMintableERC721 {
     );
 
     // Enforce that there is not a newer version of the document on chain
-    super._isLatestDocumentVersion(
+    super._requireIsLatestDocumentVersion(
       merkleRoot,
       _nextAnchorId,
       _salts[3],
@@ -132,7 +133,7 @@ contract PaymentObligation is Initializable, UserMintableERC721 {
     );
 
     // Verify that only one token per document/registry is minted
-    super._oneTokenPerDocument(
+    super._requireOneTokenPerDocument(
       merkleRoot,
       _tokenId,
       _salts[4],
@@ -140,7 +141,7 @@ contract PaymentObligation is Initializable, UserMintableERC721 {
     );
 
     // Check if document has a read rule defined
-    bytes8 readRoleIndex = super._hasReadRole(
+    bytes8 readRoleIndex = super._requireReadRole(
       merkleRoot,
       _properties[0],
       _values[3],
@@ -149,7 +150,7 @@ contract PaymentObligation is Initializable, UserMintableERC721 {
     );
 
     // Check if the read rule has a read action
-    super._hasReadAction(
+    super._requireReadAction(
       merkleRoot,
       readRoleIndex,
       _salts[6],
@@ -157,7 +158,7 @@ contract PaymentObligation is Initializable, UserMintableERC721 {
     );
 
     // Check if the token has the read role assigned to it
-    super._tokenHasRole(
+    super._requireTokenHasRole(
       merkleRoot,
       _tokenId,
       _properties[1],

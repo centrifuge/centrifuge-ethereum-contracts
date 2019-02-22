@@ -8,7 +8,14 @@ import "openzeppelin-eth/contracts/token/ERC721/ERC721Enumerable.sol";
 import "contracts/AnchorRepository.sol";
 import "contracts/lib/MerkleProof.sol";
 
-
+/**
+ * @title UserMintableERC721
+ * Base contract for minting NFTs using documents from the Centrifuge protocol
+ * The contract uses precise-proofs(https://github.com/centrifuge/precise-proofs) for proving
+ * document fields against an on chain single source of truth repository of all
+ * documents in the Centrifuge network called AnchorRepository
+ * The precise proofs validation expects proof generation with compact properties  https://github.com/centrifuge/centrifuge-protobufs
+ */
 contract UserMintableERC721 is Initializable, ERC721, ERC721Enumerable, ERC721Metadata {
   // anchor registry
   address internal anchorRegistry_;
@@ -154,7 +161,7 @@ contract UserMintableERC721 is Initializable, ERC721, ERC721Enumerable, ERC721Me
    * @param _salt bytes32 salt for leaf construction
    * @param _proof bytes32[] proofs for _nextAnchorId
    */
-  function _isLatestDocumentVersion(
+  function _requireIsLatestDocumentVersion(
     bytes32 _documentRoot,
     uint256 _nextAnchorId,
     bytes32 _salt,
@@ -177,7 +184,7 @@ contract UserMintableERC721 is Initializable, ERC721, ERC721Enumerable, ERC721Me
         _documentRoot,
         sha256(
           abi.encodePacked(
-            hex"00000004",
+            hex"00000004", // compact prop for "next_version"
             _nextAnchorId,
             _salt
           )
@@ -195,7 +202,7 @@ contract UserMintableERC721 is Initializable, ERC721, ERC721Enumerable, ERC721Me
    * @param _salt bytes32 salt for leaf construction
    * @param _proof bytes32[] proofs for _nextAnchorId
    */
-  function _oneTokenPerDocument(
+  function _requireOneTokenPerDocument(
     bytes32 _documentRoot,
     uint256 _tokenId,
     bytes32 _salt,
@@ -207,9 +214,9 @@ contract UserMintableERC721 is Initializable, ERC721, ERC721Enumerable, ERC721Me
     // Reconstruct the property
     // the property format: nfts[registryAddress]
     bytes memory property = abi.encodePacked(
-      hex"00000014",
+      hex"00000014", // compact prop from "nfts"
       _getOwnAddress(),
-      hex"000000000000000000000000"
+      hex"000000000000000000000000" // precise proofs generates a bytes32 hex
     );
     require(
       MerkleProof.verifySha256(
@@ -232,7 +239,7 @@ contract UserMintableERC721 is Initializable, ERC721, ERC721Enumerable, ERC721Me
    * @param _proof bytes32[] proofs for _nextAnchorId
    * @return bytes8 the index of the read rule
    */
-  function _hasReadRole(
+  function _requireReadRole(
     bytes32 _documentRoot,
     bytes memory _property,
     bytes memory _value,
@@ -249,9 +256,9 @@ contract UserMintableERC721 is Initializable, ERC721, ERC721Enumerable, ERC721Me
     // Reconstruct the property
     // the property format: read_rules[readRuleIndex].roles[readRuleRoleIndex]
     bytes memory property = abi.encodePacked(
-      hex"00000013",
+      hex"00000013", // compact prop for "read_rules"
       readRuleIndex,
-      hex"00000002",
+      hex"00000002", // compact prop for "roles"
       readRuleRoleIndex
     );
 
@@ -281,7 +288,7 @@ contract UserMintableERC721 is Initializable, ERC721, ERC721Enumerable, ERC721Me
    * @param _salt bytes32 salt for leaf construction
    * @param _proof bytes32[] proofs for _nextAnchorId
    */
-  function _hasReadAction(
+  function _requireReadAction(
     bytes32 _documentRoot,
     bytes8 _readRuleIndex,
     bytes32 _salt,
@@ -293,9 +300,9 @@ contract UserMintableERC721 is Initializable, ERC721, ERC721Enumerable, ERC721Me
     // Reconstruct the property
     // the property format: read_rules[_readRuleIndex].action
     bytes memory property = abi.encodePacked(
-      hex"00000013",
+      hex"00000013", // compact prop for "read_rules"
       _readRuleIndex,
-      hex"00000004"
+      hex"00000004" // compact prop for "action"
     );
 
     require(
@@ -305,7 +312,7 @@ contract UserMintableERC721 is Initializable, ERC721, ERC721Enumerable, ERC721Me
         sha256(
           abi.encodePacked(
             property,
-            hex"0000000000000001",
+            hex"0000000000000001", // Read action value has to be 1
             _salt
           )
         )
@@ -325,7 +332,7 @@ contract UserMintableERC721 is Initializable, ERC721, ERC721Enumerable, ERC721Me
    * @param _salt bytes32 salt for leaf construction
    * @param _proof bytes32[] proofs for _nextAnchorId
    */
-  function _tokenHasRole(
+  function _requireTokenHasRole(
     bytes32 _documentRoot,
     uint256 _tokenId,
     bytes memory _property,
@@ -341,9 +348,9 @@ contract UserMintableERC721 is Initializable, ERC721, ERC721Enumerable, ERC721Me
     // Reconstruct the property
     // the property format: roles[roleIndex].nfts[tokenIndex]
     bytes memory property = abi.encodePacked(
-      hex"00000001",
+      hex"00000001", // compact prop for "roles"
       _roleIndex,
-      hex"00000004",
+      hex"00000004", // compact prop for "nfts"
       tokenIndex
     );
     // Reconstruct the value

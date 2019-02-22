@@ -40,7 +40,7 @@ contract MockUserMintableERC721 is UserMintableERC721 {
 
 
 
-  function isLatestDocumentVersion(
+  function requireIsLatestDocumentVersion(
     bytes32 _documentRoot,
     uint256 _nextAnchorId,
     bytes32 _salt,
@@ -49,7 +49,7 @@ contract MockUserMintableERC721 is UserMintableERC721 {
   external
   view
   {
-    super._isLatestDocumentVersion(
+    super._requireIsLatestDocumentVersion(
       _documentRoot,
       _nextAnchorId,
       _salt,
@@ -57,7 +57,7 @@ contract MockUserMintableERC721 is UserMintableERC721 {
     );
   }
 
-  function hasReadRole(
+  function requireReadRole(
     bytes32 _documentRoot,
     bytes calldata _property,
     bytes calldata _value,
@@ -69,7 +69,7 @@ contract MockUserMintableERC721 is UserMintableERC721 {
   returns (bytes8 readRuleIndex)
   {
 
-    return super._hasReadRole(
+    return super._requireReadRole(
       _documentRoot,
       _property,
       _value,
@@ -78,7 +78,7 @@ contract MockUserMintableERC721 is UserMintableERC721 {
     );
   }
 
-  function hasReadAction(
+  function requireReadAction(
     bytes32 _documentRoot,
     bytes8 _readRuleIndex,
     bytes32 _salt,
@@ -87,7 +87,7 @@ contract MockUserMintableERC721 is UserMintableERC721 {
   external
   pure
   {
-    super._hasReadAction(
+    super._requireReadAction(
       _documentRoot,
       _readRuleIndex,
       _salt,
@@ -95,7 +95,7 @@ contract MockUserMintableERC721 is UserMintableERC721 {
     );
   }
 
-  function tokenHasRole(
+  function requireTokenHasRole(
     bytes32 _documentRoot,
     uint256 _tokenId,
     bytes calldata _property,
@@ -106,7 +106,7 @@ contract MockUserMintableERC721 is UserMintableERC721 {
   external
   view
   {
-    super._tokenHasRole(
+    super._requireTokenHasRole(
       _documentRoot,
       _tokenId,
       _property,
@@ -116,7 +116,7 @@ contract MockUserMintableERC721 is UserMintableERC721 {
     );
   }
 
-  function oneTokenPerDocument(
+  function requireOneTokenPerDocument(
     bytes32 _documentRoot,
     uint256 _tokenId,
     bytes32 _salt,
@@ -125,7 +125,7 @@ contract MockUserMintableERC721 is UserMintableERC721 {
   external
   view
   {
-    super._oneTokenPerDocument(
+    super._requireOneTokenPerDocument(
       _documentRoot,
       _tokenId,
       _salt,
