@@ -128,7 +128,7 @@ contract KeyManager {
     bytes32 key,
     uint256 purpose
   )
-  public
+  external
   view
   returns (bool found)
   {

@@ -53,7 +53,7 @@ contract Identity is KeyManager {
     bytes memory signature,
     uint256 purpose
   )
-  public
+  external
   view
   returns (bool valid)
   {
