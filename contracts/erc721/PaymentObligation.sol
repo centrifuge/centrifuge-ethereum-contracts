@@ -50,8 +50,8 @@ contract PaymentObligation is Initializable, UserMintableERC721 {
       _poDetails[tokenId].grossAmount,
       _poDetails[tokenId].currency,
       _poDetails[tokenId].dueDate,
-      tokenDetails_[tokenId].anchorId,
-      tokenDetails_[tokenId].rootHash
+      _tokenDetails[tokenId].anchorId,
+      _tokenDetails[tokenId].rootHash
     );
   }
 
@@ -68,11 +68,11 @@ contract PaymentObligation is Initializable, UserMintableERC721 {
   initializer
   {
     // compact property for "invoice.gross_amount",invoice = 1, gross_amount = 14
-    mandatoryFields_.push(hex"010000000000000e");
+    _mandatoryFields.push(hex"010000000000000e");
     // compact property for invoice.currency, invoice = 1, currency = 13
-    mandatoryFields_.push(hex"010000000000000d");
+    _mandatoryFields.push(hex"010000000000000d");
     // compact property for  invoice.due_date, invoice = 1, due_date = 22
-    mandatoryFields_.push(hex"0100000000000016");
+    _mandatoryFields.push(hex"0100000000000016");
 
     UserMintableERC721.initialize(
       "Centrifuge Payment Obligations",

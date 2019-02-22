@@ -10,59 +10,59 @@ import "contracts/erc721/UserMintableERC721.sol";
  */
 contract MockUserMintableERC721 is UserMintableERC721 {
 
-  address ownAddress_ = address(this);
+  address private _ownAddress = address(this);
 
   constructor(
-    string memory _name,
-    string memory _symbol,
-    address _anchorRegistry,
-    bytes[] memory _mandatoryFields
+    string memory name,
+    string memory symbol,
+    address registry,
+    bytes[] memory mandatoryFields
   )
   public
   {
     UserMintableERC721.initialize(
-      _name,
-      _symbol,
-      _anchorRegistry,
-      _mandatoryFields
+      name,
+      symbol,
+      registry,
+      mandatoryFields
     );
   }
 
   function getDocumentRoot(
-    uint256 _anchorId
+    uint256 anchorId
   )
   external
   view
   returns (bytes32 documentRoot)
   {
-    return super._getDocumentRoot(_anchorId);
+    return super._getDocumentRoot(anchorId);
   }
 
 
 
   function requireIsLatestDocumentVersion(
-    bytes32 _documentRoot,
-    uint256 _nextAnchorId,
-    bytes32 _salt,
-    bytes32[] calldata _proof
+    bytes32 documentRoot,
+    uint256 nextAnchorId,
+    bytes32 salt,
+    bytes32[] calldata proof
   )
   external
   view
   {
     super._requireIsLatestDocumentVersion(
-      _documentRoot,
-      _nextAnchorId,
-      _salt,
-      _proof
+      documentRoot,
+      nextAnchorId,
+      salt,
+      proof
     );
   }
 
   function requireReadRole(
-    bytes32 _documentRoot,
-    bytes calldata _property,
-    bytes calldata _value,
-    bytes32 _salt,
-    bytes32[] calldata _proof
+    bytes32 documentRoot,
+    bytes calldata property,
+    bytes calldata value,
+    bytes32 salt,
+    bytes32[] calldata proof
   )
   external
   pure
@@ -70,98 +70,98 @@ contract MockUserMintableERC721 is UserMintableERC721 {
   {
 
     return super._requireReadRole(
-      _documentRoot,
-      _property,
-      _value,
-      _salt,
-      _proof
+      documentRoot,
+      property,
+      value,
+      salt,
+      proof
     );
   }
 
   function requireReadAction(
-    bytes32 _documentRoot,
+    bytes32 documentRoot,
     bytes8 _readRuleIndex,
-    bytes32 _salt,
-    bytes32[] calldata _proof
+    bytes32 salt,
+    bytes32[] calldata proof
   )
   external
   pure
   {
     super._requireReadAction(
-      _documentRoot,
+      documentRoot,
       _readRuleIndex,
-      _salt,
-      _proof
+      salt,
+      proof
     );
   }
 
   function requireTokenHasRole(
-    bytes32 _documentRoot,
-    uint256 _tokenId,
-    bytes calldata _property,
-    bytes calldata _roleIndex,
-    bytes32 _salt,
-    bytes32[] calldata _proof
+    bytes32 documentRoot,
+    uint256 tokenId,
+    bytes calldata property,
+    bytes calldata roleIndex,
+    bytes32 salt,
+    bytes32[] calldata proof
   )
   external
   view
   {
     super._requireTokenHasRole(
-      _documentRoot,
-      _tokenId,
-      _property,
-      _roleIndex,
-      _salt,
-      _proof
+      documentRoot,
+      tokenId,
+      property,
+      roleIndex,
+      salt,
+      proof
     );
   }
 
   function requireOneTokenPerDocument(
-    bytes32 _documentRoot,
-    uint256 _tokenId,
-    bytes32 _salt,
-    bytes32[] calldata _proof
+    bytes32 documentRoot,
+    uint256 tokenId,
+    bytes32 salt,
+    bytes32[] calldata proof
   )
   external
   view
   {
     super._requireOneTokenPerDocument(
-      _documentRoot,
-      _tokenId,
-      _salt,
-      _proof
+      documentRoot,
+      tokenId,
+      salt,
+      proof
     );
   }
 
 
   function mintAnchor(
-    address _to,
-    uint256 _tokenId,
-    uint256 _anchorId,
-    bytes32 _merkleRoot,
-    string memory _tokenURI,
-    bytes[] memory _values,
-    bytes32[] memory _salts,
-    bytes32[][] memory _proofs
+    address to,
+    uint256 tokenId,
+    uint256 anchorId,
+    bytes32 merkleRoot,
+    string memory tokenURI,
+    bytes[] memory values,
+    bytes32[] memory salts,
+    bytes32[][] memory proofs
   )
   public
   {
     super._mintAnchor(
-      _to,
-      _tokenId,
-      _anchorId,
-      _merkleRoot,
-      _tokenURI,
-      _values,
-      _salts,
-      _proofs
+      to,
+      tokenId,
+      anchorId,
+      merkleRoot,
+      tokenURI,
+      values,
+      salts,
+      proofs
     );
   }
 
-  function setOwnAddress(address _ownAddress)
+  function setOwnAddress(address ownAddress)
   public
   {
-    ownAddress_ = _ownAddress;
+    _ownAddress = ownAddress;
   }
 
   function _getOwnAddress()
@@ -169,7 +169,7 @@ contract MockUserMintableERC721 is UserMintableERC721 {
   view
   returns (address)
   {
-    return ownAddress_;
+    return _ownAddress;
   }
 
 }

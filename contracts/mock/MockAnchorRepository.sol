@@ -14,30 +14,30 @@ contract MockAnchorRepository {
     bytes32 documentRoot;
   }
 
-  mapping(uint256 => Anchor) public anchors;
+  mapping(uint256 => Anchor) private _anchors;
 
   /**
    * @dev Sets the anchor details for a document.
-   * @param _anchorId bytes32 The document anchor identifier
-   * @param _documentRoot bytes32 The root hash of document
+   * @param anchorId bytes32 The document anchor identifier
+   * @param documentRoot bytes32 The root hash of document
    */
-  function setAnchorById(uint256 _anchorId, bytes32 _documentRoot)
+  function setAnchorById(uint256 anchorId, bytes32 documentRoot)
   external
   {
     // not allowing empty vals
-    require(_anchorId != 0x0);
-    require(_documentRoot != 0x0);
+    require(anchorId != 0x0);
+    require(documentRoot != 0x0);
 
-    anchors[_anchorId] = Anchor(_documentRoot);
+    _anchors[anchorId] = Anchor(documentRoot);
   }
 
   /**
    * @dev Gets the anchor details for a document.
-   * @param _identifier bytes32 The document anchor identifier
+   * @param id bytes32 The document anchor identifier
    * @return identifier bytes32 The document anchor identifier as found
    * @return merkleRoot bytes32 The document's root hash value
    */
-  function getAnchorById (uint256 _identifier)
+  function getAnchorById (uint256 id)
   public
   view
   returns (
@@ -46,8 +46,8 @@ contract MockAnchorRepository {
     )
   {
     return (
-      _identifier,
-      anchors[_identifier].documentRoot
+      id,
+      _anchors[id].documentRoot
     );
   }
 }

@@ -1,7 +1,6 @@
 pragma solidity 0.5.0;
 
 
-
 contract KeyManager {
 
   event KeyAdded(
@@ -25,19 +24,19 @@ contract KeyManager {
     uint256 revokedAt;
   }
 
-  mapping(bytes32 => Key) internal keys;
+  mapping(bytes32 => Key) internal _keys;
 
-  mapping(uint256 => bytes32[]) internal keysByPurpose;
+  mapping(uint256 => bytes32[]) internal _keysByPurpose;
 
   /**
-   * @param _key bytes32 public key or keccak256 hash of the public key to be added
-   * @param _purpose uint representing the purpose for the public key
-   * @param _keyType uint representing the type for the public key
+   * @param key bytes32 public key or keccak256 hash of the public key to be added
+   * @param purpose uint representing the purpose for the public key
+   * @param keyType uint representing the type for the public key
    */
   function addKey(
-    bytes32 _key,
-    uint256 _purpose,
-    uint256 _keyType
+    bytes32 key,
+    uint256 purpose,
+    uint256 keyType
   )
   public
   onlyManagementOrSelf
@@ -45,57 +44,57 @@ contract KeyManager {
 
     // Can not add purpose to revoked keys
     require(
-      keys[_key].revokedAt == 0,
+      _keys[key].revokedAt == 0,
       "Key is revoked"
     );
 
-    if (!keyHasPurpose(_key, _purpose)) {
-      keys[_key].keyType = _keyType;
-      keys[_key].purposes.push(_purpose);
-      keysByPurpose[_purpose].push(_key);
-      emit KeyAdded(_key, _purpose, _keyType);
+    if (!keyHasPurpose(key, purpose)) {
+      _keys[key].keyType = keyType;
+      _keys[key].purposes.push(purpose);
+      _keysByPurpose[purpose].push(key);
+      emit KeyAdded(key, purpose, keyType);
     }
   }
 
   /**
-  * @param _key bytes32 public key or keccak256 hash of the public key
-  * @param _purposes Array of purposes for the public key.
-  * @param _keyType uint representing the type for the public key
+  * @param key bytes32 public key or keccak256 hash of the public key
+  * @param purposes Array of purposes for the public key.
+  * @param keyType uint representing the type for the public key
   */
   function addMultiPurposeKey(
-    bytes32 _key,
-    uint256[] memory _purposes,
-    uint256 _keyType
+    bytes32 key,
+    uint256[] memory purposes,
+    uint256 keyType
   )
   public
   onlyManagementOrSelf
   {
     // key must have at least one purpose
     require(
-      _purposes.length > 0,
+      purposes.length > 0,
       "Key must have at least a purpose"
     );
-    for (uint i = 0; i < _purposes.length; i++) {
-      addKey(_key, _purposes[i], _keyType);
+    for (uint i = 0; i < purposes.length; i++) {
+      addKey(key, purposes[i], keyType);
     }
   }
 
   /**
    * @dev Revokes a key
-   * @param _key Hash of the public key to be revoked
+   * @param key Hash of the public key to be revoked
    */
-  function revokeKey(bytes32 _key)
+  function revokeKey(bytes32 key)
   public
   onlyManagementOrSelf
   {
     // check if key exists
-    require(keys[_key].purposes.length > 0, "Key does not exit");
+    require(_keys[key].purposes.length > 0, "Key does not exit");
 
-    keys[_key].revokedAt = block.number;
+    _keys[key].revokedAt = block.number;
     emit KeyRevoked(
-      _key,
-      keys[_key].revokedAt,
-      keys[_key].keyType
+      key,
+      _keys[key].revokedAt,
+      _keys[key].keyType
     );
   }
 
@@ -104,7 +103,7 @@ contract KeyManager {
    * @param key the public key
    * @return Struct with hash of the key, purposes and revokedAt
    */
-  function getKey(bytes32 _key)
+  function getKey(bytes32 keyHash)
   public
   view
   returns (
@@ -114,47 +113,47 @@ contract KeyManager {
   )
   {
     return (
-    _key,
-    keys[_key].purposes,
-    keys[_key].revokedAt
+    keyHash,
+    _keys[keyHash].purposes,
+    _keys[keyHash].revokedAt
     );
   }
 
   /**
-   * @param _key bytes32 public key or keccak256 hash of the public key
-   * @param _purpose Uint representing the purpose of the key
+   * @param key bytes32 public key or keccak256 hash of the public key
+   * @param purpose Uint representing the purpose of the key
    * @return 'true' if the key is found and has the proper purpose
    */
   function keyHasPurpose(
-    bytes32 _key,
-    uint256 _purpose
+    bytes32 key,
+    uint256 purpose
   )
   public
   view
   returns (bool found)
   {
 
-    Key memory k = keys[_key];
-    if (k.purposes.length == 0) {
+    Key memory key_ = _keys[key];
+    if (key_.purposes.length == 0) {
       return false;
     }
-    for (uint i = 0; i < k.purposes.length; i++) {
-      if (k.purposes[i] == _purpose) {
+    for (uint i = 0; i < key_.purposes.length; i++) {
+      if (key_.purposes[i] == purpose) {
         return true;
       }
     }
   }
 
   /**
-   * @param _purpose uint256 representing the purpose of the the key
+   * @param purpose uint256 representing the purpose of the the key
    * @return array of hashes containing all the keys for the provided purpose
    */
-  function getKeysByPurpose(uint256 _purpose)
+  function getKeysByPurpose(uint256 purpose)
   public
   view
   returns (bytes32[] memory)
   {
-    return keysByPurpose[_purpose];
+    return _keysByPurpose[purpose];
   }
 
   /**
@@ -183,8 +182,8 @@ contract KeyManager {
       return true;
     }
 
-    bytes32 key = addressToKey(msg.sender);
-    return keyHasPurpose(key, 1);
+    bytes32 key_ = addressToKey(msg.sender);
+    return keyHasPurpose(key_, 1);
   }
 
 

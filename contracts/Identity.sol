@@ -10,58 +10,58 @@ contract Identity is KeyManager {
 
   constructor(address owner) public {
     // Add MANAGEMENT_KEY
-    bytes32 key = addressToKey(owner);
-    keys[key].purposes.push(1);
-    keys[key].keyType = 1;
-    keysByPurpose[1].push(key);
+    bytes32 key_ = addressToKey(owner);
+    _keys[key_].purposes.push(1);
+    _keys[key_].keyType = 1;
+    _keysByPurpose[1].push(key_);
   }
 
 
   /**
    * @dev Proxy execution
-   * @param _to address smart contract to call
-   * @param _value uint256 wei supply for proxy execution
-   * @param _data bytes ABI encoded call data
+   * @param to address smart contract to call
+   * @param value uint256 wei supply for proxy execution
+   * @param data bytes ABI encoded call data
    */
   function execute(
-    address _to,
-    uint256 _value,
-    bytes memory _data
+    address to,
+    uint256 value,
+    bytes memory data
   )
   public
-  returns (bool success, bytes memory)
+  returns (bool success, bytes memory result)
   {
 
-    bytes32 _key = addressToKey(msg.sender);
+    bytes32 key_ = addressToKey(msg.sender);
     require(
-      keyHasPurpose(_key, 2) ||
-      keyHasPurpose(_key, 1),
+      keyHasPurpose(key_, 2) ||
+      keyHasPurpose(key_, 1),
       "Requester must have MANAGEMENT or ACTION purpose"
     );
     // solium-disable-next-line security/no-call-value
-    return _to.call.value(_value)(_data);
+    return to.call.value(value)(data);
   }
 
   /**
    * @dev Checks the purpose of keys used for signing
-   * @param _message bytes32 message to be verified. Must be generated with abi.encodePacked(arg1, arg2, arg3)
-   * @param _signature bytes Signed data
-   * @param _purpose uint256 of the key
+   * @param message bytes32 message to be verified. Must be generated with abi.encodePacked(arg1, arg2, arg3)
+   * @param signature bytes Signed data
+   * @param purpose uint256 of the key
    */
   function isSignedWithPurpose(
-    bytes32 _message,
-    bytes memory _signature,
-    uint256 _purpose
+    bytes32 message,
+    bytes memory signature,
+    uint256 purpose
   )
   public
   view
   returns (bool valid)
   {
-    bytes32 pbKey = addressToKey(
-      _message.toEthSignedMessageHash().recover(_signature)
+    bytes32 pbKey_ = addressToKey(
+      message.toEthSignedMessageHash().recover(signature)
     );
 
-    if (keyHasPurpose(pbKey, _purpose) && keys[pbKey].revokedAt == 0) {
+    if (keyHasPurpose(pbKey_, purpose) && _keys[pbKey_].revokedAt == 0) {
       return true;
     }
     return false;

@@ -9,27 +9,27 @@ import "../erc721/PaymentObligation.sol";
 
 contract MockPaymentObligation is Initializable, PaymentObligation {
 
-  address ownAddress_ = address(this);
+  address private _ownAddress = address(this);
 
   /**
-   * @param _anchorRegistry address The address of the anchor registry
+   * @param registry address The address of the anchor registry
    * that is backing this token's mint method.
    * that ensures that the sender is authorized to mint the token
    */
   function initialize(
-    address _anchorRegistry
+    address registry
   )
   public
   initializer
   {
 
-    PaymentObligation.initialize(_anchorRegistry);
+    PaymentObligation.initialize(registry);
   }
 
-  function setOwnAddress(address _ownAddress)
+  function setOwnAddress(address ownAddress)
   public
   {
-    ownAddress_ = _ownAddress;
+    _ownAddress = ownAddress;
   }
 
   function _getOwnAddress()
@@ -37,7 +37,7 @@ contract MockPaymentObligation is Initializable, PaymentObligation {
   view
   returns (address)
   {
-    return ownAddress_;
+    return _ownAddress;
   }
 
 }

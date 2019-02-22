@@ -49,7 +49,7 @@ contract UserMintableERC721 is Initializable, ERC721, ERC721Enumerable, ERC721Me
    * @dev Constructor function
    * @param name string The name of this token
    * @param symbol string The shorthand token identifier
-   * @param anchorRegistry address The address of the anchor registry
+   * @param registry address The address of the anchor registry
    * @param mandatoryFields array of field names that are being proved
    * using document root and precise-proofs.
    * that is backing this token's mint method.
@@ -57,13 +57,13 @@ contract UserMintableERC721 is Initializable, ERC721, ERC721Enumerable, ERC721Me
   function initialize(
     string memory name,
     string memory symbol,
-    address anchorRegistry,
+    address registry,
     bytes[] memory mandatoryFields
   )
   public
   initializer
   {
-    _anchorRegistry = anchorRegistry;
+    _anchorRegistry = registry;
     _mandatoryFields = mandatoryFields;
     ERC721.initialize();
     ERC721Enumerable.initialize();
@@ -100,12 +100,12 @@ contract UserMintableERC721 is Initializable, ERC721, ERC721Enumerable, ERC721Me
   internal
   {
 
-    for (uint i = 0; i < mandatoryFields.length; i++) {
+    for (uint i = 0; i < _mandatoryFields.length; i++) {
       require(
         MerkleProof.verifySha256(
           proofs[i],
           merkleRoot,
-          sha256(abi.encodePacked(mandatoryFields[i], values[i], salts[i]))
+          sha256(abi.encodePacked(_mandatoryFields[i], values[i], salts[i]))
         ),
         "Mandatory field failed"
       );
@@ -145,7 +145,7 @@ contract UserMintableERC721 is Initializable, ERC721, ERC721Enumerable, ERC721Me
     AnchorRepository ar_ = AnchorRepository(_anchorRegistry);
     (, bytes32 merkleRoot_) = ar_.getAnchorById(anchorId);
     require(
-      merkleRoot != 0x0,
+      merkleRoot_ != 0x0,
       "Document in not anchored in the registry"
     );
 
@@ -235,7 +235,7 @@ contract UserMintableERC721 is Initializable, ERC721, ERC721Enumerable, ERC721Me
    * using precise proofs and extract the index of the role
    * @param documentRoot bytes32 the anchored document root
    * @param property bytes property for leaf construction
-   * @param _value bytes value for leaf construction
+   * @param value bytes value for leaf construction
    * @param salt bytes32 salt for leaf construction
    * @param proof bytes32[] proofs for _nextAnchorId
    * @return bytes8 the index of the read rule
@@ -243,7 +243,7 @@ contract UserMintableERC721 is Initializable, ERC721, ERC721Enumerable, ERC721Me
   function _requireReadRole(
     bytes32 documentRoot,
     bytes memory property,
-    bytes memory _value,
+    bytes memory value,
     bytes32 salt,
     bytes32[] memory proof
   )
@@ -252,7 +252,7 @@ contract UserMintableERC721 is Initializable, ERC721, ERC721Enumerable, ERC721Me
   returns (bytes8 readRuleIndex)
   {
     // Extract the indexes
-    readRuleIndex_ = extractIndex(property, 4);
+    bytes8 readRuleIndex_ = extractIndex(property, 4);
     bytes8 readRuleRoleIndex_ = extractIndex(property, 16);
     // Reconstruct the property
     // the property format: read_rules[readRuleIndex].roles[readRuleRoleIndex]
@@ -270,7 +270,7 @@ contract UserMintableERC721 is Initializable, ERC721, ERC721Enumerable, ERC721Me
         sha256(
           abi.encodePacked(
             property_,
-            _value,
+            value,
             salt
           )
         )
@@ -348,14 +348,14 @@ contract UserMintableERC721 is Initializable, ERC721, ERC721Enumerable, ERC721Me
     bytes8 tokenIndex_ = extractIndex(property, 40);
     // Reconstruct the property
     // the property format: roles[roleIndex].nfts[tokenIndex]
-    bytes memory property_= abi.encodePacked(
+    bytes memory property_ = abi.encodePacked(
       hex"00000001", // compact prop for "roles"
       roleIndex,
       hex"00000004", // compact prop for "nfts"
       tokenIndex_
     );
     // Reconstruct the value
-    bytes memory value = abi.encodePacked(
+    bytes memory value_ = abi.encodePacked(
       _getOwnAddress(),
       tokenId
     );
@@ -364,7 +364,7 @@ contract UserMintableERC721 is Initializable, ERC721, ERC721Enumerable, ERC721Me
       MerkleProof.verifySha256(
         proof,
         documentRoot,
-        sha256(abi.encodePacked(property_, value, salt))
+        sha256(abi.encodePacked(property_, value_, salt))
       ),
       "Token Role not valid"
     );
