@@ -1,5 +1,5 @@
-const shouldRevert = async (promise) => {
-    return await shouldReturnWithMessage(promise, 'revert');
+const shouldRevert = async (promise, message) => {
+    return await shouldReturnWithMessage(promise, message || 'revert');
 }
 
 const shouldReturnWithMessage = async (promise, search) => {

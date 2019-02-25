@@ -1,62 +1,89 @@
 const shouldRevert = require('../tools/assertTx').shouldRevert
-let PaymentObligation = artifacts.require("PaymentObligation");
+let MockPaymentObligation = artifacts.require("MockPaymentObligation");
 let MockAnchorRegistry = artifacts.require("MockAnchorRepository");
 let proof = require('./proof.json');
 
 contract("PaymentObligation", function (accounts) {
 
 
+    ;
+    let grossAmount = proof.field_proofs[0];
+    let currency = proof.field_proofs[1];
+    let due_date = proof.field_proofs[2];
+    let nftUnique = proof.field_proofs[4];
+    let nextVersion = proof.field_proofs[5]
+    let readRole = proof.field_proofs[6];
+    let tokenRole = proof.field_proofs[7];
+    let readRoleAction = proof.field_proofs[8];
+
+    let documentIdentifier = proof.header.version_id;
+    let nextDocumentIdentifier = nextVersion.value;
+    let validRootHash = proof.header.document_root;
+    let tokenURI = "http://test.com";
+    let tokenId = nftUnique.value;
+    let contractAddress = "0x910e4e12FC1f0fFBA5D9Bf79ad5760155d3f62C8";
+
+
     beforeEach(async function () {
         this.anchorRegistry = await MockAnchorRegistry.new();
-        this.registry = await PaymentObligation.new();
-        this.registry.initialize(this.anchorRegistry.address)
+        this.registry = await MockPaymentObligation.new();
+        await this.registry.initialize(this.anchorRegistry.address)
     });
 
     describe("mint", async function () {
 
-
         it("should mint a token if the Merkle proofs validates", async function () {
-            const documentIdentifier = proof.header.version_id;
-            const validRootHash = proof.header.document_root;
-            const tokenURI = "http://test.com";
-            const tokenId = 1;
 
             await this.anchorRegistry.setAnchorById(
                 documentIdentifier,
                 validRootHash
             );
 
+            await this.registry.setOwnAddress(contractAddress);
+
             await this.registry.mint(
                 accounts[2],
                 tokenId,
                 tokenURI,
                 documentIdentifier,
-                validRootHash,
+                nextDocumentIdentifier,
                 [
-                    proof.field_proofs[0].value,
-                    proof.field_proofs[1].value,
-                    proof.field_proofs[2].value,
-                    proof.field_proofs[3].value,
+                    readRole.property,
+                    tokenRole.property
                 ],
                 [
-                    proof.field_proofs[0].salt,
-                    proof.field_proofs[1].salt,
-                    proof.field_proofs[2].salt,
-                    proof.field_proofs[3].salt,
+                    grossAmount.value,
+                    currency.value,
+                    due_date.value,
+                    readRole.value,
+                ],
+                [
+                    grossAmount.salt,
+                    currency.salt,
+                    due_date.salt,
+                    nextVersion.salt,
+                    nftUnique.salt,
+                    readRole.salt,
+                    readRoleAction.salt,
+                    tokenRole.salt,
 
                 ],
                 [
-                    proof.field_proofs[0].sorted_hashes,
-                    proof.field_proofs[1].sorted_hashes,
-                    proof.field_proofs[2].sorted_hashes,
-                    proof.field_proofs[3].sorted_hashes,
+                    grossAmount.sorted_hashes,
+                    currency.sorted_hashes,
+                    due_date.sorted_hashes,
+                    nextVersion.sorted_hashes,
+                    nftUnique.sorted_hashes,
+                    readRole.sorted_hashes,
+                    readRoleAction.sorted_hashes,
+                    tokenRole.sorted_hashes,
                 ]
             )
                 .then(function (tx, logs) {
                     // Check mint event
                     const event = tx.logs[1].args;
                     assert.equal(event.to.toLowerCase(), accounts[2].toLowerCase());
-                    assert.equal(event.tokenId, tokenId);
+                    assert.equal(web3.utils.toHex(event.tokenId), tokenId);
                     assert.equal(event.tokenURI, tokenURI);
                 });
 
@@ -75,11 +102,6 @@ contract("PaymentObligation", function (accounts) {
         });
 
         it("should not mint a token if the a Merkle proof fails", async function () {
-            const documentIdentifier = proof.header.version_id;
-            const validRootHash = proof.header.document_root;
-            const tokenURI = "http://test.com";
-            const tokenId = 1;
-
             await this.anchorRegistry.setAnchorById(
                 documentIdentifier,
                 validRootHash
@@ -90,93 +112,130 @@ contract("PaymentObligation", function (accounts) {
                 tokenId,
                 tokenURI,
                 documentIdentifier,
-                validRootHash,
+                nextDocumentIdentifier,
                 [
-                    'Some Random Value',
-                    proof.field_proofs[1].value,
-                    proof.field_proofs[2].value,
-                    proof.field_proofs[3].value,
+                    readRole.property,
+                    tokenRole.property
                 ],
                 [
-                    proof.field_proofs[0].salt,
-                    proof.field_proofs[1].salt,
-                    proof.field_proofs[2].salt,
-                    proof.field_proofs[3].salt,
+                    "0x1",
+                    currency.value,
+                    due_date.value,
+                    readRole.value,
+                ],
+                [
+                    grossAmount.salt,
+                    currency.salt,
+                    due_date.salt,
+                    nextVersion.salt,
+                    nftUnique.salt,
+                    readRole.salt,
+                    readRoleAction.salt,
+                    tokenRole.salt,
 
                 ],
                 [
-                    proof.field_proofs[0].sorted_hashes,
-                    proof.field_proofs[1].sorted_hashes,
-                    proof.field_proofs[2].sorted_hashes,
-                    proof.field_proofs[3].sorted_hashes,
+                    grossAmount.sorted_hashes,
+                    currency.sorted_hashes,
+                    due_date.sorted_hashes,
+                    nextVersion.sorted_hashes,
+                    nftUnique.sorted_hashes,
+                    readRole.sorted_hashes,
+                    readRoleAction.sorted_hashes,
+                    tokenRole.sorted_hashes,
                 ]
             ));
         });
 
-        it("should not mint a token if the anchorId has been used before", async function () {
-            let documentIdentifier = proof.header.version_id;
-            let validRootHash = proof.header.document_root;
-            let tokenURI = "http://test.com";
+        it("should fail if the token exists", async function () {
 
             await this.anchorRegistry.setAnchorById(
                 documentIdentifier,
                 validRootHash
             );
-            const tokenId = 1;
+
+            await this.registry.setOwnAddress(contractAddress);
 
             await this.registry.mint(
                 accounts[2],
                 tokenId,
                 tokenURI,
                 documentIdentifier,
-                validRootHash,
+                nextDocumentIdentifier,
                 [
-                    proof.field_proofs[0].value,
-                    proof.field_proofs[1].value,
-                    proof.field_proofs[2].value,
-                    proof.field_proofs[3].value,
+                    readRole.property,
+                    tokenRole.property
                 ],
                 [
-                    proof.field_proofs[0].salt,
-                    proof.field_proofs[1].salt,
-                    proof.field_proofs[2].salt,
-                    proof.field_proofs[3].salt,
+                    grossAmount.value,
+                    currency.value,
+                    due_date.value,
+                    readRole.value,
+                ],
+                [
+                    grossAmount.salt,
+                    currency.salt,
+                    due_date.salt,
+                    nextVersion.salt,
+                    nftUnique.salt,
+                    readRole.salt,
+                    readRoleAction.salt,
+                    tokenRole.salt,
 
                 ],
                 [
-                    proof.field_proofs[0].sorted_hashes,
-                    proof.field_proofs[1].sorted_hashes,
-                    proof.field_proofs[2].sorted_hashes,
-                    proof.field_proofs[3].sorted_hashes,
+                    grossAmount.sorted_hashes,
+                    currency.sorted_hashes,
+                    due_date.sorted_hashes,
+                    nextVersion.sorted_hashes,
+                    nftUnique.sorted_hashes,
+                    readRole.sorted_hashes,
+                    readRoleAction.sorted_hashes,
+                    tokenRole.sorted_hashes,
                 ]
             );
 
-            await shouldRevert(this.registry.mint(
-                accounts[2],
-                tokenId,
-                tokenURI,
-                documentIdentifier,
-                validRootHash,
-                [
-                    proof.field_proofs[0].value,
-                    proof.field_proofs[1].value,
-                    proof.field_proofs[2].value,
-                    proof.field_proofs[3].value,
-                ],
-                [
-                    proof.field_proofs[0].salt,
-                    proof.field_proofs[1].salt,
-                    proof.field_proofs[2].salt,
-                    proof.field_proofs[3].salt,
+            await shouldRevert(
+                this.registry.mint(
+                    accounts[2],
+                    tokenId,
+                    tokenURI,
+                    documentIdentifier,
+                    nextDocumentIdentifier,
+                    [
+                        readRole.property,
+                        tokenRole.property
+                    ],
+                    [
+                        grossAmount.value,
+                        currency.value,
+                        due_date.value,
+                        readRole.value,
+                    ],
+                    [
+                        grossAmount.salt,
+                        currency.salt,
+                        due_date.salt,
+                        nextVersion.salt,
+                        nftUnique.salt,
+                        readRole.salt,
+                        readRoleAction.salt,
+                        tokenRole.salt,
 
-                ],
-                [
-                    proof.field_proofs[0].sorted_hashes,
-                    proof.field_proofs[1].sorted_hashes,
-                    proof.field_proofs[2].sorted_hashes,
-                    proof.field_proofs[3].sorted_hashes,
-                ]
-            ));
+                    ],
+                    [
+                        grossAmount.sorted_hashes,
+                        currency.sorted_hashes,
+                        due_date.sorted_hashes,
+                        nextVersion.sorted_hashes,
+                        nftUnique.sorted_hashes,
+                        readRole.sorted_hashes,
+                        readRoleAction.sorted_hashes,
+                        tokenRole.sorted_hashes,
+                    ]
+                ),
+                "Token exists"
+            );
         });
     });
 
