@@ -39,8 +39,7 @@ contract AnchorRepository is Initializable {
    */
   function preCommit(
     uint256 anchorId,
-    bytes32 signingRoot,
-    uint256 expirationBlock
+    bytes32 signingRoot
   )
   external
   {
@@ -134,7 +133,6 @@ contract AnchorRepository is Initializable {
   returns (bool valid)
   {
     return (
-      _preCommits[anchorId].expirationBlock != 0x0 &&
       _preCommits[anchorId].expirationBlock > block.number
     );
   }
