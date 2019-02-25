@@ -39,7 +39,7 @@ contract KeyManager {
     uint256 keyType
   )
   public
-  onlyManagementOrSelf
+  onlyManagement
   {
 
     // Can not add purpose to revoked keys
@@ -67,7 +67,7 @@ contract KeyManager {
     uint256 keyType
   )
   external
-  onlyManagementOrSelf
+  onlyManagement
   {
     // key must have at least one purpose
     require(
@@ -85,7 +85,7 @@ contract KeyManager {
    */
   function revokeKey(bytes32 key)
   external
-  onlyManagementOrSelf
+  onlyManagement
   {
     // check if key exists
     require(_keys[key].purposes.length > 0, "Key does not exit");
@@ -170,28 +170,14 @@ contract KeyManager {
   }
 
   /**
-   * @dev Checks if sender is either the identity contract or a MANAGEMENT key
-   * @return `true` if sender is either identity contract or a MANAGEMENT key
+   * @dev Throws if called by any account other than a MANAGEMENT key.
    */
-  function _managementOrSelf()
-  internal
-  view
-  returns (bool found)
-  {
-    if (msg.sender == address(this)) {
-      return true;
-    }
-
+  modifier onlyManagement() {
     bytes32 key_ = addressToKey(msg.sender);
-    return keyHasPurpose(key_, 1);
-  }
-
-
-  /**
-   * @dev Throws if called by any account other than self or a MANAGEMENT key.
-   */
-  modifier onlyManagementOrSelf() {
-    require(_managementOrSelf());
+    require(
+      keyHasPurpose(key_, 1),
+      "No management right"
+    );
     _;
   }
 

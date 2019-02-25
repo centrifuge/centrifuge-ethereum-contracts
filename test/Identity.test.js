@@ -58,11 +58,12 @@ contract("Identity", function (accounts) {
             this.testProxy = await TextProxyExecution.new();
         });
 
-        it('should execute contract method for identity MANAGEMENT key', async function () {
+        it('should not execute contract method for identity MANAGEMENT key', async function () {
             const data = this.testProxy.contract.methods.callMe().encodeABI();
-            shouldSucceed(await this.identity.execute(this.testProxy.address, 0, data));
-            const numOfCalls = await this.testProxy.getCallsFrom(this.identity.address);
-            assert.equal(1, numOfCalls.toNumber());
+            await shouldRevert(
+                this.identity.execute(this.testProxy.address, 0, data),
+                "Requester must an ACTION purpose"
+            );
         })
 
 
@@ -74,9 +75,12 @@ contract("Identity", function (accounts) {
             assert.equal(1, numOfCalls.toNumber());
         })
 
-        it('should revert execute for non MANAGEMENT or non ACTION keys ', async function () {
+        it('should revert execute for non ACTION keys ', async function () {
             const data = this.testProxy.contract.methods.callMe().encodeABI();
-            await shouldRevert(this.identity.execute(this.testProxy.address, 0, data, {from: accounts[2]}));
+            await shouldRevert(
+                this.identity.execute(this.testProxy.address, 0, data, {from: accounts[2]}),
+                "Requester must an ACTION purpose"
+            );
         })
 
     })
