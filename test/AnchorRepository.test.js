@@ -63,11 +63,7 @@ contract("AnchorRepository", function (accounts) {
             let {anchorId, signingRoot, callOptions} = await getBasicTestNeeds(accounts);
             await shouldSucceed(this.anchorRepository.preCommit(anchorId, signingRoot, callOptions));
             await mineNBlocks(15);
-            //create new expirationBlock and signature for precommit
-            expirationBlock = await web3.eth.getBlockNumber() + 15;
-
             await shouldSucceed(this.anchorRepository.preCommit(anchorId, signingRoot, callOptions));
-
         });
 
 
