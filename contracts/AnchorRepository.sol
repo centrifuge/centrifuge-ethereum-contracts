@@ -34,25 +34,20 @@ contract AnchorRepository is Initializable {
   uint256 constant internal expirationLength = 15;
 
   /**
+   * A preCommit for an anchor expires after (current block no + expirationLength) blocks.
    * @param _anchorId Id for an Anchor.
    * @param _signingRoot merkle tree for a document that does not contain the signatures
-   * @param _expirationBlock uint256, block number when the precommit expires.
    */
   function preCommit(
     uint256 _anchorId,
-    bytes32 _signingRoot,
-    uint256 _expirationBlock
+    bytes32 _signingRoot
   )
   external
   payable
   {
 
-    // Check if _expirationBlock is within the allowed limit
-    require(
-      block.number <= _expirationBlock &&
-      _expirationBlock <= (block.number + expirationLength),
-      "Expiration Block is not within limit"
-    );
+    // not allowing to pre-commit for an existing anchor
+    require(commits[_anchorId] == 0x0,"commit exists for the given anchor");
 
     // do not allow a precommit if there is already a valid one in place
     require(hasValidPreCommit(_anchorId) == false,"Precommit exists for the given anchor");
@@ -60,7 +55,7 @@ contract AnchorRepository is Initializable {
     preCommits[_anchorId] = PreAnchor(
       _signingRoot,
       msg.sender,
-      uint32(_expirationBlock)
+      uint32(block.number + expirationLength)
     );
 
     emit AnchorPreCommitted(
@@ -88,10 +83,9 @@ contract AnchorRepository is Initializable {
     require(commits[_anchorId] == 0x0);
 
     // Check if there is a precommit and enforce it
-    if (preCommits[_anchorId].expirationBlock != 0x0) {
+    if (hasValidPreCommit(_anchorId)) {
       // check that the precommit has the same _identity
       require(preCommits[_anchorId].identity == msg.sender,"Precommit owned by someone else");
-      require(hasValidPreCommit(_anchorId) == true,"Precommit is expired");
       require(
         MerkleProof.verify(
           _documentProofs,

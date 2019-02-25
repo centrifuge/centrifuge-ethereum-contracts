@@ -17,14 +17,12 @@ async function getBasicTestNeeds(accounts) {
     const documentRoot = merkleTree.getHexRoot();
     const proof = merkleTree.getHexProof(elements[0]);
     const signingRoot = bufferToHex(keccak(elements[0]));
-    const expirationBlock = await web3.eth.getBlockNumber() + 15;
 
     return {
         anchorId,
         signingRoot,
         documentRoot,
         proof,
-        expirationBlock,
         key: web3.utils.randomHex(32),
         callOptions: {from: accounts[0]}
     }
@@ -46,30 +44,30 @@ contract("Gas costs", function (accounts) {
     describe("Check the gas cost for preCommit and commit", async function () {
 
         const preCommitMaxGas = 95000;
-        const commitMaxGas = 80000
+        const commitMaxGas = 80000;
         it(`should have preCommit gas cost less then ${preCommitMaxGas} `, async function () {
-            const {anchorId, signingRoot, expirationBlock, callOptions} = await getBasicTestNeeds(accounts);
-            const preCommitGas = await this.anchorRepository.preCommit.estimateGas(anchorId, signingRoot, expirationBlock, callOptions);
+            const {anchorId, signingRoot, callOptions} = await getBasicTestNeeds(accounts);
+            const preCommitGas = await this.anchorRepository.preCommit.estimateGas(anchorId, signingRoot, callOptions);
 
-            console.log('Actual preCommit gas cost:', preCommitGas)
+            console.log('Actual preCommit gas cost:', preCommitGas);
             assert.isBelow(preCommitGas, preCommitMaxGas, `Gas Price for preCommit is to high`)
-        })
+        });
 
 
         it(`should have commit with no precommit gas cost less then  ${commitMaxGas}`, async function () {
             const {anchorId, documentRoot, proof, callOptions} = await getBasicTestNeeds(accounts);
             const commitGas = await this.anchorRepository.commit.estimateGas(anchorId, documentRoot, proof, callOptions);
 
-            console.log('Actual commit without precommit gas cost:', commitGas)
+            console.log('Actual commit without precommit gas cost:', commitGas);
             assert.isBelow(commitGas, commitMaxGas, 'Gas Price for commit must not exceed 80k');
-        })
+        });
 
         it(`should have commit gas cost less then  ${commitMaxGas}`, async function () {
-            const {anchorId, signingRoot, documentRoot, proof, expirationBlock, callOptions} = await getBasicTestNeeds(accounts);
-            await shouldSucceed(this.anchorRepository.preCommit(anchorId, signingRoot, expirationBlock, callOptions));
+            const {anchorId, signingRoot, documentRoot, proof, callOptions} = await getBasicTestNeeds(accounts);
+            await shouldSucceed(this.anchorRepository.preCommit(anchorId, signingRoot, callOptions));
             const commitGas = await this.anchorRepository.commit.estimateGas(anchorId, documentRoot, proof, callOptions);
 
-            console.log('Actual commit with precommit gas cost:', commitGas)
+            console.log('Actual commit with precommit gas cost:', commitGas);
             assert.isBelow(commitGas, commitMaxGas, 'Gas Price for commit must not exceed 80k');
         })
 
@@ -78,22 +76,22 @@ contract("Gas costs", function (accounts) {
     describe("Check the gas cost for preCommit and commit with the identity proxy for ACTION key", async function () {
 
         const preCommitMaxGas = 95000;
-        const commitMaxGas = 80000
+        const commitMaxGas = 80000;
         it(`should have preCommit gas cost less then ${preCommitMaxGas} `, async function () {
-            const {anchorId, signingRoot, expirationBlock, callOptions} = await getBasicTestNeeds(accounts);
+            const {anchorId, signingRoot, callOptions} = await getBasicTestNeeds(accounts);
 
-            const data = await this.anchorRepository.contract.methods.preCommit(anchorId, signingRoot, expirationBlock).encodeABI();
+            const data = await this.anchorRepository.contract.methods.preCommit(anchorId, signingRoot).encodeABI();
             const preCommitGas = await this.identity.execute.estimateGas(this.anchorRepository.address, 0, data, {from: accounts[1]});
-            console.log('Actual preCommit gas cost:', preCommitGas)
+            console.log('Actual preCommit gas cost:', preCommitGas);
             assert.isBelow(preCommitGas, preCommitMaxGas, `Gas Price for preCommit is to high`)
-        })
+        });
 
         it(`should have commit with no precommit gas cost less then  ${commitMaxGas}`, async function () {
             const {anchorId, documentRoot, proof, callOptions} = await getBasicTestNeeds(accounts);
             const data = await this.anchorRepository.contract.methods.commit(anchorId, documentRoot, proof).encodeABI();
             const commitGas = await this.identity.execute.estimateGas(this.anchorRepository.address, 0, data, {from: accounts[1]});
 
-            console.log('Actual commit without precommit gas cost:', commitGas)
+            console.log('Actual commit without precommit gas cost:', commitGas);
             assert.isBelow(commitGas, commitMaxGas, 'Gas Price for commit must not exceed 80k');
         })
 
@@ -105,7 +103,7 @@ contract("Gas costs", function (accounts) {
         it(`should have preCommit gas cost less then ${maxGas} `, async function () {
             const actualGas = await this.identityFactory.createIdentity.estimateGas({from: accounts[1]});
 
-            console.log('Actual identity creation gas cost:', actualGas)
+            console.log('Actual identity creation gas cost:', actualGas);
             assert.isBelow(actualGas, maxGas, `Gas Price for identity creation is to high`)
         })
 
@@ -118,18 +116,18 @@ contract("Gas costs", function (accounts) {
             const {key} = await getBasicTestNeeds(accounts);
             const addMultiPurposeKeyGas = await this.identity.addMultiPurposeKey.estimateGas(key, [P2P_IDENTITY, P2P_SIGNATURE], 1);
 
-            console.log('Actual addMultiPurposeKey gas cost:', addMultiPurposeKeyGas)
+            console.log('Actual addMultiPurposeKey gas cost:', addMultiPurposeKeyGas);
             assert.isBelow(addMultiPurposeKeyGas, maxAddMutipleGas, `Gas Price for addMultiPurposeKey is to high`)
-        })
+        });
 
         const maxAddGas = 140000;
         it(` Gas cost for adding a key with one purpose should be less then ${maxAddGas} `, async function () {
             const {key} = await getBasicTestNeeds(accounts);
             const addKeyGas = await this.identity.addKey.estimateGas(key, P2P_IDENTITY, 1);
 
-            console.log('Actual AddKey gas cost:', addKeyGas)
+            console.log('Actual AddKey gas cost:', addKeyGas);
             assert.isBelow(addKeyGas, maxAddGas, `Gas Price for addKey is to high`)
-        })
+        });
 
         const maxRevokeGas = 50000;
         it(` Gas cost for revoking a key should be less then ${maxRevokeGas} `, async function () {
@@ -137,7 +135,7 @@ contract("Gas costs", function (accounts) {
             await this.identity.addMultiPurposeKey(key, [P2P_IDENTITY], 1);
             const revokeKeyGas = await this.identity.revokeKey.estimateGas(key);
 
-            console.log('Actual revokeKey gas cost:', revokeKeyGas)
+            console.log('Actual revokeKey gas cost:', revokeKeyGas);
             assert.isBelow(revokeKeyGas, maxRevokeGas, `Gas Price for revoke is to high`)
         })
     });
@@ -182,7 +180,7 @@ contract("Gas costs", function (accounts) {
                     proof.field_proofs[3].sorted_hashes,
                 ]
             );
-            console.log('Actual mint gas cost:', mintGasCost)
+            console.log('Actual mint gas cost:', mintGasCost);
             assert.isBelow(mintGasCost, mintMaxGas, `Gas Price for mint is to high`)
         })
     });
@@ -228,10 +226,10 @@ contract("Gas costs", function (accounts) {
                 ]
             ).encodeABI();
 
-            const mintGasCost = await this.identity.execute.estimateGas(this.poRegistry.address, 0, data, {from: accounts[1]})
-            console.log('Actual mint gas cost:', mintGasCost)
+            const mintGasCost = await this.identity.execute.estimateGas(this.poRegistry.address, 0, data, {from: accounts[1]});
+            console.log('Actual mint gas cost:', mintGasCost);
             assert.isBelow(mintGasCost, mintMaxGas, `Gas Price for mint is to high`)
         })
     });
-})
+});
 
