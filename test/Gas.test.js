@@ -6,7 +6,7 @@ const {keccak, bufferToHex, toBuffer} = require('ethereumjs-util');
 const IdentityFactory = artifacts.require("IdentityFactory");
 const AnchorRepository = artifacts.require("AnchorRepository");
 const Identity = artifacts.require("Identity");
-const PaymentObligation = artifacts.require("PaymentObligation");
+const MockPaymentObligation = artifacts.require("MockPaymentObligation");
 const proof = require('./erc721/proof.json');
 
 async function getBasicTestNeeds(accounts) {
@@ -31,12 +31,29 @@ async function getBasicTestNeeds(accounts) {
 
 contract("Gas costs", function (accounts) {
 
+
+    let grossAmount = proof.field_proofs[0];
+    let currency = proof.field_proofs[1];
+    let due_date = proof.field_proofs[2];
+    let nftUnique = proof.field_proofs[4];
+    let nextVersion = proof.field_proofs[5]
+    let readRole = proof.field_proofs[6];
+    let tokenRole = proof.field_proofs[7];
+    let readRoleAction = proof.field_proofs[8];
+
+    let documentIdentifier = proof.header.version_id;
+    let nextDocumentIdentifier = nextVersion.value;
+    let validRootHash = proof.header.document_root;
+    let tokenURI = "http://test.com";
+    let tokenId = nftUnique.value;
+    let contractAddress = "0x910e4e12FC1f0fFBA5D9Bf79ad5760155d3f62C8";
+
     beforeEach(async function () {
         this.anchorRepository = await AnchorRepository.new();
         this.identity = await Identity.new(accounts[0]);
         await this.identity.addKey(addressToBytes32(accounts[1]), ACTION, 1);
         this.identityFactory = await IdentityFactory.new();
-        this.poRegistry = await PaymentObligation.new();
+        this.poRegistry = await MockPaymentObligation.new();
         this.poRegistry.initialize(this.anchorRepository.address)
 
     });
@@ -141,43 +158,52 @@ contract("Gas costs", function (accounts) {
     });
 
     describe("check the gas cost for mint", async function () {
-        const mintMaxGas = 533819;
+        const mintMaxGas = 733819;
         it(`should have mint gas cost less then ${mintMaxGas} `, async function () {
-            let documentIdentifer = proof.header.version_id;
-            let validRootHash = proof.header.document_root;
-            let tokenURI = "http://test.com";
 
             await this.anchorRepository.commit(
-                documentIdentifer,
+                documentIdentifier,
                 validRootHash,
                 []
             );
-            const tokenId = 1;
+            await this.poRegistry.setOwnAddress(contractAddress);
 
             const mintGasCost = await this.poRegistry.mint.estimateGas(
                 accounts[2],
                 tokenId,
                 tokenURI,
-                documentIdentifer,
-                validRootHash,
+                documentIdentifier,
+                nextDocumentIdentifier,
                 [
-                    proof.field_proofs[0].value,
-                    proof.field_proofs[1].value,
-                    proof.field_proofs[2].value,
-                    proof.field_proofs[3].value,
+                    readRole.property,
+                    tokenRole.property
                 ],
                 [
-                    proof.field_proofs[0].salt,
-                    proof.field_proofs[1].salt,
-                    proof.field_proofs[2].salt,
-                    proof.field_proofs[3].salt,
+                    grossAmount.value,
+                    currency.value,
+                    due_date.value,
+                    readRole.value,
+                ],
+                [
+                    grossAmount.salt,
+                    currency.salt,
+                    due_date.salt,
+                    nextVersion.salt,
+                    nftUnique.salt,
+                    readRole.salt,
+                    readRoleAction.salt,
+                    tokenRole.salt,
 
                 ],
                 [
-                    proof.field_proofs[0].sorted_hashes,
-                    proof.field_proofs[1].sorted_hashes,
-                    proof.field_proofs[2].sorted_hashes,
-                    proof.field_proofs[3].sorted_hashes,
+                    grossAmount.sorted_hashes,
+                    currency.sorted_hashes,
+                    due_date.sorted_hashes,
+                    nextVersion.sorted_hashes,
+                    nftUnique.sorted_hashes,
+                    readRole.sorted_hashes,
+                    readRoleAction.sorted_hashes,
+                    tokenRole.sorted_hashes,
                 ]
             );
             console.log('Actual mint gas cost:', mintGasCost);
@@ -186,43 +212,52 @@ contract("Gas costs", function (accounts) {
     });
 
     describe("check the gas cost for mint with the identity proxy for ACTION key", async function () {
-        const mintMaxGas = 533819;
+        const mintMaxGas = 733819;
         it(`should have mint gas cost less then ${mintMaxGas} `, async function () {
-            let documentIdentifer = proof.header.version_id;
-            let validRootHash = proof.header.document_root;
-            let tokenURI = "http://test.com";
-
             await this.anchorRepository.commit(
-                documentIdentifer,
+                documentIdentifier,
                 validRootHash,
                 []
             );
-            const tokenId = 1;
+
+            await this.poRegistry.setOwnAddress(contractAddress);
 
             const data = await this.poRegistry.contract.methods.mint(
                 accounts[2],
                 tokenId,
                 tokenURI,
-                documentIdentifer,
-                validRootHash,
+                documentIdentifier,
+                nextDocumentIdentifier,
                 [
-                    proof.field_proofs[0].value,
-                    proof.field_proofs[1].value,
-                    proof.field_proofs[2].value,
-                    proof.field_proofs[3].value,
+                    readRole.property,
+                    tokenRole.property
                 ],
                 [
-                    proof.field_proofs[0].salt,
-                    proof.field_proofs[1].salt,
-                    proof.field_proofs[2].salt,
-                    proof.field_proofs[3].salt,
+                    grossAmount.value,
+                    currency.value,
+                    due_date.value,
+                    readRole.value,
+                ],
+                [
+                    grossAmount.salt,
+                    currency.salt,
+                    due_date.salt,
+                    nextVersion.salt,
+                    nftUnique.salt,
+                    readRole.salt,
+                    readRoleAction.salt,
+                    tokenRole.salt,
 
                 ],
                 [
-                    proof.field_proofs[0].sorted_hashes,
-                    proof.field_proofs[1].sorted_hashes,
-                    proof.field_proofs[2].sorted_hashes,
-                    proof.field_proofs[3].sorted_hashes,
+                    grossAmount.sorted_hashes,
+                    currency.sorted_hashes,
+                    due_date.sorted_hashes,
+                    nextVersion.sorted_hashes,
+                    nftUnique.sorted_hashes,
+                    readRole.sorted_hashes,
+                    readRoleAction.sorted_hashes,
+                    tokenRole.sorted_hashes,
                 ]
             ).encodeABI();
 
