@@ -26,7 +26,7 @@ contract Identity is KeyManager {
   function execute(
     address to,
     uint256 value,
-    bytes memory data
+    bytes calldata data
   )
   external
   returns (bool success, bytes memory result)
@@ -43,7 +43,7 @@ contract Identity is KeyManager {
   }
 
   /**
-   * @dev Checks the purpose of keys used for signing
+   * @dev Checks the purpose of keys used for signing.
    * @param message bytes32 message to be verified. Must be generated with abi.encodePacked(arg1, arg2, arg3)
    * @param signature bytes Signed data
    * @param purpose uint256 of the key
@@ -53,7 +53,7 @@ contract Identity is KeyManager {
     bytes memory signature,
     uint256 purpose
   )
-  external
+  public
   view
   returns (bool valid)
   {
