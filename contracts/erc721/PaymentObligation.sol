@@ -64,7 +64,7 @@ contract PaymentObligation is Initializable, UserMintableERC721 {
   function initialize(
     address registry
   )
-  external
+  public
   initializer
   {
     // compact property for "invoice.gross_amount",invoice = 1, gross_amount = 14
@@ -114,7 +114,7 @@ contract PaymentObligation is Initializable, UserMintableERC721 {
     bytes32[] memory salts,
     bytes32[][] memory proofs
   )
-  external
+  public
   {
     // First check if the tokenId exists
     require(
