@@ -68,11 +68,11 @@ contract PaymentObligation is Initializable, UserMintableERC721 {
   initializer
   {
     // compact property for "invoice.gross_amount",invoice = 1, gross_amount = 14
-    _mandatoryFields.push(hex"010000000000000e");
+    _mandatoryFields.push(hex"000100000000000e");
     // compact property for invoice.currency, invoice = 1, currency = 13
-    _mandatoryFields.push(hex"010000000000000d");
+    _mandatoryFields.push(hex"000100000000000d");
     // compact property for  invoice.due_date, invoice = 1, due_date = 22
-    _mandatoryFields.push(hex"0100000000000016");
+    _mandatoryFields.push(hex"0001000000000016");
 
     UserMintableERC721.initialize(
       "Centrifuge Payment Obligations",
