@@ -6,12 +6,11 @@ let proof = require('./proof.json');
 contract("PaymentObligation", function (accounts) {
 
 
-    ;
     let grossAmount = proof.field_proofs[0];
     let currency = proof.field_proofs[1];
     let due_date = proof.field_proofs[2];
     let nftUnique = proof.field_proofs[4];
-    let nextVersion = proof.field_proofs[5]
+    let nextVersion = proof.field_proofs[5];
     let readRole = proof.field_proofs[6];
     let tokenRole = proof.field_proofs[7];
     let readRoleAction = proof.field_proofs[8];

@@ -161,6 +161,7 @@ contract("Gas costs", function (accounts) {
         const mintMaxGas = 733819;
         it(`should have mint gas cost less then ${mintMaxGas} `, async function () {
 
+            // TODO replace the documentIdentifier with the pre-image of documentIdentifier
             await this.anchorRepository.commit(
                 documentIdentifier,
                 validRootHash,
