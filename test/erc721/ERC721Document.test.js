@@ -11,16 +11,18 @@ const mandatoryFields = [proof.field_proofs[0].property, proof.field_proofs[1].p
 contract("UserMintableERC721", function (accounts) {
 
 
-    let nextVersion = proof.field_proofs[5];
+    let nextVersion = proof.field_proofs[3];
     let nftUnique = proof.field_proofs[4];
+    let readRole = proof.field_proofs[5];
+    let tokenRole = proof.field_proofs[6];
+    let readRoleAction = proof.field_proofs[7];
+
     let tokenId = nftUnique.value;
-    let readRole = proof.field_proofs[6];
-    let tokenRole = proof.field_proofs[7];
-    let readRoleAction = proof.field_proofs[8];
-    let documentIdentifer = proof.header.version_id;
+    let documentIdentifier = proof.header.version_id;
     let validRootHash = proof.header.document_root;
-    let readRuleIndex = "0x" + readRole.property.substr(10, 16);
-    let contractAddress = "0x910e4e12FC1f0fFBA5D9Bf79ad5760155d3f62C8";
+    let contractAddress = "0x72a4a87df477d4ef205c4b5f8ded88d8650d43a4";
+
+    let readRuleIndex = "0x" + readRole.property.substr(18, 16);
 
 
     beforeEach(async function () {
@@ -54,12 +56,12 @@ contract("UserMintableERC721", function (accounts) {
              let mockRegistry = await MockUserMintableERC721.new("ERC-721 Document Anchor", "TDA", this.anchorRegistry.address, mandatoryFields);
 
              await this.anchorRegistry.setAnchorById(
-                 documentIdentifer,
+                 documentIdentifier,
                  validRootHash
              );
 
              const anchoredRoot = await mockRegistry.getDocumentRoot(
-                 documentIdentifer
+                 documentIdentifier
              )
 
              assert.equal(
@@ -70,11 +72,11 @@ contract("UserMintableERC721", function (accounts) {
 
          it("Should fail if the document anchor is not in the registry", async function () {
              let mockRegistry = await MockUserMintableERC721.new("ERC-721 Document Anchor", "TDA", this.anchorRegistry.address, mandatoryFields);
-             let documentIdentifer = proof.header.version_id;
+             let documentIdentifier = proof.header.version_id;
 
              await shouldRevert(
                  mockRegistry.getDocumentRoot(
-                     documentIdentifer
+                     documentIdentifier
                  ),
                  "Document in not anchored in the registry"
              );
@@ -90,7 +92,7 @@ contract("UserMintableERC721", function (accounts) {
              let mockRegistry = await MockUserMintableERC721.new("ERC-721 Document Anchor", "TDA", this.anchorRegistry.address, mandatoryFields);
 
              await this.anchorRegistry.setAnchorById(
-                 documentIdentifer,
+                 documentIdentifier,
                  validRootHash
              );
 
@@ -104,7 +106,7 @@ contract("UserMintableERC721", function (accounts) {
 
          it("Should fail when there is a newer version of the document ", async function () {
              let mockRegistry = await MockUserMintableERC721.new("ERC-721 Document Anchor", "TDA", this.anchorRegistry.address, mandatoryFields);
-             let documentIdentifer = proof.header.version_id;
+             let documentIdentifier = proof.header.version_id;
              let validRootHash = proof.header.document_root;
 
              //anchor next identifier
@@ -133,7 +135,7 @@ contract("UserMintableERC721", function (accounts) {
              await shouldRevert(
                  mockRegistry.requireIsLatestDocumentVersion(
                      validRootHash,
-                     documentIdentifer,
+                     documentIdentifier,
                      nextVersion.salt,
                      nextVersion.sorted_hashes
                  ),
@@ -314,14 +316,14 @@ contract("UserMintableERC721", function (accounts) {
              let mockRegistry = await MockUserMintableERC721.new("ERC-721 Document Anchor", "TDA", this.anchorRegistry.address, mandatoryFields);
              let tokenURI = "http://test.com";
              await this.anchorRegistry.setAnchorById(
-                 documentIdentifer,
+                 documentIdentifier,
                  validRootHash
              );
              const tokenId = 1;
              await mockRegistry.mintAnchor(
                  accounts[2],
                  tokenId,
-                 documentIdentifer,
+                 documentIdentifier,
                  validRootHash,
                  tokenURI,
                  [
@@ -344,14 +346,14 @@ contract("UserMintableERC721", function (accounts) {
              let mockRegistry = await MockUserMintableERC721.new("ERC-721 Document Anchor", "TDA", this.anchorRegistry.address, mandatoryFields);
              let tokenURI = "http://test.com";
              await this.anchorRegistry.setAnchorById(
-                 documentIdentifer,
+                 documentIdentifier,
                  validRootHash
              );
              const tokenId = 1;
              await mockRegistry.mintAnchor(
                  accounts[2],
                  tokenId,
-                 documentIdentifer,
+                 documentIdentifier,
                  validRootHash,
                  tokenURI,
                  [
@@ -371,7 +373,7 @@ contract("UserMintableERC721", function (accounts) {
              await shouldRevert(mockRegistry.mintAnchor(
                  accounts[2],
                  tokenId,
-                 documentIdentifer,
+                 documentIdentifier,
                  validRootHash,
                  tokenURI,
                  [
@@ -397,7 +399,7 @@ contract("UserMintableERC721", function (accounts) {
              let invalidRootHash = "0x1e5e444f4c4c7278f5f31aeb407c3804e7c34f79f72b8438be665f8cee935744"
              let tokenURI = "http://test.com";
              await this.anchorRegistry.setAnchorById(
-                 documentIdentifer,
+                 documentIdentifier,
                  invalidRootHash
              );
              const tokenId = 1;
@@ -406,7 +408,7 @@ contract("UserMintableERC721", function (accounts) {
              await shouldRevert(mockRegistry.mintAnchor(
                  accounts[2],
                  tokenId,
-                 documentIdentifer,
+                 documentIdentifier,
                  invalidRootHash,
                  tokenURI
                  ,

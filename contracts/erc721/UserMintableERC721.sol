@@ -185,7 +185,7 @@ contract UserMintableERC721 is Initializable, ERC721, ERC721Enumerable, ERC721Me
         documentRoot,
         sha256(
           abi.encodePacked(
-            hex"00000004", // compact prop for "next_version"
+            hex"0100000000000004", // compact prop for "next_version"
             _nextAnchorId,
             salt
           )
@@ -215,7 +215,7 @@ contract UserMintableERC721 is Initializable, ERC721, ERC721Enumerable, ERC721Me
     // Reconstruct the property
     // the property format: nfts[registryAddress]
     bytes memory property_ = abi.encodePacked(
-      hex"00000014", // compact prop from "nfts"
+      hex"0100000000000014", // compact prop from "nfts"
       _getOwnAddress(),
       hex"000000000000000000000000" // precise proofs generates a bytes32 hex
     );
@@ -252,12 +252,12 @@ contract UserMintableERC721 is Initializable, ERC721, ERC721Enumerable, ERC721Me
   returns (bytes8 readRuleIndex)
   {
     // Extract the indexes
-    bytes8 readRuleIndex_ = extractIndex(property, 4);
-    bytes8 readRuleRoleIndex_ = extractIndex(property, 16);
+    bytes8 readRuleIndex_ = extractIndex(property, 8);
+    bytes8 readRuleRoleIndex_ = extractIndex(property, 20);
     // Reconstruct the property
     // the property format: read_rules[readRuleIndex].roles[readRuleRoleIndex]
     bytes memory property_ = abi.encodePacked(
-      hex"00000013", // compact prop for "read_rules"
+      hex"0100000000000013", // compact prop for "read_rules"
       readRuleIndex_,
       hex"00000002", // compact prop for "roles"
       readRuleRoleIndex_
@@ -301,7 +301,7 @@ contract UserMintableERC721 is Initializable, ERC721, ERC721Enumerable, ERC721Me
     // Reconstruct the property
     // the property format: read_rules[readRuleIndex].action
     bytes memory property_ = abi.encodePacked(
-      hex"00000013", // compact prop for "read_rules"
+      hex"0100000000000013", // compact prop for "read_rules"
       readRuleIndex,
       hex"00000004" // compact prop for "action"
     );
@@ -345,11 +345,11 @@ contract UserMintableERC721 is Initializable, ERC721, ERC721Enumerable, ERC721Me
   view
   {
     // Extract the token index
-    bytes8 tokenIndex_ = extractIndex(property, 40);
+    bytes8 tokenIndex_ = extractIndex(property, 44);
     // Reconstruct the property
     // the property format: roles[roleIndex].nfts[tokenIndex]
     bytes memory property_ = abi.encodePacked(
-      hex"00000001", // compact prop for "roles"
+      hex"0100000000000001", // compact prop for "roles"
       roleIndex,
       hex"00000004", // compact prop for "nfts"
       tokenIndex_
