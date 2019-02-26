@@ -1,4 +1,4 @@
-pragma solidity ^0.5.0;
+pragma solidity 0.5.0;
 pragma experimental ABIEncoderV2;
 
 import "zos-lib/contracts/Initializable.sol";
@@ -19,10 +19,10 @@ import "contracts/lib/MerkleProof.sol";
  */
 contract UserMintableERC721 is Initializable, ERC721, ERC721Enumerable, ERC721Metadata {
   // anchor registry
-  address internal anchorRegistry_;
+  address internal _anchorRegistry;
 
   // array of field names that are being proved using the document root and precise-proofs
-  bytes[] public mandatoryFields;
+  bytes[] private _mandatoryFields;
 
   // The ownable anchor
   struct OwnedAnchor {
@@ -31,7 +31,7 @@ contract UserMintableERC721 is Initializable, ERC721, ERC721Enumerable, ERC721Me
   }
 
   // Mapping from token details to token ID
-  mapping(uint256 => OwnedAnchor) internal tokenDetails_;
+  mapping(uint256 => OwnedAnchor) internal _tokenDetails;
 
   /**
    * @dev Gets the anchor registry's address that is backing this token
@@ -42,78 +42,78 @@ contract UserMintableERC721 is Initializable, ERC721, ERC721Enumerable, ERC721Me
   view
   returns (address)
   {
-    return anchorRegistry_;
+    return _anchorRegistry;
   }
 
   /**
    * @dev Constructor function
-   * @param _name string The name of this token
-   * @param _symbol string The shorthand token identifier
-   * @param _anchorRegistry address The address of the anchor registry
-   * @param _mandatoryFields array of field names that are being proved
+   * @param name string The name of this token
+   * @param symbol string The shorthand token identifier
+   * @param registry address The address of the anchor registry
+   * @param mandatoryFields array of field names that are being proved
    * using document root and precise-proofs.
    * that is backing this token's mint method.
    */
   function initialize(
-    string memory _name,
-    string memory _symbol,
-    address _anchorRegistry,
-    bytes[] memory _mandatoryFields
+    string memory name,
+    string memory symbol,
+    address registry,
+    bytes[] memory mandatoryFields
   )
   public
   initializer
   {
-    anchorRegistry_ = _anchorRegistry;
-    mandatoryFields = _mandatoryFields;
+    _anchorRegistry = registry;
+    _mandatoryFields = mandatoryFields;
     ERC721.initialize();
     ERC721Enumerable.initialize();
-    ERC721Metadata.initialize(_name, _symbol);
+    ERC721Metadata.initialize(name, symbol);
   }
 
   /**
    * @dev Mints a token after validating the given merkle proof
    * and comparing it to the anchor registry's stored hash/doc ID.
-   * @param _to address The recipient of the minted token
-   * @param _tokenId uint256 The ID for the minted token
-   * @param _anchorId bytes32 The ID of the document as identified
+   * @param to address The recipient of the minted token
+   * @param tokenId uint256 The ID for the minted token
+   * @param anchorId bytes32 The ID of the document as identified
    * by the set up anchorRegistry.
-   * @param _merkleRoot bytes32 The root hash of the merkle proof/doc
-   * @param _tokenURI string The metadata uri
-   * @param _values bytes[] The values of the leafs that are being proved
+   * @param merkleRoot bytes32 The root hash of the merkle proof/doc
+   * @param tokenURI string The metadata uri
+   * @param values bytes[] The values of the leafs that are being proved
    * using precise-proofs
-   * @param _salts bytes32[] The salts for the field that is being proved
+   * @param salts bytes32[] The salts for the field that is being proved
    * Will be concatenated for proof verification as outlined in
    * precise-proofs library.
-   * @param _proofs bytes32[][] Documents proofs that are needed
+   * @param proofs bytes32[][] Documents proofs that are needed
    * for proof verification as outlined in precise-proofs library.
    */
   function _mintAnchor(
-    address _to,
-    uint256 _tokenId,
-    uint256 _anchorId,
-    bytes32 _merkleRoot,
-    string memory _tokenURI,
-    bytes[] memory _values,
-    bytes32[] memory _salts,
-    bytes32[][] memory _proofs
+    address to,
+    uint256 tokenId,
+    uint256 anchorId,
+    bytes32 merkleRoot,
+    string memory tokenURI,
+    bytes[] memory values,
+    bytes32[] memory salts,
+    bytes32[][] memory proofs
   )
   internal
   {
 
-    for (uint i = 0; i < mandatoryFields.length; i++) {
+    for (uint i = 0; i < _mandatoryFields.length; i++) {
       require(
         MerkleProof.verifySha256(
-          _proofs[i],
-          _merkleRoot,
-          sha256(abi.encodePacked(mandatoryFields[i], _values[i], _salts[i]))
+          proofs[i],
+          merkleRoot,
+          sha256(abi.encodePacked(_mandatoryFields[i], values[i], salts[i]))
         ),
         "Mandatory field failed"
       );
     }
 
-    super._mint(_to, _tokenId);
-    tokenDetails_[_tokenId] = OwnedAnchor(_anchorId, _merkleRoot);
-    _setTokenURI(_tokenId, _tokenURI);
+    super._mint(to, tokenId);
+    _tokenDetails[tokenId] = OwnedAnchor(anchorId, merkleRoot);
+    _setTokenURI(tokenId, tokenURI);
   }
 
   /**
@@ -132,24 +132,24 @@ contract UserMintableERC721 is Initializable, ERC721, ERC721Enumerable, ERC721Me
   /**
    * @dev Retrieve the document root from the linked
    * anchor registry for the given id.
-   * @param _anchorId bytes32 The ID of the document as identified
+   * @param anchorId bytes32 The ID of the document as identified
    * @return The anchored documentRoot
    */
   function _getDocumentRoot(
-    uint256 _anchorId
+    uint256 anchorId
   )
   internal
   view
   returns (bytes32 documentRoot)
   {
-    AnchorRepository ar = AnchorRepository(anchorRegistry_);
-    (, bytes32 merkleRoot) = ar.getAnchorById(_anchorId);
+    AnchorRepository ar_ = AnchorRepository(_anchorRegistry);
+    (, bytes32 merkleRoot_) = ar_.getAnchorById(anchorId);
     require(
-      merkleRoot != 0x0,
+      merkleRoot_ != 0x0,
       "Document in not anchored in the registry"
     );
 
-    return merkleRoot;
+    return merkleRoot_;
   }
 
 
@@ -157,37 +157,37 @@ contract UserMintableERC721 is Initializable, ERC721, ERC721Enumerable, ERC721Me
    * @dev Checks if the provided next id is part of the
    * document root using precise-proofs and it's not anchored
    * in the registry
-   * @param _documentRoot bytes32 the anchored document root
+   * @param documentRoot bytes32 the anchored document root
    * @param _nextAnchorId uint256 the next id to be anchored
-   * @param _salt bytes32 salt for leaf construction
-   * @param _proof bytes32[] proofs for _nextAnchorId
+   * @param salt bytes32 salt for leaf construction
+   * @param proof bytes32[] proofs for _nextAnchorId
    */
   function _requireIsLatestDocumentVersion(
-    bytes32 _documentRoot,
+    bytes32 documentRoot,
     uint256 _nextAnchorId,
-    bytes32 _salt,
-    bytes32[] memory _proof
+    bytes32 salt,
+    bytes32[] memory proof
   )
   internal
   view
   {
-    AnchorRepository ar = AnchorRepository(anchorRegistry_);
-    (, bytes32 nextMerkleRoot) = ar.getAnchorById(_nextAnchorId);
+    AnchorRepository ar_ = AnchorRepository(_anchorRegistry);
+    (, bytes32 nextMerkleRoot_) = ar_.getAnchorById(_nextAnchorId);
 
     require(
-      nextMerkleRoot == 0x0,
+      nextMerkleRoot_ == 0x0,
       "Document has a newer version on chain"
     );
 
     require(
       MerkleProof.verifySha256(
-        _proof,
-        _documentRoot,
+        proof,
+        documentRoot,
         sha256(
           abi.encodePacked(
             hex"00000004", // compact prop for "next_version"
             _nextAnchorId,
-            _salt
+            salt
           )
         )
       ),
@@ -198,32 +198,32 @@ contract UserMintableERC721 is Initializable, ERC721, ERC721Enumerable, ERC721Me
   /**
    * @dev Checks that the document has no other token
    * minted in this registry for the provided document
-   * @param _documentRoot bytes32 the anchored document root
-   * @param _tokenId uint256 The ID for the token to be minted
-   * @param _salt bytes32 salt for leaf construction
-   * @param _proof bytes32[] proofs for _nextAnchorId
+   * @param documentRoot bytes32 the anchored document root
+   * @param tokenId uint256 The ID for the token to be minted
+   * @param salt bytes32 salt for leaf construction
+   * @param proof bytes32[] proofs for _nextAnchorId
    */
   function _requireOneTokenPerDocument(
-    bytes32 _documentRoot,
-    uint256 _tokenId,
-    bytes32 _salt,
-    bytes32[] memory _proof
+    bytes32 documentRoot,
+    uint256 tokenId,
+    bytes32 salt,
+    bytes32[] memory proof
   )
   internal
   view
   {
     // Reconstruct the property
     // the property format: nfts[registryAddress]
-    bytes memory property = abi.encodePacked(
+    bytes memory property_ = abi.encodePacked(
       hex"00000014", // compact prop from "nfts"
       _getOwnAddress(),
       hex"000000000000000000000000" // precise proofs generates a bytes32 hex
     );
     require(
       MerkleProof.verifySha256(
-        _proof,
-        _documentRoot,
-        sha256(abi.encodePacked(property, _tokenId, _salt))
+        proof,
+        documentRoot,
+        sha256(abi.encodePacked(property_, tokenId, salt))
       ),
       "Token uniqueness proof is not valid"
     );
@@ -233,88 +233,88 @@ contract UserMintableERC721 is Initializable, ERC721, ERC721Enumerable, ERC721Me
   /**
    * @dev Checks that the document has a read rule set
    * using precise proofs and extract the index of the role
-   * @param _documentRoot bytes32 the anchored document root
-   * @param _property bytes property for leaf construction
-   * @param _value bytes value for leaf construction
-   * @param _salt bytes32 salt for leaf construction
-   * @param _proof bytes32[] proofs for _nextAnchorId
+   * @param documentRoot bytes32 the anchored document root
+   * @param property bytes property for leaf construction
+   * @param value bytes value for leaf construction
+   * @param salt bytes32 salt for leaf construction
+   * @param proof bytes32[] proofs for _nextAnchorId
    * @return bytes8 the index of the read rule
    */
   function _requireReadRole(
-    bytes32 _documentRoot,
-    bytes memory _property,
-    bytes memory _value,
-    bytes32 _salt,
-    bytes32[] memory _proof
+    bytes32 documentRoot,
+    bytes memory property,
+    bytes memory value,
+    bytes32 salt,
+    bytes32[] memory proof
   )
   internal
   pure
   returns (bytes8 readRuleIndex)
   {
     // Extract the indexes
-    readRuleIndex = extractIndex(_property, 4);
-    bytes8 readRuleRoleIndex = extractIndex(_property, 16);
+    bytes8 readRuleIndex_ = extractIndex(property, 4);
+    bytes8 readRuleRoleIndex_ = extractIndex(property, 16);
     // Reconstruct the property
     // the property format: read_rules[readRuleIndex].roles[readRuleRoleIndex]
-    bytes memory property = abi.encodePacked(
+    bytes memory property_ = abi.encodePacked(
       hex"00000013", // compact prop for "read_rules"
-      readRuleIndex,
+      readRuleIndex_,
       hex"00000002", // compact prop for "roles"
-      readRuleRoleIndex
+      readRuleRoleIndex_
     );
 
     require(
       MerkleProof.verifySha256(
-        _proof,
-        _documentRoot,
+        proof,
+        documentRoot,
         sha256(
           abi.encodePacked(
-            property,
-            _value,
-            _salt
+            property_,
+            value,
+            salt
           )
         )
       ),
       "Read Rule proof is not valid"
     );
 
-    return readRuleIndex;
+    return readRuleIndex_;
   }
 
   /**
    * @dev Checks that the document has a read action set
    * to the read role using precise proofs
-   * @param _documentRoot bytes32 the anchored document root
-   * @param _readRuleIndex bytes8 read rule index used for leaf construction
-   * @param _salt bytes32 salt for leaf construction
-   * @param _proof bytes32[] proofs for _nextAnchorId
+   * @param documentRoot bytes32 the anchored document root
+   * @param readRuleIndex bytes8 read rule index used for leaf construction
+   * @param salt bytes32 salt for leaf construction
+   * @param proof bytes32[] proofs for _nextAnchorId
    */
   function _requireReadAction(
-    bytes32 _documentRoot,
-    bytes8 _readRuleIndex,
-    bytes32 _salt,
-    bytes32[] memory _proof
+    bytes32 documentRoot,
+    bytes8 readRuleIndex,
+    bytes32 salt,
+    bytes32[] memory proof
   )
   internal
   pure
   {
     // Reconstruct the property
-    // the property format: read_rules[_readRuleIndex].action
-    bytes memory property = abi.encodePacked(
+    // the property format: read_rules[readRuleIndex].action
+    bytes memory property_ = abi.encodePacked(
       hex"00000013", // compact prop for "read_rules"
-      _readRuleIndex,
+      readRuleIndex,
       hex"00000004" // compact prop for "action"
     );
 
     require(
       MerkleProof.verifySha256(
-        _proof,
-        _documentRoot,
+        proof,
+        documentRoot,
         sha256(
           abi.encodePacked(
-            property,
+            property_,
             hex"0000000000000001", // Read action value has to be 1
-            _salt
+            salt
           )
         )
       ),
@@ -325,46 +325,46 @@ contract UserMintableERC721 is Initializable, ERC721, ERC721Enumerable, ERC721Me
   /**
    * @dev Checks that provided document read role is assigned to the
    * token to me minted
-   * @param _documentRoot bytes32 the anchored document root
-   * @param _tokenId uint256 The ID for the minted token
-   * @param _property bytes property for leaf construction
-   * @param _roleIndex bytes the value of the defined read role
+   * @param documentRoot bytes32 the anchored document root
+   * @param tokenId uint256 The ID for the minted token
+   * @param property bytes property for leaf construction
+   * @param roleIndex bytes the value of the defined read role
    * used to contract the property for precise proofs
-   * @param _salt bytes32 salt for leaf construction
-   * @param _proof bytes32[] proofs for _nextAnchorId
+   * @param salt bytes32 salt for leaf construction
+   * @param proof bytes32[] proofs for _nextAnchorId
    */
   function _requireTokenHasRole(
-    bytes32 _documentRoot,
-    uint256 _tokenId,
-    bytes memory _property,
-    bytes memory _roleIndex,
-    bytes32 _salt,
-    bytes32[] memory _proof
+    bytes32 documentRoot,
+    uint256 tokenId,
+    bytes memory property,
+    bytes memory roleIndex,
+    bytes32 salt,
+    bytes32[] memory proof
   )
   internal
   view
   {
     // Extract the token index
-    bytes8 tokenIndex = extractIndex(_property, 40);
+    bytes8 tokenIndex_ = extractIndex(property, 40);
     // Reconstruct the property
     // the property format: roles[roleIndex].nfts[tokenIndex]
-    bytes memory property = abi.encodePacked(
+    bytes memory property_ = abi.encodePacked(
       hex"00000001", // compact prop for "roles"
-      _roleIndex,
+      roleIndex,
       hex"00000004", // compact prop for "nfts"
-      tokenIndex
+      tokenIndex_
     );
     // Reconstruct the value
-    bytes memory value = abi.encodePacked(
+    bytes memory value_ = abi.encodePacked(
       _getOwnAddress(),
-      _tokenId
+      tokenId
     );
 
     require(
       MerkleProof.verifySha256(
-        _proof,
-        _documentRoot,
-        sha256(abi.encodePacked(property, value, _salt))
+        proof,
+        documentRoot,
+        sha256(abi.encodePacked(property_, value_, salt))
       ),
       "Token Role not valid"
     );
@@ -373,13 +373,13 @@ contract UserMintableERC721 is Initializable, ERC721, ERC721Enumerable, ERC721Me
   /**
    * @dev Parses bytes and extract a bytes8 value from
    * the given starting point
-   * @param _bytes bytes the parse to extract value from
-   * @param _startFrom uint256 where to start from
+   * @param payload bytes From where to extract the index
+   * @param startFrom uint256 where to start from
    * @return bytes8 the index found, it defaults to 0x00000000000000
    */
   function extractIndex(
-    bytes memory _bytes,
-    uint256 _startFrom
+    bytes memory payload,
+    uint256 startFrom
   )
   internal
   pure
@@ -387,13 +387,13 @@ contract UserMintableERC721 is Initializable, ERC721, ERC721Enumerable, ERC721Me
     bytes8 index
   )
   {
-    bytes8 temp;
+    bytes8 temp_;
     // solium-disable-next-line security/no-inline-assembly
     assembly {
-      temp := mload(add(add(_bytes, 0x20), _startFrom))
+      temp_ := mload(add(add(payload, 0x20), startFrom))
     }
 
-    return temp;
+    return temp_;
   }
 
 

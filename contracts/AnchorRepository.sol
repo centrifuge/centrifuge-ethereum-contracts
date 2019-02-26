@@ -1,4 +1,4 @@
-pragma solidity ^0.5.0;
+pragma solidity 0.5.0;
 
 import "zos-lib/contracts/Initializable.sol";
 import "contracts/lib/MerkleProof.sol";
@@ -27,57 +27,54 @@ contract AnchorRepository is Initializable {
   }
 
   // store precommits
-  mapping(uint256 => PreAnchor) public preCommits;
-  // store commits
-  mapping(uint256 => bytes32) public commits;
+  mapping(uint256 => PreAnchor) internal _preCommits;
+  // store _commits
+  mapping(uint256 => bytes32) internal _commits;
   // The number of blocks for which a precommit is valid
-  uint256 constant internal expirationLength = 15;
+  uint256 constant internal EXPIRATION_LENGTH = 15;
 
   /**
-   * A preCommit for an anchor expires after (current block no + expirationLength) blocks.
-   * @param _anchorId Id for an Anchor.
-   * @param _signingRoot merkle tree for a document that does not contain the signatures
+   * @param anchorId Id for an Anchor.
+   * @param signingRoot merkle tree for a document that does not contain the signatures
    */
   function preCommit(
-    uint256 _anchorId,
-    bytes32 _signingRoot
+    uint256 anchorId,
+    bytes32 signingRoot
   )
   external
-  payable
   {
 
     // not allowing to pre-commit for an existing anchor
-    require(commits[_anchorId] == 0x0,"commit exists for the given anchor");
+    require(_commits[anchorId] == 0x0,"Commit exists for the given anchor");
 
     // do not allow a precommit if there is already a valid one in place
-    require(hasValidPreCommit(_anchorId) == false,"Precommit exists for the given anchor");
+    require(hasValidPreCommit(anchorId) == false,"Precommit exists for the given anchor");
 
-    preCommits[_anchorId] = PreAnchor(
-      _signingRoot,
+    _preCommits[anchorId] = PreAnchor(
+      signingRoot,
       msg.sender,
-      uint32(block.number + expirationLength)
+      uint32(block.number + EXPIRATION_LENGTH)
     );
 
     emit AnchorPreCommitted(
       msg.sender,
-      _anchorId,
+      anchorId,
       uint32(block.number)
     );
   }
 
   /**
-   * @param _unHashedAnchorId secret anchorID for an Anchor.
-   * @param _documentRoot merkle tree for a document that will be anchored/commited. It also contains the signatures
-   * @param _documentProofs Array containing proofs for the document's signatures.
+   * @param unHashedAnchorId pre-image for an AnchorID.
+   * @param documentRoot merkle tree for a document that will be anchored/commited. It also contains the signatures
+   * @param documentProofs Array containing proofs for the document's signatures.
    * The documentRoot must be a merkle tree constructed from the signingRoot plus all signatures
    */
   function commit(
-    uint256 _unHashedAnchorId,
-    bytes32 _documentRoot,
-    bytes32[] calldata _documentProofs
+    uint256 unHashedAnchorId,
+    bytes32 documentRoot,
+    bytes32[] calldata documentProofs
   )
   external
-  payable
   {
 
     uint256 hashedAnchor = uint256(sha256(abi.encodePacked(_unHashedAnchorId)));
@@ -88,34 +85,34 @@ contract AnchorRepository is Initializable {
     // Check if there is a precommit and enforce it
     if (hasValidPreCommit(hashedAnchor)) {
       // check that the precommit has the same _identity
-      require(preCommits[hashedAnchor].identity == msg.sender,"Precommit owned by someone else");
+      require(_preCommits[hashedAnchor].identity == msg.sender,"Precommit owned by someone else");
       require(
         MerkleProof.verify(
-          _documentProofs,
-          _documentRoot,
-          preCommits[hashedAnchor].signingRoot
+          documentProofs,
+          documentRoot,
+          _preCommits[hashedAnchor].signingRoot
         ),
         "Signing root validation failed"
       );
 
     }
 
-    commits[hashedAnchor] = _documentRoot;
+    _commits[hashedAnchor] = documentRoot;
     emit AnchorCommitted(
       msg.sender,
       hashedAnchor,
-      _documentRoot,
+      documentRoot,
       uint32(block.number)
     );
 
   }
 
   /**
-   * @param _anchorId Id for an Anchor.
+   * @param id Id for an Anchor.
    * @return Struct with anchorId, documentRoot and the identity
    */
-  function getAnchorById(uint256 _anchorId)
-  public
+  function getAnchorById(uint256 id)
+  external
   view
   returns (
     uint256 anchorId,
@@ -123,24 +120,23 @@ contract AnchorRepository is Initializable {
   )
   {
     return (
-    _anchorId,
-    commits[_anchorId]
+      id,
+      _commits[id]
     );
   }
 
   /**
    * @dev Check if there is a valid precommit for an anchorID
-   * @param _anchorId Id for an Anchor.
+   * @param anchorId Id for an Anchor.
    * @return true if there is a valid precommit for the provided anchorId
    */
-  function hasValidPreCommit(uint256 _anchorId)
+  function hasValidPreCommit(uint256 anchorId)
   public
   view
-  returns (bool)
+  returns (bool valid)
   {
     return (
-    preCommits[_anchorId].expirationBlock != 0x0 &&
-    preCommits[_anchorId].expirationBlock > block.number
+      _preCommits[anchorId].expirationBlock > block.number
     );
   }
 }
