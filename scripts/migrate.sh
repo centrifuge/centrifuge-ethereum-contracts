@@ -24,14 +24,11 @@ NETWORK=$1
 
 export MIGRATE_ADDRESS=${MIGRATE_ADDRESS:-'0x89b0a86583c4444acfd71b463e0d3c55ae1412a5'}
 export MIGRATE_PASSWORD=${MIGRATE_PASSWORD:-''}
-export TARGETGASLIMIT='7000000'
 
 if [[ "$1" =~ ^(localgeth)$ ]]; then
   npm run clean
-  docker run -it --net=host --entrypoint "/geth" -e TARGETGASLIMIT=$TARGETGASLIMIT centrifugeio/cent-geth:v0.1.1 attach http://localhost:9545 --exec "personal.unlockAccount('${MIGRATE_ADDRESS}', '${MIGRATE_PASSWORD}', 500)"
+  docker run -it --net=host --entrypoint "/geth" centrifugeio/cent-geth:v0.1.1 attach http://localhost:9545 --exec "personal.unlockAccount('${MIGRATE_ADDRESS}', '${MIGRATE_PASSWORD}', 500)"
 fi
-
-
 
 npm run  migrate -- --network "${NETWORK}"
 if [ $? -ne 0 ]; then
