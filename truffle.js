@@ -18,7 +18,7 @@ module.exports = {
             port: 9545,
             network_id: "*", // Match any network id
             from: account,
-            gas: 4712388
+            gas: 7000000
         },
         rinkeby: {
             provider: new HDWalletProvider(privateKey, endpoint),
