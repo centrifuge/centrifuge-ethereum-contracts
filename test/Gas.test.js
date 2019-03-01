@@ -31,22 +31,23 @@ async function getBasicTestNeeds(accounts) {
 
 contract("Gas costs", function (accounts) {
 
-
+    //TODO export this from one file, proofs.js
     let grossAmount = proof.field_proofs[0];
     let currency = proof.field_proofs[1];
     let due_date = proof.field_proofs[2];
+    let nextVersion = proof.field_proofs[3];
     let nftUnique = proof.field_proofs[4];
-    let nextVersion = proof.field_proofs[5]
-    let readRole = proof.field_proofs[6];
-    let tokenRole = proof.field_proofs[7];
-    let readRoleAction = proof.field_proofs[8];
+    let readRole = proof.field_proofs[5];
+    let tokenRole = proof.field_proofs[6];
+    let readRoleAction = proof.field_proofs[7];
 
+    let tokenId = nftUnique.value;
     let documentIdentifier = proof.header.version_id;
     let nextDocumentIdentifier = nextVersion.value;
     let validRootHash = proof.header.document_root;
-    let tokenURI = "http://test.com";
-    let tokenId = nftUnique.value;
-    let contractAddress = "0x910e4e12FC1f0fFBA5D9Bf79ad5760155d3f62C8";
+    let contractAddress = "0x72a4a87df477d4ef205c4b5f8ded88d8650d43a4";
+
+    let tokenURI = "http://test.com"
 
     beforeEach(async function () {
         this.anchorRepository = await AnchorRepository.new();
