@@ -31,7 +31,7 @@ contract("IdentityFactory", function (accounts) {
             assert.equal(identityAddressStored,true);
         });
 
-        it("should create and register and identity with the provided address as MANAGEMENT and the sender as ACTION", async function () {
+        it("should create and register an identity with the provided address as MANAGEMENT and the sender as ACTION", async function () {
             let createdAddress;
             await this.identityFactory.createIdentityFor(accounts[2],[addressToBytes32(accounts[1])],[ACTION], {from: accounts[1]}).then(function (tx) {
                 createdAddress = getEventValue(tx, "IdentityCreated", "identity");
@@ -54,7 +54,7 @@ contract("IdentityFactory", function (accounts) {
         });
 
 
-        it("should create and register and identity with default values", async function () {
+        it("should create and register an identity with default values", async function () {
             let createdAddress;
             await this.identityFactory.createIdentityFor(accounts[2],[addressToBytes32(accounts[1]),addressToBytes32(accounts[1])],[ACTION,P2P_SIGNATURE], {from: accounts[1]}).then(function (tx) {
                 createdAddress = getEventValue(tx, "IdentityCreated", "identity");
