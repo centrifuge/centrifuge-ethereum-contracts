@@ -3,7 +3,7 @@ const MerkleTree = require('./tools/merkleTree').MerkleTree;
 const mineNBlocks = require('./tools/blockHeight').mineNBlocks;
 const shouldRevert = require('./tools/assertTx').shouldRevert;
 const shouldSucceed = require('./tools/assertTx').shouldSucceed;
-const {keccak, bufferToHex} = require('ethereumjs-util');
+const {keccak, bufferToHex, sha256, toUnsigned} = require('ethereumjs-util');
 const AnchorRepository = artifacts.require("AnchorRepository");
 const Identity = artifacts.require("Identity");
 
@@ -42,8 +42,8 @@ contract("AnchorRepository", function (accounts) {
         it("should not allow a preCommit if for an anchorId already has a valid one", async function () {
 
             const {anchorId, signingRoot, callOptions} = await getBasicTestNeeds(accounts);
-            await shouldSucceed(this.anchorRepository.preCommit(anchorId, signingRoot, callOptions));
-            await shouldRevert(this.anchorRepository.preCommit(anchorId, signingRoot, callOptions));
+            await shouldSucceed(this.anchorRepository.preCommit(sha256(anchorId), signingRoot, callOptions));
+            await shouldRevert(this.anchorRepository.preCommit(sha256(anchorId), signingRoot, callOptions));
         });
 
         it("should allow a commit without an existing precommit", async function () {
@@ -54,23 +54,24 @@ contract("AnchorRepository", function (accounts) {
 
         it("should allow committing an Anchor if the PreAnchor has expired ", async function () {
             const {anchorId, signingRoot, documentRoot, proof, callOptions} = await getBasicTestNeeds(accounts);
-            await shouldSucceed(this.anchorRepository.preCommit(anchorId, signingRoot, callOptions));
+            await shouldSucceed(this.anchorRepository.preCommit(sha256(anchorId), signingRoot, callOptions));
             await mineNBlocks(15);
             await shouldSucceed(this.anchorRepository.commit(anchorId, documentRoot, proof, callOptions));
         });
 
         it("should allow to override a preCommit for an expired preAnchor ", async function () {
             let {anchorId, signingRoot, callOptions} = await getBasicTestNeeds(accounts);
-            await shouldSucceed(this.anchorRepository.preCommit(anchorId, signingRoot, callOptions));
+
+            await shouldSucceed(this.anchorRepository.preCommit(sha256(anchorId), signingRoot, callOptions));
             await mineNBlocks(15);
-            await shouldSucceed(this.anchorRepository.preCommit(anchorId, signingRoot, callOptions));
+            await shouldSucceed(this.anchorRepository.preCommit(sha256(anchorId), signingRoot, callOptions));
         });
 
 
         it("should not allow committing an Anchor if the PreAnchor has a different msg.sender ", async function () {
             const {anchorId, signingRoot, documentRoot, proof, callOptions} = await getBasicTestNeeds(accounts);
 
-            await shouldSucceed(this.anchorRepository.preCommit(anchorId, signingRoot, callOptions));
+            await shouldSucceed(this.anchorRepository.preCommit(sha256(anchorId), signingRoot, callOptions));
             await shouldRevert(this.anchorRepository.commit(anchorId, documentRoot, proof, {from: accounts[1]}));
         });
 
@@ -80,14 +81,15 @@ contract("AnchorRepository", function (accounts) {
             // Create another document
             const documentRoot = web3.utils.randomHex(32);
 
-            await shouldSucceed(this.anchorRepository.preCommit(anchorId, signingRoot, callOptions));
+            await shouldSucceed(this.anchorRepository.preCommit(sha256(anchorId), signingRoot, callOptions));
             await shouldRevert(this.anchorRepository.commit(anchorId, documentRoot, proof, callOptions))
         });
 
         it("should not allow committing an Anchor with a valid PreAnchor that has been precommitted before", async function () {
             const {anchorId, signingRoot, documentRoot, proof, callOptions} = await getBasicTestNeeds(accounts);
+            const hashedAnchorId = sha256(anchorId);
 
-            await shouldSucceed(this.anchorRepository.preCommit(anchorId, signingRoot, callOptions));
+            await shouldSucceed(this.anchorRepository.preCommit(hashedAnchorId, signingRoot, callOptions));
             await shouldSucceed(this.anchorRepository.commit(anchorId, documentRoot, proof, callOptions));
             await shouldRevert(this.anchorRepository.commit(anchorId, documentRoot, proof, callOptions));
 
@@ -95,22 +97,24 @@ contract("AnchorRepository", function (accounts) {
 
         it("should not allow precommitting an Anchor that has been committed before", async function () {
             const {anchorId, signingRoot, documentRoot, proof, callOptions} = await getBasicTestNeeds(accounts);
+            const hashedAnchorId = sha256(anchorId);
 
-            await shouldSucceed(this.anchorRepository.preCommit(anchorId, signingRoot, callOptions));
+            await shouldSucceed(this.anchorRepository.preCommit(hashedAnchorId, signingRoot, callOptions));
             await shouldSucceed(this.anchorRepository.commit(anchorId, documentRoot, proof, callOptions));
-            await shouldRevert(this.anchorRepository.preCommit(anchorId, signingRoot, callOptions));
+            await shouldRevert(this.anchorRepository.preCommit(hashedAnchorId, signingRoot, callOptions));
 
         });
 
 
         it("should commit an Anchor and retrieve the documentRoot", async function () {
-
             const {anchorId, signingRoot, documentRoot, proof, callOptions} = await getBasicTestNeeds(accounts);
-            await shouldSucceed(this.anchorRepository.preCommit(anchorId, signingRoot, callOptions));
+            const hashedAnchorId = sha256(anchorId);
+
+            await shouldSucceed(this.anchorRepository.preCommit(hashedAnchorId, signingRoot, callOptions));
             await shouldSucceed(this.anchorRepository.commit(anchorId, documentRoot, proof, callOptions));
 
-            let response = await this.anchorRepository.getAnchorById.call(anchorId, callOptions);
-            assert.equal(anchorId, web3.utils.toHex(response[0]));
+            let response = await this.anchorRepository.getAnchorById.call(hashedAnchorId, callOptions);
+            assert.equal(bufferToHex(hashedAnchorId), web3.utils.toHex(response[0]));
             assert.equal(documentRoot, response[1]);
 
 

@@ -64,18 +64,21 @@ contract AnchorRepository is Initializable {
   }
 
   /**
-   * @param anchorId Id for an Anchor.
+   * @param anchorIdPreImage pre-image for an AnchorID.
    * @param documentRoot merkle tree for a document that will be anchored/commited. It also contains the signatures
    * @param documentProofs Array containing proofs for the document's signatures.
    * The documentRoot must be a merkle tree constructed from the signingRoot plus all signatures
    */
   function commit(
-    uint256 anchorId,
+    uint256 anchorIdPreImage,
     bytes32 documentRoot,
     bytes32[] calldata documentProofs
   )
   external
   {
+
+    uint256 anchorId = uint256(sha256(abi.encodePacked(anchorIdPreImage)));
+
     //not allowing to write to an existing anchor
     require(_commits[anchorId] == 0x0);
 

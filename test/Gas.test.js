@@ -2,7 +2,7 @@ const {ACTION, P2P_IDENTITY, P2P_SIGNATURE} = require('./constants');
 const MerkleTree = require('./tools/merkleTree').MerkleTree;
 const shouldSucceed = require('./tools/assertTx').shouldSucceed;
 const addressToBytes32 = require('./tools/utils').addressToBytes32;
-const {keccak, bufferToHex, toBuffer} = require('ethereumjs-util');
+const {keccak, bufferToHex, toBuffer, sha256} = require('ethereumjs-util');
 const IdentityFactory = artifacts.require("IdentityFactory");
 const AnchorRepository = artifacts.require("AnchorRepository");
 const Identity = artifacts.require("Identity");
@@ -42,7 +42,8 @@ contract("Gas costs", function (accounts) {
     let readRoleAction = proof.field_proofs[7];
 
     let tokenId = nftUnique.value;
-    let documentIdentifier = proof.header.version_id;
+    let docIdPreImage = proof.header.version_id;
+    let documentIdentifier = sha256(docIdPreImage);
     let nextDocumentIdentifier = nextVersion.value;
     let validRootHash = proof.header.document_root;
     let contractAddress = "0x72a4a87df477d4ef205c4b5f8ded88d8650d43a4";
@@ -163,7 +164,7 @@ contract("Gas costs", function (accounts) {
         it(`should have mint gas cost less then ${mintMaxGas} `, async function () {
 
             await this.anchorRepository.commit(
-                documentIdentifier,
+                docIdPreImage,
                 validRootHash,
                 []
             );
@@ -216,7 +217,7 @@ contract("Gas costs", function (accounts) {
         const mintMaxGas = 733819;
         it(`should have mint gas cost less then ${mintMaxGas} `, async function () {
             await this.anchorRepository.commit(
-                documentIdentifier,
+                docIdPreImage,
                 validRootHash,
                 []
             );
