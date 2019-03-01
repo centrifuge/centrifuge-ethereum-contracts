@@ -15,6 +15,9 @@ contract KeyManager {
     uint256 indexed keyType
   );
 
+  uint256 constant internal MANAGEMENT = 1;
+  uint256 constant internal ACTION = 2;
+
   struct Key {
     // e.g., Array of the key types, like 1 = MANAGEMENT, 2 = ACTION, 3 = CLAIM, 4 = ENCRYPTION
     uint256[] purposes;
@@ -175,7 +178,7 @@ contract KeyManager {
   modifier onlyManagement() {
     bytes32 key_ = addressToKey(msg.sender);
     require(
-      keyHasPurpose(key_, 1),
+      keyHasPurpose(key_, MANAGEMENT),
       "No management right"
     );
     _;

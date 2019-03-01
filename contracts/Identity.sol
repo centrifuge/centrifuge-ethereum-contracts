@@ -7,15 +7,47 @@ import "openzeppelin-eth/contracts/cryptography/ECDSA.sol";
 
 contract Identity is KeyManager {
   using ECDSA for bytes32;
-
-  constructor(address owner) public {
+  /**
+  * @dev Create Identity and set default keys
+  * @param managementKey address value for management key. This is the owner
+  * on behalf of this identity
+  * @param keys bytes32[] keys to be added to the identity
+  * @param purposes uint256[] purposes to be added to the identity
+  */
+  constructor(
+    address managementKey,
+    bytes32[] memory keys,
+    uint256[] memory purposes
+  )
+  public
+  {
     // Add MANAGEMENT_KEY
-    bytes32 key_ = addressToKey(owner);
-    _keys[key_].purposes.push(1);
-    _keys[key_].keyType = 1;
-    _keysByPurpose[1].push(key_);
-  }
+    bytes32 managementKey_ = addressToKey(managementKey);
+    _keys[managementKey_].purposes.push(MANAGEMENT);
+    _keys[managementKey_].keyType = 1;
+    _keysByPurpose[MANAGEMENT].push(managementKey_);
 
+
+    require(
+      keys.length == purposes.length,
+      "Keys and purposes must have the same length"
+    );
+
+    // Add general purpose keys
+    for (uint i = 0; i < purposes.length; i++) {
+      bytes32 keyToAdd_ = keys[i];
+
+      require(
+        purposes[i] != MANAGEMENT,
+        "Constructor can not add management keys"
+      );
+
+      _keys[keyToAdd_].purposes.push(purposes[i]);
+      _keys[keyToAdd_].keyType = 1;
+      _keysByPurpose[purposes[i]].push(keyToAdd_);
+    }
+
+  }
 
   /**
    * @dev Proxy execution
@@ -34,7 +66,7 @@ contract Identity is KeyManager {
 
     bytes32 key_ = addressToKey(msg.sender);
     require(
-      keyHasPurpose(key_, 2),
+      keyHasPurpose(key_, ACTION),
       "Requester must an ACTION purpose"
     );
     // solium-disable-next-line security/no-call-value
