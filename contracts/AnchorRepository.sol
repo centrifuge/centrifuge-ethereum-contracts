@@ -64,43 +64,43 @@ contract AnchorRepository is Initializable {
   }
 
   /**
-   * @param unHashedAnchorId pre-image for an AnchorID.
+   * @param anchorIdPreImage pre-image for an AnchorID.
    * @param documentRoot merkle tree for a document that will be anchored/commited. It also contains the signatures
    * @param documentProofs Array containing proofs for the document's signatures.
    * The documentRoot must be a merkle tree constructed from the signingRoot plus all signatures
    */
   function commit(
-    uint256 unHashedAnchorId,
+    uint256 anchorIdPreImage,
     bytes32 documentRoot,
     bytes32[] calldata documentProofs
   )
   external
   {
 
-    uint256 hashedAnchor = uint256(sha256(abi.encodePacked(_unHashedAnchorId)));
+    uint256 anchorId = uint256(sha256(abi.encodePacked(anchorIdPreImage)));
 
     //not allowing to write to an existing anchor
-    require(commits[hashedAnchor] == 0x0);
+    require(_commits[anchorId] == 0x0);
 
     // Check if there is a precommit and enforce it
-    if (hasValidPreCommit(hashedAnchor)) {
+    if (hasValidPreCommit(anchorId)) {
       // check that the precommit has the same _identity
-      require(_preCommits[hashedAnchor].identity == msg.sender,"Precommit owned by someone else");
+      require(_preCommits[anchorId].identity == msg.sender,"Precommit owned by someone else");
       require(
         MerkleProof.verify(
           documentProofs,
           documentRoot,
-          _preCommits[hashedAnchor].signingRoot
+          _preCommits[anchorId].signingRoot
         ),
         "Signing root validation failed"
       );
 
     }
 
-    _commits[hashedAnchor] = documentRoot;
+    _commits[anchorId] = documentRoot;
     emit AnchorCommitted(
       msg.sender,
-      hashedAnchor,
+      anchorId,
       documentRoot,
       uint32(block.number)
     );
