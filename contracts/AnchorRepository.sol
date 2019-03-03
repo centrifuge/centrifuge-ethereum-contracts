@@ -87,7 +87,7 @@ contract AnchorRepository is Initializable {
       // check that the precommit has the same _identity
       require(_preCommits[anchorId].identity == msg.sender,"Precommit owned by someone else");
       require(
-        MerkleProof.verify(
+        MerkleProof.verifySha256(
           documentProofs,
           documentRoot,
           _preCommits[anchorId].signingRoot

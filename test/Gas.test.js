@@ -13,10 +13,10 @@ async function getBasicTestNeeds(accounts) {
 
     const anchorId = web3.utils.randomHex(32);
     const elements = [web3.utils.randomHex(32), web3.utils.randomHex(32), web3.utils.randomHex(32), web3.utils.randomHex(32)];
-    const merkleTree = new MerkleTree(elements);
+    const merkleTree = new MerkleTree(elements, sha256);
     const documentRoot = merkleTree.getHexRoot();
     const proof = merkleTree.getHexProof(elements[0]);
-    const signingRoot = bufferToHex(keccak(elements[0]));
+    const signingRoot = bufferToHex(sha256(elements[0]));
 
     return {
         anchorId,
