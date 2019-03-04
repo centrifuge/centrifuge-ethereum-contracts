@@ -55,7 +55,7 @@ contract IdentityFactory is Initializable {
   * @dev Checks if the given address was created by this factory
   * @param identityAddr address the contract address to check
   */
-  function isCentrifugeIdentity(
+  function createdIdentity(
     address identityAddr
   )
   external

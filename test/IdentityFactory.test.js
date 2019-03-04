@@ -27,7 +27,7 @@ contract("IdentityFactory", function (accounts) {
             const hasManagementKey = await Identity.at(createdAddress).then(i => i.keyHasPurpose(addressToBytes32(accounts[1]), MANAGEMENT));
             assert.equal(hasManagementKey, true);
 
-            const identityAddressStored = await this.identityFactory.isCentrifugeIdentity(createdAddress);
+            const identityAddressStored = await this.identityFactory.createdIdentity(createdAddress);
             assert.equal(identityAddressStored,true);
         });
 
@@ -44,12 +44,12 @@ contract("IdentityFactory", function (accounts) {
 
             assert.equal(hasManagementKey, true);
             assert.equal(hasActionKey, true);
-            const identityAddressStored = await this.identityFactory.isCentrifugeIdentity(createdAddress);
+            const identityAddressStored = await this.identityFactory.createdIdentity(createdAddress);
             assert.equal(identityAddressStored,true);
         });
 
         it("should not find a registered identity", async function () {
-            const identityAddressStored = await this.identityFactory.isCentrifugeIdentity(accounts[1]);
+            const identityAddressStored = await this.identityFactory.createdIdentity(accounts[1]);
             assert.equal(identityAddressStored,false);
         });
 
@@ -69,12 +69,12 @@ contract("IdentityFactory", function (accounts) {
             assert.equal(hasManagementKey, true);
             assert.equal(hasActionKey, true);
             assert.equal(hasP2PKey, true);
-            const identityAddressStored = await this.identityFactory.isCentrifugeIdentity(createdAddress);
+            const identityAddressStored = await this.identityFactory.createdIdentity(createdAddress);
             assert.equal(identityAddressStored,true);
         });
 
         it("should not find a registered identity", async function () {
-            const identityAddressStored = await this.identityFactory.isCentrifugeIdentity(accounts[1]);
+            const identityAddressStored = await this.identityFactory.createdIdentity(accounts[1]);
             assert.equal(identityAddressStored,false);
         });
     });

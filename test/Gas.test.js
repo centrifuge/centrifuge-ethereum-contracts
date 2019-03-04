@@ -51,7 +51,7 @@ contract("Gas costs", function (accounts) {
 
     beforeEach(async function () {
         this.anchorRepository = await AnchorRepository.new();
-        this.identity = await Identity.new(accounts[0]);
+        this.identity = await Identity.new(accounts[0],[],[]);
         await this.identity.addKey(addressToBytes32(accounts[1]), ACTION, 1);
         this.identityFactory = await IdentityFactory.new();
         this.poRegistry = await MockPaymentObligation.new();
