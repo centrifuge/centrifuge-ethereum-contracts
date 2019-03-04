@@ -15,9 +15,6 @@ contract PaymentObligation is Initializable, UserMintableERC721 {
     string tokenURI
   );
 
-  // hardcoded supported fields for minting a PaymentObligation
-  bytes[] private _poMandatoryFields;
-
   struct PODetails {
     bytes grossAmount;
     bytes currency;
@@ -70,18 +67,17 @@ contract PaymentObligation is Initializable, UserMintableERC721 {
   initializer
   {
     // compact property for "invoice.gross_amount",invoice = 1, gross_amount = 14
-    _poMandatoryFields.push(hex"000100000000000e");
+    _mandatoryFields.push(hex"000100000000000e");
     // compact property for invoice.currency, invoice = 1, currency = 13
-    _poMandatoryFields.push(hex"000100000000000d");
+    _mandatoryFields.push(hex"000100000000000d");
     // compact property for  invoice.due_date, invoice = 1, due_date = 22
-    _poMandatoryFields.push(hex"0001000000000016");
+    _mandatoryFields.push(hex"0001000000000016");
 
     UserMintableERC721.initialize(
       "Centrifuge Payment Obligations",
       "CENT_PAY_OB",
       anchorRegistry,
-      identityFactory,
-      _poMandatoryFields
+      identityFactory
     );
   }
 

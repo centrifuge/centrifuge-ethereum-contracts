@@ -21,12 +21,12 @@ contract MockUserMintableERC721 is UserMintableERC721 {
   )
   public
   {
+    _mandatoryFields = mandatoryFields;
     UserMintableERC721.initialize(
       name,
       symbol,
       anchorRegistry,
-      identityFactory,
-      mandatoryFields
+      identityFactory
     );
   }
 

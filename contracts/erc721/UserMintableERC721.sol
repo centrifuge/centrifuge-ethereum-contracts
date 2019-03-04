@@ -25,7 +25,7 @@ contract UserMintableERC721 is Initializable, ERC721, ERC721Enumerable, ERC721Me
   address internal _identityFactory;
 
   // array of field names that are being proved using the document root and precise-proofs
-  bytes[] private _mandatoryFields;
+  bytes[] internal _mandatoryFields;
 
   // The ownable anchor
   struct OwnedAnchor {
@@ -66,7 +66,6 @@ contract UserMintableERC721 is Initializable, ERC721, ERC721Enumerable, ERC721Me
    * @param symbol string The shorthand token identifier
    * @param anchorRegistry address The address of the anchor registry
    * @param identityFactory address The address of the identity factory
-   * @param mandatoryFields array of field names that are being proved
    * using document root and precise-proofs.
    * that is backing this token's mint method.
    */
@@ -74,15 +73,13 @@ contract UserMintableERC721 is Initializable, ERC721, ERC721Enumerable, ERC721Me
     string memory name,
     string memory symbol,
     address anchorRegistry,
-    address identityFactory,
-    bytes[] memory mandatoryFields
+    address identityFactory
   )
   public
   initializer
   {
     _anchorRegistry = anchorRegistry;
     _identityFactory = identityFactory;
-    _mandatoryFields = mandatoryFields;
 
     ERC721.initialize();
     ERC721Enumerable.initialize();

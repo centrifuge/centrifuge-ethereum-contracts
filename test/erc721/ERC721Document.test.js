@@ -1,6 +1,4 @@
 const shouldRevert = require('../tools/assertTx').shouldRevert
-const {bufferToHex, sha256} = require("ethereumjs-util");
-let UserMintableERC721 = artifacts.require("UserMintableERC721");
 let MockAnchorRegistry = artifacts.require("MockAnchorRepository");
 let MockIdentityFactory = artifacts.require("MockIdentityFactory");
 let MockUserMintableERC721 = artifacts.require("MockUserMintableERC721");
@@ -32,8 +30,7 @@ contract("UserMintableERC721", function (accounts) {
     beforeEach(async function () {
         this.anchorRegistry = await MockAnchorRegistry.new();
         this.identityFactory = await MockIdentityFactory.new();
-        this.registry = await UserMintableERC721.new();
-        await this.registry.initialize("ERC-721 Document Anchor", "TDA", this.anchorRegistry.address, this.identityFactory.address, mandatoryFields)
+        this.registry = await MockUserMintableERC721.new("ERC-721 Document Anchor", "TDA", this.anchorRegistry.address, this.identityFactory.address, mandatoryFields);
     });
 
     describe("UserMintableERC721 Deployment", async function () {
@@ -41,8 +38,7 @@ contract("UserMintableERC721", function (accounts) {
         it("should be deployable as an independent registry", async function () {
             let anchorRegistry = await MockAnchorRegistry.new();
             let identityFactory = await MockIdentityFactory.new();
-            let instance = await UserMintableERC721.new();
-            await instance.initialize("ERC721 Document Anchor 2", "TDA2", anchorRegistry.address, identityFactory.address, mandatoryFields);
+            let instance = await MockUserMintableERC721.new("ERC721 Document Anchor 2", "TDA2", anchorRegistry.address, identityFactory.address, mandatoryFields);
 
             assert.equal("ERC721 Document Anchor 2", await instance.name.call(), "The registry should be deployed with the specific name");
             assert.equal("TDA2", await instance.symbol.call(), "The registry should be deployed with the specific symbol");
