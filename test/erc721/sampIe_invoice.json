@@ -20,21 +20,3 @@
 // curl -X POST "https://35.184.66.29:8082/document/0x0234a74e2af0be13b76777cf568807594468db8cf19ac865b7e6d193d2ba50b0/proof"      -H "accept: application/json"      -H "Content-Type: application/json"      -d "{\"type\":\"http://github.com/centrifuge/centrifuge-protobufs/invoice/#invoice.InvoiceData\", \"fields\": [\"gross_amount\",\"document_type\",\"due_date\",\"currency\"]}" -k
 
 
-
-
-
-{
-  "header": {
-    "document_id": "0x0234a74e2af0be13b76777cf568807594468db8cf19ac865b7e6d193d2ba50b0",
-    "version_id": "0x0234a74e2af0be13b76777cf568807594468db8cf19ac865b7e6d193d2ba50b0",
-    "collaborators": [
-      "0x8c8cfaf732d3",
-      "0x24fe6555beb9"
-    ]
-  },
-  "data": {
-    "currency": "USD",
-    "gross_amount": "1501",
-    "due_date": "2018-09-26T23:12:37.902198664Z"
-  }
-}

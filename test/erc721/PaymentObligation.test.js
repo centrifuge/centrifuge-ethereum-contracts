@@ -1,35 +1,39 @@
 const shouldRevert = require('../tools/assertTx').shouldRevert
 let MockPaymentObligation = artifacts.require("MockPaymentObligation");
 let MockAnchorRegistry = artifacts.require("MockAnchorRepository");
-let proof = require('./proof.json');
+let MockIdentityFactory = artifacts.require("MockIdentityFactory");
+let proof = require("./proof.js");
 
 contract("PaymentObligation", function (accounts) {
 
 
-    let grossAmount = proof.field_proofs[0];
-    let currency = proof.field_proofs[1];
-    let due_date = proof.field_proofs[2];
-    let nextVersion = proof.field_proofs[3];
-    let nftUnique = proof.field_proofs[4];
-    let readRole = proof.field_proofs[5];
-    let tokenRole = proof.field_proofs[6];
-    let readRoleAction = proof.field_proofs[7];
+    let {
+        grossAmount,
+        currency,
+        due_date,
+        sender,
+        status,
+        nextVersion,
+        nftUnique,
+        readRole,
+        readRoleAction,
+        tokenRole,
+        tokenId,
+        documentIdentifier,
+        validRootHash,
+        contractAddress,
+        tokenURI,
+    } = proof;
 
-    let tokenId = nftUnique.value;
-    let documentIdentifier = proof.header.version_id;
     let nextDocumentIdentifier = nextVersion.value;
-    let validRootHash = proof.header.document_root;
-    let contractAddress = "0x72a4a87df477d4ef205c4b5f8ded88d8650d43a4";
-
-    let tokenURI = "http://test.com"
-
-    beforeEach(async function () {
-        this.anchorRegistry = await MockAnchorRegistry.new();
-        this.registry = await MockPaymentObligation.new();
-        await this.registry.initialize(this.anchorRegistry.address)
-    });
 
     describe("mint", async function () {
+
+        beforeEach(async function () {
+            this.anchorRegistry = await MockAnchorRegistry.new();
+            this.identityFactory = await MockIdentityFactory.new();
+            this.registry = await MockPaymentObligation.new(this.anchorRegistry.address,this.identityFactory.address);
+        });
 
         it("should mint a token if the Merkle proofs validates", async function () {
 
@@ -37,8 +41,9 @@ contract("PaymentObligation", function (accounts) {
                 documentIdentifier,
                 validRootHash
             );
-
+            await this.identityFactory.registerIdentity(sender.value);
             await this.registry.setOwnAddress(contractAddress);
+
 
             await this.registry.mint(
                 accounts[2],
@@ -54,12 +59,15 @@ contract("PaymentObligation", function (accounts) {
                     grossAmount.value,
                     currency.value,
                     due_date.value,
+                    sender.value,
                     readRole.value,
                 ],
                 [
                     grossAmount.salt,
                     currency.salt,
                     due_date.salt,
+                    sender.salt,
+                    status.salt,
                     nextVersion.salt,
                     nftUnique.salt,
                     readRole.salt,
@@ -71,6 +79,8 @@ contract("PaymentObligation", function (accounts) {
                     grossAmount.sorted_hashes,
                     currency.sorted_hashes,
                     due_date.sorted_hashes,
+                    sender.sorted_hashes,
+                    status.sorted_hashes,
                     nextVersion.sorted_hashes,
                     nftUnique.sorted_hashes,
                     readRole.sorted_hashes,
@@ -89,9 +99,9 @@ contract("PaymentObligation", function (accounts) {
             // check token details
             let tokenDetails = await this.registry.getTokenDetails(tokenId);
 
-            assert.equal(tokenDetails[0], proof.field_proofs[0].value)
-            assert.equal(tokenDetails[1], proof.field_proofs[1].value)
-            assert.equal(tokenDetails[2], proof.field_proofs[2].value)
+            assert.equal(tokenDetails[0], grossAmount.value)
+            assert.equal(tokenDetails[1], currency.value)
+            assert.equal(tokenDetails[2], due_date.value)
             assert.equal(web3.utils.toHex(tokenDetails[3]), documentIdentifier)
             assert.equal(tokenDetails[4], validRootHash);
 
@@ -105,6 +115,7 @@ contract("PaymentObligation", function (accounts) {
                 documentIdentifier,
                 validRootHash
             );
+            await this.identityFactory.registerIdentity(sender.value);
 
             await shouldRevert(this.registry.mint(
                 accounts[2],
@@ -120,12 +131,15 @@ contract("PaymentObligation", function (accounts) {
                     "0x1",
                     currency.value,
                     due_date.value,
+                    sender.value,
                     readRole.value,
                 ],
                 [
                     grossAmount.salt,
                     currency.salt,
                     due_date.salt,
+                    sender.salt,
+                    status.salt,
                     nextVersion.salt,
                     nftUnique.salt,
                     readRole.salt,
@@ -137,6 +151,8 @@ contract("PaymentObligation", function (accounts) {
                     grossAmount.sorted_hashes,
                     currency.sorted_hashes,
                     due_date.sorted_hashes,
+                    sender.sorted_hashes,
+                    status.sorted_hashes,
                     nextVersion.sorted_hashes,
                     nftUnique.sorted_hashes,
                     readRole.sorted_hashes,
@@ -152,6 +168,8 @@ contract("PaymentObligation", function (accounts) {
                 documentIdentifier,
                 validRootHash
             );
+
+            await this.identityFactory.registerIdentity(sender.value);
 
             await this.registry.setOwnAddress(contractAddress);
 
@@ -169,12 +187,15 @@ contract("PaymentObligation", function (accounts) {
                     grossAmount.value,
                     currency.value,
                     due_date.value,
+                    sender.value,
                     readRole.value,
                 ],
                 [
                     grossAmount.salt,
                     currency.salt,
                     due_date.salt,
+                    sender.salt,
+                    status.salt,
                     nextVersion.salt,
                     nftUnique.salt,
                     readRole.salt,
@@ -186,6 +207,8 @@ contract("PaymentObligation", function (accounts) {
                     grossAmount.sorted_hashes,
                     currency.sorted_hashes,
                     due_date.sorted_hashes,
+                    sender.sorted_hashes,
+                    status.sorted_hashes,
                     nextVersion.sorted_hashes,
                     nftUnique.sorted_hashes,
                     readRole.sorted_hashes,
@@ -209,12 +232,15 @@ contract("PaymentObligation", function (accounts) {
                         grossAmount.value,
                         currency.value,
                         due_date.value,
+                        sender.value,
                         readRole.value,
                     ],
                     [
                         grossAmount.salt,
                         currency.salt,
                         due_date.salt,
+                        sender.salt,
+                        status.salt,
                         nextVersion.salt,
                         nftUnique.salt,
                         readRole.salt,
@@ -226,6 +252,8 @@ contract("PaymentObligation", function (accounts) {
                         grossAmount.sorted_hashes,
                         currency.sorted_hashes,
                         due_date.sorted_hashes,
+                        sender.sorted_hashes,
+                        status.sorted_hashes,
                         nextVersion.sorted_hashes,
                         nftUnique.sorted_hashes,
                         readRole.sorted_hashes,
@@ -234,6 +262,67 @@ contract("PaymentObligation", function (accounts) {
                     ]
                 ),
                 "Token exists"
+            );
+        });
+
+
+        it("should fail if the status proof does not pass", async function () {
+
+            await this.anchorRegistry.setAnchorById(
+                documentIdentifier,
+                validRootHash
+            );
+
+            await this.identityFactory.registerIdentity(sender.value);
+
+            await this.registry.setOwnAddress(contractAddress);
+
+
+            await shouldRevert(
+                this.registry.mint(
+                    accounts[2],
+                    tokenId,
+                    tokenURI,
+                    documentIdentifier,
+                    nextDocumentIdentifier,
+                    [
+                        readRole.property,
+                        tokenRole.property
+                    ],
+                    [
+                        grossAmount.value,
+                        currency.value,
+                        due_date.value,
+                        sender.value,
+                        readRole.value,
+                    ],
+                    [
+                        grossAmount.salt,
+                        currency.salt,
+                        due_date.salt,
+                        sender.salt,
+                        nextVersion.salt, // replace status.salt with nextVersion
+                        nextVersion.salt,
+                        nftUnique.salt,
+                        readRole.salt,
+                        readRoleAction.salt,
+                        tokenRole.salt,
+
+                    ],
+                    [
+                        grossAmount.sorted_hashes,
+                        currency.sorted_hashes,
+                        due_date.sorted_hashes,
+                        sender.sorted_hashes,
+                        status.sorted_hashes,
+                        nextVersion.sorted_hashes,
+                        nftUnique.sorted_hashes,
+                        readRole.sorted_hashes,
+                        readRoleAction.sorted_hashes,
+                        tokenRole.sorted_hashes,
+                    ]
+                ),
+                "Invoice status is not unpaid"
             );
         });
     });

@@ -31,7 +31,7 @@ async function deploy(options) {
     const paymentObligation = await create(Object.assign({
         contractAlias: 'PaymentObligation',
         initMethod: 'initialize',
-        initArgs: [anchorRepository.address]
+        initArgs: [anchorRepository.address, identityFactory.address]
     }, options));
 
 }

@@ -3,11 +3,11 @@ const MerkleTree = require('./tools/merkleTree').MerkleTree;
 const shouldSucceed = require('./tools/assertTx').shouldSucceed;
 const addressToBytes32 = require('./tools/utils').addressToBytes32;
 const {keccak, bufferToHex, toBuffer, sha256} = require('ethereumjs-util');
-const IdentityFactory = artifacts.require("IdentityFactory");
+const IdentityFactory = artifacts.require("MockIdentityFactory");
 const AnchorRepository = artifacts.require("AnchorRepository");
 const Identity = artifacts.require("Identity");
 const MockPaymentObligation = artifacts.require("MockPaymentObligation");
-const proof = require('./erc721/proof.json');
+const proof = require('./erc721/proof');
 
 async function getBasicTestNeeds(accounts) {
 
@@ -31,32 +31,35 @@ async function getBasicTestNeeds(accounts) {
 
 contract("Gas costs", function (accounts) {
 
-    //TODO export this from one file, proofs.js
-    let grossAmount = proof.field_proofs[0];
-    let currency = proof.field_proofs[1];
-    let due_date = proof.field_proofs[2];
-    let nextVersion = proof.field_proofs[3];
-    let nftUnique = proof.field_proofs[4];
-    let readRole = proof.field_proofs[5];
-    let tokenRole = proof.field_proofs[6];
-    let readRoleAction = proof.field_proofs[7];
+    let {
+        grossAmount,
+        currency,
+        due_date,
+        sender,
+        status,
+        nextVersion,
+        nftUnique,
+        readRole,
+        readRoleAction,
+        tokenRole,
+        tokenId,
+        documentIdentifier,
+        validRootHash,
+        contractAddress,
+        tokenURI,
+    } = proof;
 
-    let tokenId = nftUnique.value;
-    let docIdPreImage = proof.header.version_id;
-    let documentIdentifier = sha256(docIdPreImage);
     let nextDocumentIdentifier = nextVersion.value;
-    let validRootHash = proof.header.document_root;
-    let contractAddress = "0x72a4a87df477d4ef205c4b5f8ded88d8650d43a4";
-
-    let tokenURI = "http://test.com"
+    // TODO fix this
+    let docIdPreImage = documentIdentifier;
+    documentIdentifier = sha256(docIdPreImage);
 
     beforeEach(async function () {
         this.anchorRepository = await AnchorRepository.new();
         this.identity = await Identity.new(accounts[0],[],[]);
         await this.identity.addKey(addressToBytes32(accounts[1]), ACTION, 1);
         this.identityFactory = await IdentityFactory.new();
-        this.poRegistry = await MockPaymentObligation.new();
-        this.poRegistry.initialize(this.anchorRepository.address)
+        this.poRegistry = await MockPaymentObligation.new(this.anchorRepository.address,this.identityFactory.address);
 
     });
 
@@ -169,6 +172,8 @@ contract("Gas costs", function (accounts) {
                 []
             );
             await this.poRegistry.setOwnAddress(contractAddress);
+            await this.identityFactory.registerIdentity(sender.value);
+
 
             const mintGasCost = await this.poRegistry.mint.estimateGas(
                 accounts[2],
@@ -184,12 +189,15 @@ contract("Gas costs", function (accounts) {
                     grossAmount.value,
                     currency.value,
                     due_date.value,
+                    sender.value,
                     readRole.value,
                 ],
                 [
                     grossAmount.salt,
                     currency.salt,
                     due_date.salt,
+                    sender.salt,
+                    status.salt,
                     nextVersion.salt,
                     nftUnique.salt,
                     readRole.salt,
@@ -201,6 +209,8 @@ contract("Gas costs", function (accounts) {
                     grossAmount.sorted_hashes,
                     currency.sorted_hashes,
                     due_date.sorted_hashes,
+                    sender.sorted_hashes,
+                    status.sorted_hashes,
                     nextVersion.sorted_hashes,
                     nftUnique.sorted_hashes,
                     readRole.sorted_hashes,
@@ -223,6 +233,7 @@ contract("Gas costs", function (accounts) {
             );
 
             await this.poRegistry.setOwnAddress(contractAddress);
+            await this.identityFactory.registerIdentity(sender.value);
 
             const data = await this.poRegistry.contract.methods.mint(
                 accounts[2],
@@ -238,12 +249,15 @@ contract("Gas costs", function (accounts) {
                     grossAmount.value,
                     currency.value,
                     due_date.value,
+                    sender.value,
                     readRole.value,
                 ],
                 [
                     grossAmount.salt,
                     currency.salt,
                     due_date.salt,
+                    sender.salt,
+                    status.salt,
                     nextVersion.salt,
                     nftUnique.salt,
                     readRole.salt,
@@ -255,6 +269,8 @@ contract("Gas costs", function (accounts) {
                     grossAmount.sorted_hashes,
                     currency.sorted_hashes,
                     due_date.sorted_hashes,
+                    sender.sorted_hashes,
+                    status.sorted_hashes,
                     nextVersion.sorted_hashes,
                     nftUnique.sorted_hashes,
                     readRole.sorted_hashes,

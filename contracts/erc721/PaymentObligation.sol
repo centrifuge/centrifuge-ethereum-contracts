@@ -57,12 +57,14 @@ contract PaymentObligation is Initializable, UserMintableERC721 {
 
 
   /**
-   * @param registry address The address of the anchor registry
+   * @param anchorRegistry address The address of the anchor registry
+   * @param identityFactory address The address of the identity factory
    * that is backing this token's mint method.
    * that ensures that the sender is authorized to mint the token
    */
   function initialize(
-    address registry
+    address anchorRegistry,
+    address identityFactory
   )
   public
   initializer
@@ -77,7 +79,8 @@ contract PaymentObligation is Initializable, UserMintableERC721 {
     UserMintableERC721.initialize(
       "Centrifuge Payment Obligations",
       "CENT_PAY_OB",
-      registry,
+      anchorRegistry,
+      identityFactory,
       _mandatoryFields
     );
   }
@@ -127,37 +130,63 @@ contract PaymentObligation is Initializable, UserMintableERC721 {
       anchorId
     );
 
+
+    // Check if status of invoice is unpaid
+    require(
+      MerkleProof.verifySha256(
+        proofs[4],
+        merkleRoot_,
+        sha256(
+          abi.encodePacked(
+            hex"0001000000000002", // compact property for  invoice.status, invoice = 1, status = 2
+            hex"756e70616964", // bytes value for "unpaid"
+            salts[4]
+          )
+        )
+      ),
+      "Invoice status is not unpaid"
+    );
+
+    // Check if sender is a registered identity
+    super._requireValidIdentity(
+      merkleRoot_,
+      hex"0001000000000013", // compact property for  invoice.sender, invoice = 1, sender = 19
+      values[3],
+      salts[3],
+      proofs[3]
+    );
+
     // Enforce that there is not a newer version of the document on chain
     super._requireIsLatestDocumentVersion(
       merkleRoot_,
       nextAnchorId,
-      salts[3],
-      proofs[3]
+      salts[5],
+      proofs[5]
     );
 
     // Verify that only one token per document/registry is minted
     super._requireOneTokenPerDocument(
       merkleRoot_,
       tokenId,
-      salts[4],
-      proofs[4]
+      salts[6],
+      proofs[6]
     );
 
     // Check if document has a read rule defined
     bytes8 readRoleIndex = super._requireReadRole(
       merkleRoot_,
       properties[0],
-      values[3],
-      salts[5],
-      proofs[5]
+      values[4],
+      salts[7],
+      proofs[7]
     );
 
     // Check if the read rule has a read action
     super._requireReadAction(
       merkleRoot_,
       readRoleIndex,
-      salts[6],
-      proofs[6]
+      salts[8],
+      proofs[8]
     );
 
     // Check if the token has the read role assigned to it
@@ -165,9 +194,9 @@ contract PaymentObligation is Initializable, UserMintableERC721 {
       merkleRoot_,
       tokenId,
       properties[1],
-      values[3], // the value from read role proof
-      salts[7],
-      proofs[7]
+      values[4], // the value from read role proof
+      salts[9],
+      proofs[9]
     );
 
     super._mintAnchor(

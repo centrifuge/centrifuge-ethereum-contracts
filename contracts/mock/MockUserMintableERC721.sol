@@ -15,7 +15,8 @@ contract MockUserMintableERC721 is UserMintableERC721 {
   constructor(
     string memory name,
     string memory symbol,
-    address registry,
+    address anchorRegistry,
+    address identityFactory,
     bytes[] memory mandatoryFields
   )
   public
@@ -23,7 +24,8 @@ contract MockUserMintableERC721 is UserMintableERC721 {
     UserMintableERC721.initialize(
       name,
       symbol,
-      registry,
+      anchorRegistry,
+      identityFactory,
       mandatoryFields
     );
   }
@@ -38,7 +40,24 @@ contract MockUserMintableERC721 is UserMintableERC721 {
     return super._getDocumentRoot(anchorId);
   }
 
-
+  function requireValidIdentity(
+    bytes32 documentRoot,
+    bytes calldata property,
+    bytes calldata value,
+    bytes32 salt,
+    bytes32[] calldata proof
+  )
+  external
+  view
+  {
+    super._requireValidIdentity(
+       documentRoot,
+      property,
+      value,
+      salt,
+      proof
+    );
+  }
 
   function requireIsLatestDocumentVersion(
     bytes32 documentRoot,

@@ -6,6 +6,7 @@ import "openzeppelin-eth/contracts/token/ERC721/ERC721Metadata.sol";
 import "openzeppelin-eth/contracts/token/ERC721/ERC721.sol";
 import "openzeppelin-eth/contracts/token/ERC721/ERC721Enumerable.sol";
 import "contracts/AnchorRepository.sol";
+import "contracts/IdentityFactory.sol";
 import "contracts/lib/MerkleProof.sol";
 
 
@@ -20,6 +21,8 @@ import "contracts/lib/MerkleProof.sol";
 contract UserMintableERC721 is Initializable, ERC721, ERC721Enumerable, ERC721Metadata {
   // anchor registry
   address internal _anchorRegistry;
+  // identity factory
+  address internal _identityFactory;
 
   // array of field names that are being proved using the document root and precise-proofs
   bytes[] private _mandatoryFields;
@@ -37,7 +40,7 @@ contract UserMintableERC721 is Initializable, ERC721, ERC721Enumerable, ERC721Me
    * @dev Gets the anchor registry's address that is backing this token
    * @return address The address of the anchor registry
    */
-  function anchorRegistry()
+  function getAnchorRegistry()
   external
   view
   returns (address)
@@ -46,10 +49,23 @@ contract UserMintableERC721 is Initializable, ERC721, ERC721Enumerable, ERC721Me
   }
 
   /**
+   * @dev Gets the identity factory's address that is used to validate centrifuge identities
+   * @return address The address of the identity registry
+   */
+  function getIdentityFactory()
+  external
+  view
+  returns (address)
+  {
+    return _identityFactory;
+  }
+
+  /**
    * @dev Constructor function
    * @param name string The name of this token
    * @param symbol string The shorthand token identifier
-   * @param registry address The address of the anchor registry
+   * @param anchorRegistry address The address of the anchor registry
+   * @param identityFactory address The address of the identity factory
    * @param mandatoryFields array of field names that are being proved
    * using document root and precise-proofs.
    * that is backing this token's mint method.
@@ -57,14 +73,17 @@ contract UserMintableERC721 is Initializable, ERC721, ERC721Enumerable, ERC721Me
   function initialize(
     string memory name,
     string memory symbol,
-    address registry,
+    address anchorRegistry,
+    address identityFactory,
     bytes[] memory mandatoryFields
   )
   public
   initializer
   {
-    _anchorRegistry = registry;
+    _anchorRegistry = anchorRegistry;
+    _identityFactory = identityFactory;
     _mandatoryFields = mandatoryFields;
+
     ERC721.initialize();
     ERC721Enumerable.initialize();
     ERC721Metadata.initialize(name, symbol);
@@ -152,19 +171,63 @@ contract UserMintableERC721 is Initializable, ERC721, ERC721Enumerable, ERC721Me
     return merkleRoot_;
   }
 
+  /**
+   * @dev Checks if the provided proof is part of the document root,
+   * convert the value to address check if it was created
+   * using the linked identity factory
+   * @param documentRoot bytes32 the anchored document root
+   * @param property bytes property for leaf construction
+   * @param value bytes value for leaf construction
+   * @param salt bytes32 salt for leaf construction
+   * @param proof bytes32[] proofs for leaf construction
+   */
+  function _requireValidIdentity(
+    bytes32 documentRoot,
+    bytes memory property,
+    bytes memory value,
+    bytes32 salt,
+    bytes32[] memory proof
+  )
+  internal
+  view
+  {
+    require(
+      MerkleProof.verifySha256(
+        proof,
+        documentRoot,
+        sha256(
+          abi.encodePacked(
+            property,
+            value,
+            salt
+          )
+        )
+      ),
+      "Identity proof is not valid"
+    );
+
+    // Check if address was created by the identity factory
+    address identity = bytesToAddress(value);
+    IdentityFactory identityFactory_ = IdentityFactory(_identityFactory);
+    bool valid = identityFactory_.createdIdentity(identity);
+    require(
+      valid,
+      "Identity is not registered"
+    );
+  }
 
   /**
    * @dev Checks if the provided next id is part of the
    * document root using precise-proofs and it's not anchored
    * in the registry
    * @param documentRoot bytes32 the anchored document root
-   * @param _nextAnchorId uint256 the next id to be anchored
+   * @param nextAnchorId uint256 the next id to be anchored
    * @param salt bytes32 salt for leaf construction
-   * @param proof bytes32[] proofs for _nextAnchorId
+   * @param proof bytes32[] proofs for leaf construction
    */
   function _requireIsLatestDocumentVersion(
     bytes32 documentRoot,
-    uint256 _nextAnchorId,
+    uint256 nextAnchorId,
     bytes32 salt,
     bytes32[] memory proof
   )
@@ -172,7 +235,7 @@ contract UserMintableERC721 is Initializable, ERC721, ERC721Enumerable, ERC721Me
   view
   {
     AnchorRepository ar_ = AnchorRepository(_anchorRegistry);
-    (, bytes32 nextMerkleRoot_) = ar_.getAnchorById(_nextAnchorId);
+    (, bytes32 nextMerkleRoot_) = ar_.getAnchorById(nextAnchorId);
 
     require(
       nextMerkleRoot_ == 0x0,
@@ -186,7 +249,7 @@ contract UserMintableERC721 is Initializable, ERC721, ERC721Enumerable, ERC721Me
         sha256(
           abi.encodePacked(
             hex"0100000000000004", // compact prop for "next_version"
-            _nextAnchorId,
+            nextAnchorId,
             salt
           )
         )
@@ -201,7 +264,7 @@ contract UserMintableERC721 is Initializable, ERC721, ERC721Enumerable, ERC721Me
    * @param documentRoot bytes32 the anchored document root
    * @param tokenId uint256 The ID for the token to be minted
    * @param salt bytes32 salt for leaf construction
-   * @param proof bytes32[] proofs for _nextAnchorId
+   * @param proof bytes32[] proofs for leaf construction
    */
   function _requireOneTokenPerDocument(
     bytes32 documentRoot,
@@ -237,7 +300,7 @@ contract UserMintableERC721 is Initializable, ERC721, ERC721Enumerable, ERC721Me
    * @param property bytes property for leaf construction
    * @param value bytes value for leaf construction
    * @param salt bytes32 salt for leaf construction
-   * @param proof bytes32[] proofs for _nextAnchorId
+   * @param proof bytes32[] proofs for leaf construction
    * @return bytes8 the index of the read rule
    */
   function _requireReadRole(
@@ -287,7 +350,7 @@ contract UserMintableERC721 is Initializable, ERC721, ERC721Enumerable, ERC721Me
    * @param documentRoot bytes32 the anchored document root
    * @param readRuleIndex bytes8 read rule index used for leaf construction
    * @param salt bytes32 salt for leaf construction
-   * @param proof bytes32[] proofs for _nextAnchorId
+   * @param proof bytes32[] proofs for leaf construction
    */
   function _requireReadAction(
     bytes32 documentRoot,
@@ -331,7 +394,7 @@ contract UserMintableERC721 is Initializable, ERC721, ERC721Enumerable, ERC721Me
    * @param roleIndex bytes the value of the defined read role
    * used to contract the property for precise proofs
    * @param salt bytes32 salt for leaf construction
-   * @param proof bytes32[] proofs for _nextAnchorId
+   * @param proof bytes32[] proofs for leaf construction
    */
   function _requireTokenHasRole(
     bytes32 documentRoot,
@@ -371,7 +434,7 @@ contract UserMintableERC721 is Initializable, ERC721, ERC721Enumerable, ERC721Me
   }
 
   /**
-   * @dev Parses bytes and extract a bytes8 value from
+   * @dev Parses bytes and extracts a bytes8 value from
    * the given starting point
    * @param payload bytes From where to extract the index
    * @param startFrom uint256 where to start from
@@ -387,13 +450,30 @@ contract UserMintableERC721 is Initializable, ERC721, ERC721Enumerable, ERC721Me
     bytes8 index
   )
   {
-    bytes8 temp_;
     // solium-disable-next-line security/no-inline-assembly
     assembly {
-      temp_ := mload(add(add(payload, 0x20), startFrom))
+      index := mload(add(add(payload, 0x20), startFrom))
     }
+  }
 
-    return temp_;
+  /**
+   * @dev Parses bytes and extracts a address value
+   * @param payload bytes From where to extract the index
+   * @return address the converted address
+   */
+  function bytesToAddress(
+    bytes memory payload
+  )
+  internal
+  pure
+  returns(
+    address addr
+  )
+  {
+    // solium-disable-next-line security/no-inline-assembly
+    assembly {
+      addr := mload(add(payload, 20))
+    }
   }
 
 
