@@ -9,20 +9,20 @@ contract Identity is KeyManager {
   using ECDSA for bytes32;
   /**
   * @dev Create Identity and set default keys
-  * @param managementKey address value for management key. This is the owner
+  * @param managementAddress address value for management key. This is the owner
   * on behalf of this identity
   * @param keys bytes32[] keys to be added to the identity
   * @param purposes uint256[] purposes to be added to the identity
   */
   constructor(
-    address managementKey,
+    address managementAddress,
     bytes32[] memory keys,
     uint256[] memory purposes
   )
   public
   {
     // Add MANAGEMENT_KEY
-    bytes32 managementKey_ = addressToKey(managementKey);
+    bytes32 managementKey_ = addressToKey(managementAddress);
     _keys[managementKey_].purposes.push(MANAGEMENT);
     _keys[managementKey_].keyType = 1;
     _keysByPurpose[MANAGEMENT].push(managementKey_);

@@ -23,11 +23,7 @@ contract IdentityFactory is Initializable {
   function createIdentity()
   external
   {
-
-    Identity identity_ = new Identity(msg.sender, new bytes32[](0), new uint256[](0));
-    address identityAddr_ = address(identity_);
-    _identities[identityAddr_] = true;
-    emit IdentityCreated(identityAddr_);
+    createIdentityFor(msg.sender, new bytes32[](0), new uint256[](0));
   }
 
   /**
@@ -39,10 +35,10 @@ contract IdentityFactory is Initializable {
   */
   function createIdentityFor(
     address manager,
-    bytes32[] calldata keys,
-    uint256[] calldata purposes
+    bytes32[] memory keys,
+    uint256[] memory purposes
   )
-  external
+  public
   {
     Identity identity_ = new Identity(manager, keys, purposes);
     address identityAddr_ = address(identity_);
