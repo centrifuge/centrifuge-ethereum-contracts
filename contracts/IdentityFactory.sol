@@ -23,9 +23,8 @@ contract IdentityFactory is Initializable {
   function createIdentity()
   external
   {
-    bytes32[] memory keys_;
-    uint256[] memory purposes_;
-    Identity identity_ = new Identity(msg.sender, keys_, purposes_);
+
+    Identity identity_ = new Identity(msg.sender, new bytes32[](0), new uint256[](0));
     address identityAddr_ = address(identity_);
     _identities[identityAddr_] = true;
     emit IdentityCreated(identityAddr_);
