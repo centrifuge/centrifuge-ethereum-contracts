@@ -50,7 +50,8 @@ contract("Gas costs", function (accounts) {
     } = proof;
 
     let nextDocumentIdentifier = nextVersion.value;
-    // TODO fix this
+
+    // Anchor repository commit requires the preImage
     let docIdPreImage = documentIdentifier;
     documentIdentifier = sha256(docIdPreImage);
 
