@@ -32,7 +32,7 @@ contract("AnchorRepository", function (accounts) {
 
     before(async function () {
         this.anchorRepository  = await AnchorRepository.new();
-        this.identity = await Identity.new(accounts[0]);
+        this.identity = await Identity.new(accounts[0],[],[]);
         await this.identity.addKey(accounts[2], ACTION, 1)
 
     });

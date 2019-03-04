@@ -14,7 +14,7 @@ async function getBasicTestNeeds() {
 contract("KeyManager", function (accounts) {
 
     beforeEach(async function () {
-        this.identity = await Identity.new(accounts[0]);
+        this.identity = await Identity.new(accounts[0],[],[]);
     });
 
     describe("Adding/Retrieving Keys", async function () {

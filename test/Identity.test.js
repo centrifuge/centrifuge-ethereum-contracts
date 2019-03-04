@@ -1,4 +1,4 @@
-const ACTION = require('./constants').ACTION;
+const {ACTION, MANAGEMENT} = require('./constants');
 const shouldRevert = require('./tools/assertTx').shouldRevert;
 const shouldSucceed = require('./tools/assertTx').shouldSucceed;
 const addressToBytes32 = require('./tools/utils').addressToBytes32;
@@ -11,14 +11,26 @@ contract("Identity", function (accounts) {
 
     describe("Identity Creation", async function () {
         it("should create identity", async function () {
-            await Identity.new(accounts[1]);
+            await Identity.new(accounts[1], [], []);
         });
+
+        it("should fail to deploy an identity", async function () {
+            await shouldRevert(
+                Identity.new(accounts[0], [accounts[1]], []),
+                "Keys and purposes must have the same length"
+            );
+
+            await shouldRevert(
+                Identity.new(accounts[0], [accounts[1]], [MANAGEMENT]),
+                "Constructor can not add management keys"
+            );
+        })
     });
 
     describe("Validate a signature", async function () {
 
         beforeEach(async function () {
-            this.identity = await Identity.new(accounts[0]);
+            this.identity = await Identity.new(accounts[0], [], []);
         });
 
         it("should validate a web3 signature", async function () {
@@ -54,7 +66,7 @@ contract("Identity", function (accounts) {
 
     describe("Proxy execution", async function () {
         beforeEach(async function () {
-            this.identity = await Identity.new(accounts[0]);
+            this.identity = await Identity.new(accounts[0], [], []);
             this.testProxy = await TextProxyExecution.new();
         });
 
