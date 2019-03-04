@@ -5,7 +5,11 @@ let endpoint = process.env.ETH_PROVIDER || "https://rinkeby.infura.io/v3/55b957b
 let privateKey = process.env.ETH_PRIVATE_KEY || "0xb5fffc3933d93dc956772c69b42c4bc66123631a24e3465956d80b5b604a2d13";
 
 module.exports = {
-
+    compilers: {
+        solc: {
+            version: "0.5.3",
+        },
+    },
     networks: {
         development: { // running against ganache + metamask default port
             host: "localhost",

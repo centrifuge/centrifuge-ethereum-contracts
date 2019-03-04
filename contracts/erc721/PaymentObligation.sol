@@ -1,4 +1,4 @@
-pragma solidity 0.5.0;
+pragma solidity 0.5.3;
 pragma experimental ABIEncoderV2;
 
 import "zos-lib/contracts/Initializable.sol";
@@ -16,7 +16,7 @@ contract PaymentObligation is Initializable, UserMintableERC721 {
   );
 
   // hardcoded supported fields for minting a PaymentObligation
-  bytes[] public _mandatoryFields;
+  bytes[] private _poMandatoryFields;
 
   struct PODetails {
     bytes grossAmount;
@@ -70,18 +70,18 @@ contract PaymentObligation is Initializable, UserMintableERC721 {
   initializer
   {
     // compact property for "invoice.gross_amount",invoice = 1, gross_amount = 14
-    _mandatoryFields.push(hex"000100000000000e");
+    _poMandatoryFields.push(hex"000100000000000e");
     // compact property for invoice.currency, invoice = 1, currency = 13
-    _mandatoryFields.push(hex"000100000000000d");
+    _poMandatoryFields.push(hex"000100000000000d");
     // compact property for  invoice.due_date, invoice = 1, due_date = 22
-    _mandatoryFields.push(hex"0001000000000016");
+    _poMandatoryFields.push(hex"0001000000000016");
 
     UserMintableERC721.initialize(
       "Centrifuge Payment Obligations",
       "CENT_PAY_OB",
       anchorRegistry,
       identityFactory,
-      _mandatoryFields
+      _poMandatoryFields
     );
   }
 
