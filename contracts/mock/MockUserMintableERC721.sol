@@ -1,4 +1,4 @@
-pragma solidity 0.5.0;
+pragma solidity 0.5.3;
 pragma experimental ABIEncoderV2;
 
 import "contracts/erc721/UserMintableERC721.sol";
@@ -15,16 +15,18 @@ contract MockUserMintableERC721 is UserMintableERC721 {
   constructor(
     string memory name,
     string memory symbol,
-    address registry,
+    address anchorRegistry,
+    address identityFactory,
     bytes[] memory mandatoryFields
   )
   public
   {
+    _mandatoryFields = mandatoryFields;
     UserMintableERC721.initialize(
       name,
       symbol,
-      registry,
-      mandatoryFields
+      anchorRegistry,
+      identityFactory
     );
   }
 
@@ -38,7 +40,24 @@ contract MockUserMintableERC721 is UserMintableERC721 {
     return super._getDocumentRoot(anchorId);
   }
 
-
+  function requireValidIdentity(
+    bytes32 documentRoot,
+    bytes calldata property,
+    bytes calldata value,
+    bytes32 salt,
+    bytes32[] calldata proof
+  )
+  external
+  view
+  {
+    super._requireValidIdentity(
+       documentRoot,
+      property,
+      value,
+      salt,
+      proof
+    );
+  }
 
   function requireIsLatestDocumentVersion(
     bytes32 documentRoot,
