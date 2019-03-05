@@ -66,7 +66,7 @@ npm install @centrifuge/ethereum-contracts
 **All contracts,except Identity, are upgradable.**
 
 When using the contracts the published contracts make sure to choose an appropriate Proxy. An upgradable proxy enables the user to update the master copy (aka implementation). The default upgradable proxy is managed by an admin address . 
-the truffle migration scripts. 
+
     
 
 
