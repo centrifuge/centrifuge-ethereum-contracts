@@ -67,12 +67,13 @@ contract("PaymentObligation", function (accounts) {
                     currency.salt,
                     due_date.salt,
                     sender.salt,
-                    status.salt,
-                    nextVersion.salt,
-                    nftUnique.salt,
                     readRole.salt,
                     readRoleAction.salt,
                     tokenRole.salt,
+                    status.salt,
+                    nextVersion.salt,
+                    nftUnique.salt,
+
 
                 ],
                 [
@@ -80,12 +81,13 @@ contract("PaymentObligation", function (accounts) {
                     currency.sorted_hashes,
                     due_date.sorted_hashes,
                     sender.sorted_hashes,
-                    status.sorted_hashes,
-                    nextVersion.sorted_hashes,
-                    nftUnique.sorted_hashes,
                     readRole.sorted_hashes,
                     readRoleAction.sorted_hashes,
                     tokenRole.sorted_hashes,
+                    status.sorted_hashes,
+                    nextVersion.sorted_hashes,
+                    nftUnique.sorted_hashes,
+
                 ]
             )
                 .then(function (tx, logs) {
@@ -139,12 +141,13 @@ contract("PaymentObligation", function (accounts) {
                     currency.salt,
                     due_date.salt,
                     sender.salt,
-                    status.salt,
-                    nextVersion.salt,
-                    nftUnique.salt,
                     readRole.salt,
                     readRoleAction.salt,
                     tokenRole.salt,
+                    status.salt,
+                    nextVersion.salt,
+                    nftUnique.salt,
+
 
                 ],
                 [
@@ -152,12 +155,13 @@ contract("PaymentObligation", function (accounts) {
                     currency.sorted_hashes,
                     due_date.sorted_hashes,
                     sender.sorted_hashes,
-                    status.sorted_hashes,
-                    nextVersion.sorted_hashes,
-                    nftUnique.sorted_hashes,
                     readRole.sorted_hashes,
                     readRoleAction.sorted_hashes,
                     tokenRole.sorted_hashes,
+                    status.sorted_hashes,
+                    nextVersion.sorted_hashes,
+                    nftUnique.sorted_hashes,
+
                 ]
             ));
         });
@@ -195,12 +199,13 @@ contract("PaymentObligation", function (accounts) {
                     currency.salt,
                     due_date.salt,
                     sender.salt,
-                    status.salt,
-                    nextVersion.salt,
-                    nftUnique.salt,
                     readRole.salt,
                     readRoleAction.salt,
                     tokenRole.salt,
+                    status.salt,
+                    nextVersion.salt,
+                    nftUnique.salt,
+
 
                 ],
                 [
@@ -208,12 +213,13 @@ contract("PaymentObligation", function (accounts) {
                     currency.sorted_hashes,
                     due_date.sorted_hashes,
                     sender.sorted_hashes,
-                    status.sorted_hashes,
-                    nextVersion.sorted_hashes,
-                    nftUnique.sorted_hashes,
                     readRole.sorted_hashes,
                     readRoleAction.sorted_hashes,
                     tokenRole.sorted_hashes,
+                    status.sorted_hashes,
+                    nextVersion.sorted_hashes,
+                    nftUnique.sorted_hashes,
+
                 ]
             );
 
@@ -240,12 +246,13 @@ contract("PaymentObligation", function (accounts) {
                         currency.salt,
                         due_date.salt,
                         sender.salt,
-                        status.salt,
-                        nextVersion.salt,
-                        nftUnique.salt,
                         readRole.salt,
                         readRoleAction.salt,
                         tokenRole.salt,
+                        status.salt,
+                        nextVersion.salt,
+                        nftUnique.salt,
+
 
                     ],
                     [
@@ -253,12 +260,13 @@ contract("PaymentObligation", function (accounts) {
                         currency.sorted_hashes,
                         due_date.sorted_hashes,
                         sender.sorted_hashes,
-                        status.sorted_hashes,
-                        nextVersion.sorted_hashes,
-                        nftUnique.sorted_hashes,
                         readRole.sorted_hashes,
                         readRoleAction.sorted_hashes,
                         tokenRole.sorted_hashes,
+                        status.sorted_hashes,
+                        nextVersion.sorted_hashes,
+                        nftUnique.sorted_hashes,
+
                     ]
                 ),
                 "Token exists"
@@ -301,12 +309,13 @@ contract("PaymentObligation", function (accounts) {
                         currency.salt,
                         due_date.salt,
                         sender.salt,
-                        nextVersion.salt, // replace status.salt with nextVersion
-                        nextVersion.salt,
-                        nftUnique.salt,
                         readRole.salt,
                         readRoleAction.salt,
                         tokenRole.salt,
+                        nextVersion.salt,// replace status salt with nextVersion
+                        nextVersion.salt,
+                        nftUnique.salt,
+
 
                     ],
                     [
@@ -314,12 +323,13 @@ contract("PaymentObligation", function (accounts) {
                         currency.sorted_hashes,
                         due_date.sorted_hashes,
                         sender.sorted_hashes,
-                        status.sorted_hashes,
-                        nextVersion.sorted_hashes,
-                        nftUnique.sorted_hashes,
                         readRole.sorted_hashes,
                         readRoleAction.sorted_hashes,
                         tokenRole.sorted_hashes,
+                        status.sorted_hashes,
+                        nextVersion.sorted_hashes,
+                        nftUnique.sorted_hashes,
+
                     ]
                 ),
                 "Invoice status is not unpaid"

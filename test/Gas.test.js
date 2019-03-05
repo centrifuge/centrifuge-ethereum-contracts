@@ -198,12 +198,13 @@ contract("Gas costs", function (accounts) {
                     currency.salt,
                     due_date.salt,
                     sender.salt,
-                    status.salt,
-                    nextVersion.salt,
-                    nftUnique.salt,
                     readRole.salt,
                     readRoleAction.salt,
                     tokenRole.salt,
+                    status.salt,
+                    nextVersion.salt,
+                    nftUnique.salt,
+
 
                 ],
                 [
@@ -211,12 +212,13 @@ contract("Gas costs", function (accounts) {
                     currency.sorted_hashes,
                     due_date.sorted_hashes,
                     sender.sorted_hashes,
-                    status.sorted_hashes,
-                    nextVersion.sorted_hashes,
-                    nftUnique.sorted_hashes,
                     readRole.sorted_hashes,
                     readRoleAction.sorted_hashes,
                     tokenRole.sorted_hashes,
+                    status.sorted_hashes,
+                    nextVersion.sorted_hashes,
+                    nftUnique.sorted_hashes,
+
                 ]
             );
             console.log('Actual mint gas cost:', mintGasCost);
@@ -258,12 +260,13 @@ contract("Gas costs", function (accounts) {
                     currency.salt,
                     due_date.salt,
                     sender.salt,
-                    status.salt,
-                    nextVersion.salt,
-                    nftUnique.salt,
                     readRole.salt,
                     readRoleAction.salt,
                     tokenRole.salt,
+                    status.salt,
+                    nextVersion.salt,
+                    nftUnique.salt,
+
 
                 ],
                 [
@@ -271,12 +274,13 @@ contract("Gas costs", function (accounts) {
                     currency.sorted_hashes,
                     due_date.sorted_hashes,
                     sender.sorted_hashes,
-                    status.sorted_hashes,
-                    nextVersion.sorted_hashes,
-                    nftUnique.sorted_hashes,
                     readRole.sorted_hashes,
                     readRoleAction.sorted_hashes,
                     tokenRole.sorted_hashes,
+                    status.sorted_hashes,
+                    nextVersion.sorted_hashes,
+                    nftUnique.sorted_hashes,
+
                 ]
             ).encodeABI();
 
