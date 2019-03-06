@@ -53,8 +53,8 @@ contract PaymentObligation is Initializable, UserMintableERC721 {
   *                                             invoice    currency (field in invoice Protobuf)
   *
   * Properties and required values for specific invoice fields
-  * compact property for  invoice.status, invoice = 1, status = 2
   */
+  //compact property for  invoice.status, invoice = 1, status = 2
   bytes constant internal INVOICE_STATUS_PROPERTY = hex"0001000000000002";
   bytes constant internal INVOICE_STATUS_VALUE = hex"756e70616964";    // value:"unpaid"
 
