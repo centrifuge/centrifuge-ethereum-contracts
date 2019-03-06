@@ -38,7 +38,7 @@ module.exports = {
     contractAddress,
     readRuleIndex,
     tokenURI,
-    poMintPrams: {
+    poMintParams: {
         properties: [
             grossAmount.property,
             currency.property,

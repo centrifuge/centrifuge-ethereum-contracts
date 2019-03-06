@@ -47,7 +47,7 @@ contract("Gas costs", function (accounts) {
         validRootHash,
         contractAddress,
         tokenURI,
-        poMintPrams
+        poMintParams
     } = proof;
 
     let nextDocumentIdentifier = nextVersion.value;
@@ -182,10 +182,10 @@ contract("Gas costs", function (accounts) {
                 tokenId,
                 tokenURI,
                 documentIdentifier,
-                poMintPrams.properties,
-                poMintPrams.values,
-                poMintPrams.salts,
-                poMintPrams.proofs
+                poMintParams.properties,
+                poMintParams.values,
+                poMintParams.salts,
+                poMintParams.proofs
             );
             console.log('Actual mint gas cost:', mintGasCost);
             assert.isBelow(mintGasCost, mintMaxGas, `Gas Price for mint is to high`)
@@ -209,10 +209,10 @@ contract("Gas costs", function (accounts) {
                 tokenId,
                 tokenURI,
                 documentIdentifier,
-                poMintPrams.properties,
-                poMintPrams.values,
-                poMintPrams.salts,
-                poMintPrams.proofs
+                poMintParams.properties,
+                poMintParams.values,
+                poMintParams.salts,
+                poMintParams.proofs
             ).encodeABI();
 
             const mintGasCost = await this.identity.execute.estimateGas(this.poRegistry.address, 0, data, {from: accounts[1]});
