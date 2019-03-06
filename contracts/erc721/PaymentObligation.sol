@@ -104,8 +104,6 @@ contract PaymentObligation is Initializable, UserMintableERC721 {
    * @param tokenURI string The metadata uri
    * @param anchorId uint256 The ID of the document as identified
    * by the set up anchorRegistry.
-   * is made to the document. It is not part of the values array in order
-   * to avoid a bytes to uint conversion in the contract
    * @param properties bytes[] The properties of the leafs that are being proved
    * using precise-proofs
    * @param values bytes[] The values of the leafs that are being proved
