@@ -23,19 +23,19 @@ contract("PaymentObligation", function (accounts) {
         validRootHash,
         contractAddress,
         tokenURI,
+        poMintParams
     } = proof;
 
-    let nextDocumentIdentifier = nextVersion.value;
 
     describe("mint", async function () {
 
         beforeEach(async function () {
             this.anchorRegistry = await MockAnchorRegistry.new();
             this.identityFactory = await MockIdentityFactory.new();
-            this.registry = await MockPaymentObligation.new(this.anchorRegistry.address,this.identityFactory.address);
+            this.registry = await MockPaymentObligation.new(this.anchorRegistry.address, this.identityFactory.address);
         });
 
-        it("should mint a token if the Merkle proofs validates", async function () {
+        it("should mint a token if the Merkle poMintParams.proofs validates", async function () {
 
             await this.anchorRegistry.setAnchorById(
                 documentIdentifier,
@@ -50,45 +50,10 @@ contract("PaymentObligation", function (accounts) {
                 tokenId,
                 tokenURI,
                 documentIdentifier,
-                nextDocumentIdentifier,
-                [
-                    readRole.property,
-                    tokenRole.property
-                ],
-                [
-                    grossAmount.value,
-                    currency.value,
-                    due_date.value,
-                    sender.value,
-                    readRole.value,
-                ],
-                [
-                    grossAmount.salt,
-                    currency.salt,
-                    due_date.salt,
-                    sender.salt,
-                    readRole.salt,
-                    readRoleAction.salt,
-                    tokenRole.salt,
-                    status.salt,
-                    nextVersion.salt,
-                    nftUnique.salt,
-
-
-                ],
-                [
-                    grossAmount.sorted_hashes,
-                    currency.sorted_hashes,
-                    due_date.sorted_hashes,
-                    sender.sorted_hashes,
-                    readRole.sorted_hashes,
-                    readRoleAction.sorted_hashes,
-                    tokenRole.sorted_hashes,
-                    status.sorted_hashes,
-                    nextVersion.sorted_hashes,
-                    nftUnique.sorted_hashes,
-
-                ]
+                poMintParams.properties,
+                poMintParams.values,
+                poMintParams.salts,
+                poMintParams.proofs
             )
                 .then(function (tx, logs) {
                     // Check mint event
@@ -124,45 +89,10 @@ contract("PaymentObligation", function (accounts) {
                 tokenId,
                 tokenURI,
                 documentIdentifier,
-                nextDocumentIdentifier,
-                [
-                    readRole.property,
-                    tokenRole.property
-                ],
-                [
-                    "0x1",
-                    currency.value,
-                    due_date.value,
-                    sender.value,
-                    readRole.value,
-                ],
-                [
-                    grossAmount.salt,
-                    currency.salt,
-                    due_date.salt,
-                    sender.salt,
-                    readRole.salt,
-                    readRoleAction.salt,
-                    tokenRole.salt,
-                    status.salt,
-                    nextVersion.salt,
-                    nftUnique.salt,
-
-
-                ],
-                [
-                    grossAmount.sorted_hashes,
-                    currency.sorted_hashes,
-                    due_date.sorted_hashes,
-                    sender.sorted_hashes,
-                    readRole.sorted_hashes,
-                    readRoleAction.sorted_hashes,
-                    tokenRole.sorted_hashes,
-                    status.sorted_hashes,
-                    nextVersion.sorted_hashes,
-                    nftUnique.sorted_hashes,
-
-                ]
+                poMintParams.properties,
+                [...poMintParams.values].reverse(),
+                poMintParams.salts,
+                poMintParams.proofs
             ));
         });
 
@@ -182,45 +112,10 @@ contract("PaymentObligation", function (accounts) {
                 tokenId,
                 tokenURI,
                 documentIdentifier,
-                nextDocumentIdentifier,
-                [
-                    readRole.property,
-                    tokenRole.property
-                ],
-                [
-                    grossAmount.value,
-                    currency.value,
-                    due_date.value,
-                    sender.value,
-                    readRole.value,
-                ],
-                [
-                    grossAmount.salt,
-                    currency.salt,
-                    due_date.salt,
-                    sender.salt,
-                    readRole.salt,
-                    readRoleAction.salt,
-                    tokenRole.salt,
-                    status.salt,
-                    nextVersion.salt,
-                    nftUnique.salt,
-
-
-                ],
-                [
-                    grossAmount.sorted_hashes,
-                    currency.sorted_hashes,
-                    due_date.sorted_hashes,
-                    sender.sorted_hashes,
-                    readRole.sorted_hashes,
-                    readRoleAction.sorted_hashes,
-                    tokenRole.sorted_hashes,
-                    status.sorted_hashes,
-                    nextVersion.sorted_hashes,
-                    nftUnique.sorted_hashes,
-
-                ]
+                poMintParams.properties,
+                poMintParams.values,
+                poMintParams.salts,
+                poMintParams.proofs
             );
 
             await shouldRevert(
@@ -229,45 +124,10 @@ contract("PaymentObligation", function (accounts) {
                     tokenId,
                     tokenURI,
                     documentIdentifier,
-                    nextDocumentIdentifier,
-                    [
-                        readRole.property,
-                        tokenRole.property
-                    ],
-                    [
-                        grossAmount.value,
-                        currency.value,
-                        due_date.value,
-                        sender.value,
-                        readRole.value,
-                    ],
-                    [
-                        grossAmount.salt,
-                        currency.salt,
-                        due_date.salt,
-                        sender.salt,
-                        readRole.salt,
-                        readRoleAction.salt,
-                        tokenRole.salt,
-                        status.salt,
-                        nextVersion.salt,
-                        nftUnique.salt,
-
-
-                    ],
-                    [
-                        grossAmount.sorted_hashes,
-                        currency.sorted_hashes,
-                        due_date.sorted_hashes,
-                        sender.sorted_hashes,
-                        readRole.sorted_hashes,
-                        readRoleAction.sorted_hashes,
-                        tokenRole.sorted_hashes,
-                        status.sorted_hashes,
-                        nextVersion.sorted_hashes,
-                        nftUnique.sorted_hashes,
-
-                    ]
+                    poMintParams.properties,
+                    poMintParams.values,
+                    poMintParams.salts,
+                    poMintParams.proofs
                 ),
                 "Token exists"
             );
@@ -281,6 +141,11 @@ contract("PaymentObligation", function (accounts) {
                 validRootHash
             );
 
+
+            let replacedStatus = [...poMintParams.salts];
+            replacedStatus.splice(4,1,nextVersion.salt);// replace status salt with next version
+
+
             await this.identityFactory.registerIdentity(sender.value);
 
             await this.registry.setOwnAddress(contractAddress);
@@ -292,45 +157,10 @@ contract("PaymentObligation", function (accounts) {
                     tokenId,
                     tokenURI,
                     documentIdentifier,
-                    nextDocumentIdentifier,
-                    [
-                        readRole.property,
-                        tokenRole.property
-                    ],
-                    [
-                        grossAmount.value,
-                        currency.value,
-                        due_date.value,
-                        sender.value,
-                        readRole.value,
-                    ],
-                    [
-                        grossAmount.salt,
-                        currency.salt,
-                        due_date.salt,
-                        sender.salt,
-                        readRole.salt,
-                        readRoleAction.salt,
-                        tokenRole.salt,
-                        nextVersion.salt,// replace status salt with nextVersion
-                        nextVersion.salt,
-                        nftUnique.salt,
-
-
-                    ],
-                    [
-                        grossAmount.sorted_hashes,
-                        currency.sorted_hashes,
-                        due_date.sorted_hashes,
-                        sender.sorted_hashes,
-                        readRole.sorted_hashes,
-                        readRoleAction.sorted_hashes,
-                        tokenRole.sorted_hashes,
-                        status.sorted_hashes,
-                        nextVersion.sorted_hashes,
-                        nftUnique.sorted_hashes,
-
-                    ]
+                    poMintParams.properties,
+                    poMintParams.values,
+                    replacedStatus,
+                    poMintParams.proofs
                 ),
                 "Invoice status is not unpaid"
             );

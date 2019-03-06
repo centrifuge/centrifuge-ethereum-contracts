@@ -454,6 +454,26 @@ contract UserMintableERC721 is Initializable, ERC721, ERC721Enumerable, ERC721Me
   }
 
   /**
+   * @dev Parses bytes and extracts a uint256 value
+   * @param payload bytes From where to extract the index
+   * @return result the converted address
+   */
+  function bytesToUint(
+    bytes memory payload
+  )
+  internal
+  pure
+  returns (
+    uint256 result
+  )
+  {
+    // solium-disable-next-line security/no-inline-assembly
+    assembly {
+      result := mload(add(payload, 0x20))
+    }
+  }
+
+  /**
    * @dev Parses bytes and extracts a address value
    * @param payload bytes From where to extract the index
    * @return address the converted address
