@@ -43,16 +43,31 @@ contract PaymentObligation is Initializable, UserMintableERC721 {
   uint8 constant internal READ_ROLE_PROP_IDX = 0;
   uint8 constant internal TOKEN_ROLE_PROP_IDX = 1;
 
-  // Protobuf  Property and required values for specific invoice fields
-  // The name of a field is the Protobuf indexes
-  // https://github.com/centrifuge/centrifuge-protobufs/blob/master/invoice/invoice.proto
-  bytes constant internal INVOICE_STATUS_PROPERTY = hex"0001000000000002"; // dec: 2
+  /** Invoice Protobuf Properties Fields
+  * See: https://github.com/centrifuge/centrifuge-protobufs/blob/master/invoice/invoice.proto
+  * Example for a compact property:
+  * compact property for invoice.currency = hex"000100000000000d"
+  *                                                ^           ^
+  *                                                |           |
+  *                                                |           |
+  *                                             invoice    currency (field in invoice Protobuf)
+  *
+  * Properties and required values for specific invoice fields
+  * compact property for  invoice.status, invoice = 1, status = 2
+  */
+  bytes constant internal INVOICE_STATUS_PROPERTY = hex"0001000000000002";
   bytes constant internal INVOICE_STATUS_VALUE = hex"756e70616964";    // value:"unpaid"
 
-  bytes constant internal INVOICE_GROSS_AMOUNT_PROPERTY = hex"000100000000000e"; // dec: 14
-  bytes constant internal INVOICE_CURRENCY_PROPERTY = hex"000100000000000d"; // dec: 13
-  bytes constant internal INVOICE_DUE_DATE_PROPERTY = hex"0001000000000016"; // dec: 22
-  bytes constant internal INVOICE_SENDER_PROPERTY = hex"0001000000000013"; // dec: 19
+  // compact property for "invoice.gross_amount",invoice = 1, gross_amount = 14 (hex:e)
+  bytes constant internal INVOICE_GROSS_AMOUNT_PROPERTY = hex"000100000000000e";
+
+  // compact property for invoice.currency, invoice = 1, currency = 13 (hex: d)
+  bytes constant internal INVOICE_CURRENCY_PROPERTY = hex"000100000000000d";
+
+  // compact property for  invoice.due_date, invoice = 1, due_date = 22 (hex: 16)
+  bytes constant internal INVOICE_DUE_DATE_PROPERTY = hex"0001000000000016";
+  // compact property for  invoice.sender, invoice = 1, sender = 19 (hex: 13)
+  bytes constant internal INVOICE_SENDER_PROPERTY = hex"0001000000000013";
 
 
 
@@ -103,11 +118,10 @@ contract PaymentObligation is Initializable, UserMintableERC721 {
   initializer
   {
     //@dev Order is important. Any change will impact the mint method
-    // compact property for "invoice.gross_amount",invoice = 1, gross_amount = 14
     _mandatoryFields.push(INVOICE_GROSS_AMOUNT_PROPERTY);
-    // compact property for invoice.currency, invoice = 1, currency = 13
+
     _mandatoryFields.push(INVOICE_CURRENCY_PROPERTY);
-    // compact property for  invoice.due_date, invoice = 1, due_date = 22
+
     _mandatoryFields.push(INVOICE_DUE_DATE_PROPERTY);
 
     UserMintableERC721.initialize(
@@ -171,8 +185,8 @@ contract PaymentObligation is Initializable, UserMintableERC721 {
         merkleRoot_,
         sha256(
           abi.encodePacked(
-              INVOICE_STATUS_PROPERTY, // compact property for  invoice.status, invoice = 1, status = 2
-                INVOICE_STATUS_VALUE, // bytes value for "unpaid"
+              INVOICE_STATUS_PROPERTY,
+                INVOICE_STATUS_VALUE,
             salts[STATUS_IDX]
           )
         )
@@ -183,7 +197,7 @@ contract PaymentObligation is Initializable, UserMintableERC721 {
     // Check if sender is a registered identity
     super._requireValidIdentity(
       merkleRoot_,
-        INVOICE_SENDER_PROPERTY, // compact property for  invoice.sender, invoice = 1, sender = 19
+        INVOICE_SENDER_PROPERTY,
       values[SENDER_IDX],
       salts[SENDER_IDX],
       proofs[SENDER_IDX]
