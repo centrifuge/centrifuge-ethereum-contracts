@@ -21,27 +21,18 @@ contract PaymentObligation is Initializable, UserMintableERC721 {
     bytes dueDate;
   }
 
-  /** @dev indexes used for the mint method arrays
-  * Properties, values, salts and proofs have variant lengths and
-  * not all arrays contain values for all the fields
-  * The properties array contains READ_ROLE, TOKEN_ROLE
-  * The values array contains only GROSS_AMOUNT, CURRENCY, DUE_DATE, SENDER, READ_ROLE
-  * salts and proofs contains values for all fields
+  /** @dev Indexes of the mint method arrays
   */
   uint8 constant internal GROSS_AMOUNT_IDX = 0;
   uint8 constant internal CURRENCY_IDX = 1;
   uint8 constant internal DUE_DATE_IDX = 2;
   uint8 constant internal SENDER_IDX = 3;
-  uint8 constant internal READ_ROLE_IDX = 4;
-  uint8 constant internal READ_ROLE_ACTION_IDX = 5;
-  uint8 constant internal TOKEN_ROLE_IDX = 6;
-  uint8 constant internal STATUS_IDX = 7;
-  uint8 constant internal NEXT_VERSION_IDX = 8;
-  uint8 constant internal NFT_UNIQUE_IDX = 9;
-
-  // Indexes for the properties array
-  uint8 constant internal READ_ROLE_PROP_IDX = 0;
-  uint8 constant internal TOKEN_ROLE_PROP_IDX = 1;
+  uint8 constant internal STATUS_IDX = 4;
+  uint8 constant internal NEXT_VERSION_IDX = 5;
+  uint8 constant internal NFT_UNIQUE_IDX = 6;
+  uint8 constant internal READ_ROLE_IDX = 7;
+  uint8 constant internal READ_ROLE_ACTION_IDX = 8;
+  uint8 constant internal TOKEN_ROLE_IDX = 9;
 
   // Token details, specific field values
   mapping(uint256 => PODetails) internal _poDetails;
@@ -113,7 +104,6 @@ contract PaymentObligation is Initializable, UserMintableERC721 {
    * @param tokenURI string The metadata uri
    * @param anchorId uint256 The ID of the document as identified
    * by the set up anchorRegistry.
-   * @param nextAnchorId uint256 The id that will be anchored when a change
    * is made to the document. It is not part of the values array in order
    * to avoid a bytes to uint conversion in the contract
    * @param properties bytes[] The properties of the leafs that are being proved
@@ -131,7 +121,6 @@ contract PaymentObligation is Initializable, UserMintableERC721 {
     uint256 tokenId,
     string memory tokenURI,
     uint256 anchorId,
-    uint256 nextAnchorId,
     bytes[] memory properties,
     bytes[] memory values,
     bytes32[] memory salts,
@@ -179,7 +168,7 @@ contract PaymentObligation is Initializable, UserMintableERC721 {
     // Enforce that there is not a newer version of the document on chain
     super._requireIsLatestDocumentVersion(
       merkleRoot_,
-      nextAnchorId,
+      bytesToUint(values[NEXT_VERSION_IDX]),
       salts[NEXT_VERSION_IDX],
       proofs[NEXT_VERSION_IDX]
     );
@@ -195,7 +184,7 @@ contract PaymentObligation is Initializable, UserMintableERC721 {
     // Check if document has a read rule defined
     bytes8 readRoleIndex = super._requireReadRole(
       merkleRoot_,
-      properties[READ_ROLE_PROP_IDX],
+      properties[READ_ROLE_IDX],
       values[READ_ROLE_IDX],
       salts[READ_ROLE_IDX],
       proofs[READ_ROLE_IDX]
@@ -213,7 +202,7 @@ contract PaymentObligation is Initializable, UserMintableERC721 {
     super._requireTokenHasRole(
       merkleRoot_,
       tokenId,
-      properties[TOKEN_ROLE_PROP_IDX],
+      properties[TOKEN_ROLE_IDX],
       values[READ_ROLE_IDX], // the value from read role proof
       salts[TOKEN_ROLE_IDX],
       proofs[TOKEN_ROLE_IDX]

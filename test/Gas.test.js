@@ -47,6 +47,7 @@ contract("Gas costs", function (accounts) {
         validRootHash,
         contractAddress,
         tokenURI,
+        poMintPrams
     } = proof;
 
     let nextDocumentIdentifier = nextVersion.value;
@@ -181,45 +182,10 @@ contract("Gas costs", function (accounts) {
                 tokenId,
                 tokenURI,
                 documentIdentifier,
-                nextDocumentIdentifier,
-                [
-                    readRole.property,
-                    tokenRole.property
-                ],
-                [
-                    grossAmount.value,
-                    currency.value,
-                    due_date.value,
-                    sender.value,
-                    readRole.value,
-                ],
-                [
-                    grossAmount.salt,
-                    currency.salt,
-                    due_date.salt,
-                    sender.salt,
-                    readRole.salt,
-                    readRoleAction.salt,
-                    tokenRole.salt,
-                    status.salt,
-                    nextVersion.salt,
-                    nftUnique.salt,
-
-
-                ],
-                [
-                    grossAmount.sorted_hashes,
-                    currency.sorted_hashes,
-                    due_date.sorted_hashes,
-                    sender.sorted_hashes,
-                    readRole.sorted_hashes,
-                    readRoleAction.sorted_hashes,
-                    tokenRole.sorted_hashes,
-                    status.sorted_hashes,
-                    nextVersion.sorted_hashes,
-                    nftUnique.sorted_hashes,
-
-                ]
+                poMintPrams.properties,
+                poMintPrams.values,
+                poMintPrams.salts,
+                poMintPrams.proofs
             );
             console.log('Actual mint gas cost:', mintGasCost);
             assert.isBelow(mintGasCost, mintMaxGas, `Gas Price for mint is to high`)
@@ -243,45 +209,10 @@ contract("Gas costs", function (accounts) {
                 tokenId,
                 tokenURI,
                 documentIdentifier,
-                nextDocumentIdentifier,
-                [
-                    readRole.property,
-                    tokenRole.property
-                ],
-                [
-                    grossAmount.value,
-                    currency.value,
-                    due_date.value,
-                    sender.value,
-                    readRole.value,
-                ],
-                [
-                    grossAmount.salt,
-                    currency.salt,
-                    due_date.salt,
-                    sender.salt,
-                    readRole.salt,
-                    readRoleAction.salt,
-                    tokenRole.salt,
-                    status.salt,
-                    nextVersion.salt,
-                    nftUnique.salt,
-
-
-                ],
-                [
-                    grossAmount.sorted_hashes,
-                    currency.sorted_hashes,
-                    due_date.sorted_hashes,
-                    sender.sorted_hashes,
-                    readRole.sorted_hashes,
-                    readRoleAction.sorted_hashes,
-                    tokenRole.sorted_hashes,
-                    status.sorted_hashes,
-                    nextVersion.sorted_hashes,
-                    nftUnique.sorted_hashes,
-
-                ]
+                poMintPrams.properties,
+                poMintPrams.values,
+                poMintPrams.salts,
+                poMintPrams.proofs
             ).encodeABI();
 
             const mintGasCost = await this.identity.execute.estimateGas(this.poRegistry.address, 0, data, {from: accounts[1]});
