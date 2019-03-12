@@ -87,14 +87,24 @@ contract("KeyManager", function (accounts) {
             const P2pIndentityKeys = await this.identity.getKeysByPurpose(P2P_IDENTITY);
             const P2pSignatureKeys = await this.identity.getKeysByPurpose(P2P_SIGNATURE);
             const EthMessageKeys = await this.identity.getKeysByPurpose(ACTION);
+            const NoPurposeKeys = await this.identity.getKeysByPurpose(999929292);
 
-            assert.equal(P2pIndentityKeys.length, 2);
-            assert.equal(P2pSignatureKeys.length, 1);
-            assert.equal(EthMessageKeys.length, 1);
-            assert.equal(P2pIndentityKeys[0], key);
-            assert.equal(P2pIndentityKeys[1], key3);
-            assert.equal(P2pSignatureKeys[0], key3);
-            assert.equal(EthMessageKeys[0], key2);
+            assert.equal(NoPurposeKeys[0].length, 0);
+            assert.equal(NoPurposeKeys[1].length, 0);
+            assert.equal(NoPurposeKeys[2].length, 0);
+            assert.equal(P2pIndentityKeys[0].length, 2);
+            assert.equal(P2pIndentityKeys[1].length, 2);
+            assert.equal(P2pIndentityKeys[2].length, 2);
+            assert.equal(P2pSignatureKeys[0].length, 1);
+            assert.equal(P2pSignatureKeys[1].length, 1);
+            assert.equal(P2pSignatureKeys[2].length, 1);
+            assert.equal(EthMessageKeys[0].length, 1);
+            assert.equal(EthMessageKeys[1].length, 1);
+            assert.equal(EthMessageKeys[2].length, 1);
+            assert.equal(P2pIndentityKeys[0][0], key);
+            assert.equal(P2pIndentityKeys[0][1], key3);
+            assert.equal(P2pSignatureKeys[0][0], key3);
+            assert.equal(EthMessageKeys[0][0], key2);
         })
     });
 
