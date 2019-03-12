@@ -88,13 +88,13 @@ contract("KeyManager", function (accounts) {
             const P2pSignatureKeys = await this.identity.getKeysByPurpose(P2P_SIGNATURE);
             const EthMessageKeys = await this.identity.getKeysByPurpose(ACTION);
 
-            assert.equal(P2pIndentityKeys.length, 2);
-            assert.equal(P2pSignatureKeys.length, 1);
-            assert.equal(EthMessageKeys.length, 1);
-            assert.equal(P2pIndentityKeys[0], key);
-            assert.equal(P2pIndentityKeys[1], key3);
-            assert.equal(P2pSignatureKeys[0], key3);
-            assert.equal(EthMessageKeys[0], key2);
+            assert.equal(P2pIndentityKeys[0].length, 2);
+            assert.equal(P2pSignatureKeys[0].length, 1);
+            assert.equal(EthMessageKeys[0].length, 1);
+            assert.equal(P2pIndentityKeys[0][0], key);
+            assert.equal(P2pIndentityKeys[0][1], key3);
+            assert.equal(P2pSignatureKeys[0][0], key3);
+            assert.equal(EthMessageKeys[0][0], key2);
         })
     });
 

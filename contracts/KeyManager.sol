@@ -149,14 +149,23 @@ contract KeyManager {
 
   /**
    * @param purpose uint256 representing the purpose of the the key
-   * @return array of hashes containing all the keys for the provided purpose
+   * @return keysByPurpose array of hashes containing all the keys for the provided purpose
+   * @return keyTypes array of uint containing the types for the keys
+   * @return keysRevokedAt array of uint containing the revocation blocks for the keys
    */
   function getKeysByPurpose(uint256 purpose)
   external
   view
-  returns (bytes32[] memory)
+  returns (bytes32[] memory keysByPurpose,uint256[] memory keyTypes, uint256[] memory keysRevokedAt)
   {
-    return _keysByPurpose[purpose];
+    keysByPurpose = _keysByPurpose[purpose];
+    keysRevokedAt = new uint256[](keysByPurpose.length);
+    keyTypes = new uint256[](keysByPurpose.length);
+
+    for (uint i = 0; i < keysByPurpose.length; i++) {
+      keysRevokedAt[i] = _keys[keysByPurpose[i]].revokedAt;
+      keyTypes[i] = _keys[keysByPurpose[i]].keyType;
+    }
   }
 
   /**
