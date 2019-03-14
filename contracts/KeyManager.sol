@@ -24,7 +24,7 @@ contract KeyManager {
     // e.g. 1 = ECDSA, 2 = RSA, etc.
     uint256 keyType;
     // Block where key was revoked
-    uint256 revokedAt;
+    uint32 revokedAt;
   }
 
   mapping(bytes32 => Key) internal _keys;
@@ -93,7 +93,7 @@ contract KeyManager {
     // check if key exists
     require(_keys[key].purposes.length > 0, "Key does not exit");
 
-    _keys[key].revokedAt = block.number;
+    _keys[key].revokedAt = uint32(block.number);
     emit KeyRevoked(
       key,
       _keys[key].revokedAt,
@@ -112,7 +112,7 @@ contract KeyManager {
   returns (
     bytes32 key,
     uint256[] memory purposes,
-    uint256 revokedAt
+    uint32 revokedAt
   )
   {
     return (
@@ -156,10 +156,10 @@ contract KeyManager {
   function getKeysByPurpose(uint256 purpose)
   external
   view
-  returns (bytes32[] memory keysByPurpose,uint256[] memory keyTypes, uint256[] memory keysRevokedAt)
+  returns (bytes32[] memory keysByPurpose,uint256[] memory keyTypes, uint32[] memory keysRevokedAt)
   {
     keysByPurpose = _keysByPurpose[purpose];
-    keysRevokedAt = new uint256[](keysByPurpose.length);
+    keysRevokedAt = new uint32[](keysByPurpose.length);
     keyTypes = new uint256[](keysByPurpose.length);
 
     for (uint i = 0; i < keysByPurpose.length; i++) {

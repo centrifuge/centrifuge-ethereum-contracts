@@ -192,16 +192,14 @@ contract UserMintableERC721 is Initializable, ERC721, ERC721Enumerable, ERC721Me
   )
   internal
   view
-  returns (bytes32 documentRoot)
+  returns (bytes32 documentRoot, uint32 anchoredBlock)
   {
     AnchorRepository ar_ = AnchorRepository(_anchorRegistry);
-    (, bytes32 merkleRoot_, ) = ar_.getAnchorById(anchorId);
+    (, documentRoot, anchoredBlock ) = ar_.getAnchorById(anchorId);
     require(
-      merkleRoot_ != 0x0,
+      documentRoot != 0x0,
       "Document in not anchored in the registry"
     );
-
-    return merkleRoot_;
   }
 
   /**
@@ -466,8 +464,7 @@ contract UserMintableERC721 is Initializable, ERC721, ERC721Enumerable, ERC721Me
 
   /**
    * @dev Checks that provided document is signed by the given identity
-   * and validates and checks if the public key used is a valid
-   * SIGNING_KEY
+   * and validates and checks if the public key used is a valid SIGNING_KEY
    * @param documentRoot bytes32 the anchored document root
    * @param identity address Identity that signed the document
    * @param signingRoot bytes32 The message that was signed
@@ -480,6 +477,7 @@ contract UserMintableERC721 is Initializable, ERC721, ERC721Enumerable, ERC721Me
 
   function _requireSignedByIdentity(
     bytes32 documentRoot,
+    uint32 anchoredAt,
     address identity,
     bytes32 signingRoot,
     bytes32[] memory singingRootProof,
@@ -532,6 +530,16 @@ contract UserMintableERC721 is Initializable, ERC721, ERC721Enumerable, ERC721Me
       _getIdentity(identity).keyHasPurpose(pbKey_, SIGNING_PURPOSE),
       "Signature key not valid"
     );
+
+    // If key is revoked anchor must be older the the key revocation
+    (, , uint32 revokedAt_) = _getIdentity(identity).getKey(pbKey_);
+    if (revokedAt_ > 0) {
+      require(
+        anchoredAt < revokedAt_,
+        "Anchored signed with a revoked key"
+      );
+    }
+
   }
 
   /**
