@@ -26,10 +26,15 @@ contract AnchorRepository is Initializable {
     uint32 expirationBlock;
   }
 
+  struct Anchor {
+    bytes32 docRoot;
+    uint32 anchoredBlock;
+  }
+
   // store precommits
   mapping(uint256 => PreAnchor) internal _preCommits;
   // store _commits
-  mapping(uint256 => bytes32) internal _commits;
+  mapping(uint256 => Anchor) internal _commits;
   // The number of blocks for which a precommit is valid
   uint256 constant internal EXPIRATION_LENGTH = 15;
 
@@ -45,7 +50,7 @@ contract AnchorRepository is Initializable {
   {
 
     // not allowing to pre-commit for an existing anchor
-    require(_commits[anchorId] == 0x0,"Commit exists for the given anchor");
+    require(_commits[anchorId].docRoot == 0x0,"Commit exists for the given anchor");
 
     // do not allow a precommit if there is already a valid one in place
     require(hasValidPreCommit(anchorId) == false,"Precommit exists for the given anchor");
@@ -80,7 +85,7 @@ contract AnchorRepository is Initializable {
     uint256 anchorId = uint256(sha256(abi.encodePacked(anchorIdPreImage)));
 
     //not allowing to write to an existing anchor
-    require(_commits[anchorId] == 0x0);
+    require(_commits[anchorId].docRoot == 0x0);
 
     // Check if there is a precommit and enforce it
     if (hasValidPreCommit(anchorId)) {
@@ -97,7 +102,10 @@ contract AnchorRepository is Initializable {
 
     }
 
-    _commits[anchorId] = documentRoot;
+    _commits[anchorId] = Anchor(
+      documentRoot,
+      uint32(block.number)
+    );
     emit AnchorCommitted(
       msg.sender,
       anchorId,
@@ -109,7 +117,7 @@ contract AnchorRepository is Initializable {
 
   /**
    * @param id Id for an Anchor.
-   * @return Struct with anchorId, documentRoot and the identity
+   * @return Struct with anchorId, documentRoot
    */
   function getAnchorById(uint256 id)
   external
@@ -121,7 +129,27 @@ contract AnchorRepository is Initializable {
   {
     return (
       id,
-      _commits[id]
+      _commits[id].docRoot
+    );
+  }
+
+  /**
+   * @param id Id for an Anchor.
+   * @return Struct with anchorId, documentRoot, anchoredBlockNumber
+   */
+  function getAnchorDetails(uint256 id)
+  external
+  view
+  returns (
+    uint256 anchorId,
+    bytes32 documentRoot,
+    uint32 blockNumber
+  )
+  {
+    return (
+    id,
+    _commits[id].docRoot,
+    _commits[id].anchoredBlock
     );
   }
 

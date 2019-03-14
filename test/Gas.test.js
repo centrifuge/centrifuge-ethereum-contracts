@@ -100,7 +100,7 @@ contract("Gas costs", function (accounts) {
     describe("Check the gas cost for preCommit and commit with the identity proxy for ACTION key", async function () {
 
         const preCommitMaxGas = 95000;
-        const commitMaxGas = 80000;
+        const commitMaxGas = 85000;
         it(`should have preCommit gas cost less then ${preCommitMaxGas} `, async function () {
             const {anchorId, signingRoot, callOptions} = await getBasicTestNeeds(accounts);
 
