@@ -35,8 +35,8 @@ contract("KeyManager", function (accounts) {
             await this.identity.addMultiPurposeKey(key, [P2P_IDENTITY, P2P_SIGNATURE], 1);
             const response = await this.identity.getKey(key);
             assert.equal(key, response[0]);
-            assert.equal(P2P_IDENTITY, response[1][0].toNumber());
-            assert.equal(P2P_SIGNATURE, response[1][1].toNumber());
+            assert.equal(P2P_IDENTITY, web3.utils.toHex(response[1][0]));
+            assert.equal(P2P_SIGNATURE, web3.utils.toHex(response[1][1]));
             assert.equal(0, response[2]);
         })
 
@@ -48,8 +48,8 @@ contract("KeyManager", function (accounts) {
             await this.identity.addKey(key, P2P_SIGNATURE, 1);
             const response = await this.identity.getKey(key);
             assert.equal(key, response[0]);
-            assert.equal(P2P_IDENTITY, response[1][0].toNumber());
-            assert.equal(P2P_SIGNATURE, response[1][1].toNumber());
+            assert.equal(P2P_IDENTITY, web3.utils.toHex(response[1][0]));
+            assert.equal(P2P_SIGNATURE, web3.utils.toHex(response[1][1]));
             assert.equal(0, response[2].toNumber());
         })
 
@@ -114,7 +114,7 @@ contract("KeyManager", function (accounts) {
             await this.identity.addKey(key, P2P_IDENTITY, 1).then(tx => {
                 const events = getEvents(tx, "KeyAdded");
                 assert.equal(1, events.length);
-                assert.equal(events[0].purpose.toNumber(), P2P_IDENTITY);
+                assert.equal(web3.utils.toHex(events[0].purpose), P2P_IDENTITY);
                 assert.equal(events[0].key, key);
             });
 
@@ -138,7 +138,7 @@ contract("KeyManager", function (accounts) {
             await this.identity.addKey(key, P2P_IDENTITY, 1).then(tx => {
                 const events = getEvents(tx, "KeyAdded");
                 assert.equal(1, events.length);
-                assert.equal(events[0].purpose.toNumber(), P2P_IDENTITY);
+                assert.equal(web3.utils.toHex(events[0].purpose), P2P_IDENTITY);
             });
 
         })
@@ -148,8 +148,8 @@ contract("KeyManager", function (accounts) {
             await this.identity.addMultiPurposeKey(key, [P2P_IDENTITY, P2P_SIGNATURE], 1).then(tx => {
                 const events = getEvents(tx, "KeyAdded");
                 assert.equal(2, events.length);
-                assert.equal(events[0].purpose.toNumber(), P2P_IDENTITY);
-                assert.equal(events[1].purpose.toNumber(), P2P_SIGNATURE);
+                assert.equal(web3.utils.toHex(events[0].purpose), P2P_IDENTITY);
+                assert.equal(web3.utils.toHex(events[1].purpose), P2P_SIGNATURE);
             });
 
         })
@@ -160,7 +160,7 @@ contract("KeyManager", function (accounts) {
             await this.identity.addMultiPurposeKey(key, [P2P_IDENTITY, P2P_SIGNATURE], 1).then(tx => {
                 const events = getEvents(tx, "KeyAdded");
                 assert.equal(1, events.length);
-                assert.equal(events[0].purpose.toNumber(), P2P_SIGNATURE);
+                assert.equal(web3.utils.toHex(events[0].purpose), P2P_SIGNATURE);
             });
         })
 
