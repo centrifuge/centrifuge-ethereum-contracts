@@ -11,6 +11,8 @@ import "contracts/erc721/UserMintableERC721.sol";
 contract MockUserMintableERC721 is UserMintableERC721 {
 
   address private _ownAddress = address(this);
+  address private _sender;
+  address private _identity;
 
   constructor(
     string memory name,
@@ -43,7 +45,7 @@ contract MockUserMintableERC721 is UserMintableERC721 {
   function requireValidIdentity(
     bytes32 documentRoot,
     bytes calldata property,
-    bytes calldata value,
+    address identity,
     bytes32 salt,
     bytes32[] calldata proof
   )
@@ -53,7 +55,7 @@ contract MockUserMintableERC721 is UserMintableERC721 {
     super._requireValidIdentity(
        documentRoot,
       property,
-      value,
+      identity,
       salt,
       proof
     );
@@ -152,6 +154,28 @@ contract MockUserMintableERC721 is UserMintableERC721 {
     );
   }
 
+  function requireSignedByIdentity(
+    bytes32 documentRoot,
+    address identity,
+    bytes32 signingRoot,
+    bytes calldata signature,
+    bytes32 salt,
+    bytes32[] calldata proof
+  )
+  external
+  view
+  {
+
+    return super._requireSignedByIdentity(
+      documentRoot,
+      identity,
+      signingRoot,
+      signature,
+      salt,
+      proof
+    );
+  }
+
 
   function mintAnchor(
     address to,
@@ -189,6 +213,42 @@ contract MockUserMintableERC721 is UserMintableERC721 {
   returns (address)
   {
     return _ownAddress;
+  }
+
+  function setSender(address sender)
+  public
+  {
+    _sender = sender;
+  }
+
+  function _getSender()
+  internal
+  view
+  returns (address)
+  {
+    return _sender;
+  }
+
+  function setIdentity(address identity)
+  public
+  {
+    _identity = identity;
+  }
+
+  function _getIdentity(address identity)
+  internal
+  view
+  returns (Identity)
+  {
+    return Identity(_identity);
+  }
+
+  function getIdentity()
+  external
+  view
+  returns (address)
+  {
+    return _identity;
   }
 
 }
