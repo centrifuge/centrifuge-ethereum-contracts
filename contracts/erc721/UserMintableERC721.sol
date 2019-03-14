@@ -44,7 +44,7 @@ contract UserMintableERC721 is Initializable, ERC721, ERC721Enumerable, ERC721Me
 
   // Value of the Signature purpose for an identity
   // solium-disable-next-line
-  uint256 constant internal SIGNING_PURPOSE = 0x774a43710604e3ce8db630136980a6ba5a65b5e6686ee51009ed5f3fded6ea7e;
+  uint256 constant internal SIGNATURE_PURPOSE = 0x774a43710604e3ce8db630136980a6ba5a65b5e6686ee51009ed5f3fded6ea7e;
 
   /**
    * @dev Gets the anchor registry's address that is backing this token
@@ -195,7 +195,7 @@ contract UserMintableERC721 is Initializable, ERC721, ERC721Enumerable, ERC721Me
   returns (bytes32 documentRoot)
   {
     AnchorRepository ar_ = AnchorRepository(_anchorRegistry);
-    (, bytes32 merkleRoot_, ) = ar_.getAnchorById(anchorId);
+    (, bytes32 merkleRoot_) = ar_.getAnchorById(anchorId);
     require(
       merkleRoot_ != 0x0,
       "Document in not anchored in the registry"
@@ -266,7 +266,7 @@ contract UserMintableERC721 is Initializable, ERC721, ERC721Enumerable, ERC721Me
   view
   {
     AnchorRepository ar_ = AnchorRepository(_anchorRegistry);
-    (, bytes32 nextMerkleRoot_, ) = ar_.getAnchorById(nextAnchorId);
+    (, bytes32 nextMerkleRoot_) = ar_.getAnchorById(nextAnchorId);
 
     require(
       nextMerkleRoot_ == 0x0,
@@ -465,13 +465,12 @@ contract UserMintableERC721 is Initializable, ERC721, ERC721Enumerable, ERC721Me
   }
 
   /**
-   * @dev Checks that provided document is signed by the given identity
+   * @dev Checks that provided document is signed by an identity
    * and validates and checks if the public key used is a valid
    * SIGNING_KEY
    * @param documentRoot bytes32 the anchored document root
    * @param identity address Identity that signed the document
    * @param signingRoot bytes32 The message that was signed
-   * @param singingRootProof bytes32[] proofs for signing root
    * @param signature bytes The signature
    * used to contract the property for precise proofs
    * @param salt bytes32 salt for leaf construction
@@ -482,7 +481,6 @@ contract UserMintableERC721 is Initializable, ERC721, ERC721Enumerable, ERC721Me
     bytes32 documentRoot,
     address identity,
     bytes32 signingRoot,
-    bytes32[] memory singingRootProof,
     bytes memory signature,
     bytes32 salt,
     bytes32[] memory proof
@@ -490,15 +488,6 @@ contract UserMintableERC721 is Initializable, ERC721, ERC721Enumerable, ERC721Me
   internal
   view
   {
-
-    require(
-      MerkleProof.verifySha256(
-        singingRootProof,
-        documentRoot,
-        signingRoot
-      ),
-      "Signing Root not part of the document"
-    );
 
     // Extract the public key from the signature
     bytes32 pbKey_ = bytes32(
@@ -524,12 +513,12 @@ contract UserMintableERC721 is Initializable, ERC721, ERC721Enumerable, ERC721Me
         documentRoot,
         sha256(abi.encodePacked(property_, signature, salt))
       ),
-      "Provided signature is not part of the document root"
+      "Signature not signed by provided identity"
     );
 
     // Check if the public key has a signature purpose on the provided identity
     require(
-      _getIdentity(identity).keyHasPurpose(pbKey_, SIGNING_PURPOSE),
+      _getIdentity(identity).keyHasPurpose(pbKey_, SIGNATURE_PURPOSE),
       "Signature key not valid"
     );
   }

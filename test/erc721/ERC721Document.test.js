@@ -14,7 +14,7 @@ contract("UserMintableERC721", function (accounts) {
         grossAmount,
         currency,
         sender,
-        signingRoot,
+        signatureRoot,
         signature,
         nextVersion,
         nftUnique,
@@ -377,7 +377,7 @@ contract("UserMintableERC721", function (accounts) {
     describe("_requireSignedByIdentity", async function () {
 
 
-        it("Should fail when the singingRoot is not part of the document ", async function () {
+        it("Should fail when the precise proofs validation fails ", async function () {
 
             let mockRegistry = await MockUserMintableERC721.new("ERC-721 Document Anchor", "TDA", this.anchorRegistry.address, this.identityFactory.address, mandatoryFields);
 
@@ -387,39 +387,14 @@ contract("UserMintableERC721", function (accounts) {
             await shouldRevert(mockRegistry.requireSignedByIdentity(
                 validRootHash,
                 sender.value,
-                signingRoot.value,
-                signingRoot.sorted_hashes,
+                signatureRoot.value,
                 signature.value,
                 signature.salt,
                 signature.sorted_hashes
                 ),
-                "Signing Root not part of the document"
+                "Signature not signed by provided identity"
             );
         })
-
-
-        it("Should fail when signature is not part of the document root ", async function () {
-
-            let mockRegistry = await MockUserMintableERC721.new("ERC-721 Document Anchor", "TDA", this.anchorRegistry.address, this.identityFactory.address, mandatoryFields);
-
-            await mockRegistry.setOwnAddress(contractAddress);
-            await mockRegistry.setIdentity(this.identity.address);
-
-            await shouldRevert(mockRegistry.requireSignedByIdentity(
-                validRootHash,
-                sender.value,
-                signingRoot.hash,
-                signingRoot.sorted_hashes,
-                signature.hash,
-                signature.salt,
-                signature.sorted_hashes
-                ),
-                "Provided signature is not part of the document root"
-            );
-        })
-
-
-
 
         it("Should fail when it can not find the identity contract ", async function () {
 
@@ -430,8 +405,7 @@ contract("UserMintableERC721", function (accounts) {
             await shouldRevert(mockRegistry.requireSignedByIdentity(
                 validRootHash,
                 sender.value,
-                signingRoot.hash,
-                signingRoot.sorted_hashes,
+                signatureRoot.hash,
                 signature.value,
                 signature.salt,
                 signature.sorted_hashes
@@ -449,8 +423,7 @@ contract("UserMintableERC721", function (accounts) {
             await shouldRevert(mockRegistry.requireSignedByIdentity(
                 validRootHash,
                 sender.value,
-                signingRoot.hash,
-                signingRoot.sorted_hashes,
+                signatureRoot.hash,
                 signature.value,
                 signature.salt,
                 signature.sorted_hashes
@@ -469,8 +442,7 @@ contract("UserMintableERC721", function (accounts) {
             await mockRegistry.requireSignedByIdentity(
                 validRootHash,
                 sender.value,
-                signingRoot.hash,
-                signingRoot.sorted_hashes,
+                signatureRoot.hash,
                 signature.value,
                 signature.salt,
                 signature.sorted_hashes

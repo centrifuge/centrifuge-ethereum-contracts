@@ -8,7 +8,7 @@ let currency = proof.field_proofs[1];
 let due_date = proof.field_proofs[2];
 let sender = proof.field_proofs[3];
 let status = proof.field_proofs[4];
-let signingRoot = proof.field_proofs[5];
+let signatureRoot = proof.field_proofs[5];
 let signature = proof.field_proofs[6];
 let nextVersion = proof.field_proofs[7];
 let nftUnique = proof.field_proofs[8];
@@ -30,7 +30,7 @@ module.exports = {
     due_date,
     sender,
     status,
-    signingRoot,
+    signatureRoot,
     signature,
     nextVersion,
     nftUnique,
@@ -51,7 +51,7 @@ module.exports = {
             due_date.property,
             sender.property,
             status.property,
-            signingRoot.property,
+            signatureRoot.property,
             signature.property,
             nextVersion.property,
             nftUnique.property,
@@ -65,7 +65,7 @@ module.exports = {
             due_date.value,
             sender.value,
             status.value,
-            signingRoot.hash,
+            signatureRoot.hash,
             signature.value,
             nextVersion.value,
             nftUnique.value,
@@ -79,7 +79,7 @@ module.exports = {
             due_date.salt,
             sender.salt,
             status.salt,
-            signingRoot.salt,
+            signatureRoot.salt,
             signature.salt,
             nextVersion.salt,
             nftUnique.salt,
@@ -93,7 +93,7 @@ module.exports = {
             due_date.sorted_hashes,
             sender.sorted_hashes,
             status.sorted_hashes,
-            signingRoot.sorted_hashes,
+            signatureRoot.sorted_hashes,
             signature.sorted_hashes,
             nextVersion.sorted_hashes,
             nftUnique.sorted_hashes,
