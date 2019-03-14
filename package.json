@@ -1,6 +1,6 @@
 {
   "name": "@centrifuge/ethereum-contracts",
-  "version": "0.5.8",
+  "version": "0.5.9",
   "description": "Centrifuge OS (https://github.com/centrifuge/centrifuge-ethereum-contracts)",
   "publishConfig": {
     "access": "public"

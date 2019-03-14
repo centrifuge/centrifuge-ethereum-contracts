@@ -42,12 +42,14 @@ contract MockAnchorRepository {
   view
   returns (
     uint256 identifier,
-    bytes32 merkleRoot
+    bytes32 merkleRoot,
+    uint32 blockNumber
     )
   {
     return (
       id,
-      _anchors[id].documentRoot
+      _anchors[id].documentRoot,
+      0x0
     );
   }
 }
