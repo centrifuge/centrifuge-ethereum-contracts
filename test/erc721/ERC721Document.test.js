@@ -74,7 +74,7 @@ contract("UserMintableERC721", function (accounts) {
             )
 
             assert.equal(
-                anchoredRoot,
+                anchoredRoot[0],
                 validRootHash
             );
         })
@@ -248,7 +248,6 @@ contract("UserMintableERC721", function (accounts) {
         it("Should fail if the proof is not valid", async function () {
             let mockRegistry = await MockUserMintableERC721.new("ERC-721 Document Anchor", "TDA", this.anchorRegistry.address, this.identityFactory.address, mandatoryFields);
 
-
             await shouldRevert(mockRegistry.requireReadRole(
                 validRootHash,
                 "0x1",
@@ -386,6 +385,7 @@ contract("UserMintableERC721", function (accounts) {
 
             await shouldRevert(mockRegistry.requireSignedByIdentity(
                 validRootHash,
+                1000,
                 sender.value,
                 signingRoot.value,
                 signingRoot.sorted_hashes,
@@ -407,6 +407,7 @@ contract("UserMintableERC721", function (accounts) {
 
             await shouldRevert(mockRegistry.requireSignedByIdentity(
                 validRootHash,
+                1000,
                 sender.value,
                 signingRoot.hash,
                 signingRoot.sorted_hashes,
@@ -429,6 +430,7 @@ contract("UserMintableERC721", function (accounts) {
 
             await shouldRevert(mockRegistry.requireSignedByIdentity(
                 validRootHash,
+                1000,
                 sender.value,
                 signingRoot.hash,
                 signingRoot.sorted_hashes,
@@ -448,6 +450,7 @@ contract("UserMintableERC721", function (accounts) {
 
             await shouldRevert(mockRegistry.requireSignedByIdentity(
                 validRootHash,
+                1000,
                 sender.value,
                 signingRoot.hash,
                 signingRoot.sorted_hashes,
@@ -456,6 +459,29 @@ contract("UserMintableERC721", function (accounts) {
                 signature.sorted_hashes
                 ),
                 "Signature key not valid"
+            );
+        })
+
+        it("Should fail when the anchor is after the key revocation ", async function () {
+
+            let mockRegistry = await MockUserMintableERC721.new("ERC-721 Document Anchor", "TDA", this.anchorRegistry.address, this.identityFactory.address, mandatoryFields);
+            let identity = await Identity.new(accounts[0],[publicKey],[P2P_SIGNATURE]);
+
+            await mockRegistry.setOwnAddress(contractAddress);
+            await mockRegistry.setIdentity(identity.address);
+            await identity.revokeKey(publicKey);
+
+            await shouldRevert(mockRegistry.requireSignedByIdentity(
+                validRootHash,
+                999999,
+                sender.value,
+                signingRoot.hash,
+                signingRoot.sorted_hashes,
+                signature.value,
+                signature.salt,
+                signature.sorted_hashes
+                ),
+                "Anchored signed with a revoked key"
             );
         })
 
@@ -468,6 +494,7 @@ contract("UserMintableERC721", function (accounts) {
 
             await mockRegistry.requireSignedByIdentity(
                 validRootHash,
+                1000,
                 sender.value,
                 signingRoot.hash,
                 signingRoot.sorted_hashes,

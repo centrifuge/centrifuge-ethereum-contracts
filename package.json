@@ -1,6 +1,6 @@
 {
   "name": "@centrifuge/ethereum-contracts",
-  "version": "0.5.9",
+  "version": "0.5.10",
   "description": "Centrifuge OS (https://github.com/centrifuge/centrifuge-ethereum-contracts)",
   "publishConfig": {
     "access": "public"
@@ -16,7 +16,7 @@
     "clean": "rm -rf build && rm -rf zos.dev*.json",
     "compile": "npm run clean && truffle compile",
     "lint:sol:fix": "solium -d contracts/ --fix",
-    "test": "npm run compile && NODE_ENV=test truffle test",
+    "test": "npm run compile && NODE_ENV=test truffle test ",
     "start-ganache": "ganache-cli  --networkId 99999 -l 8000000 -p 8545 -m \"tumble gas embody bright agree pony smoke laptop index sight shallow hungry\"",
     "migrate": "truffle migrate --compile-all --reset"
   },

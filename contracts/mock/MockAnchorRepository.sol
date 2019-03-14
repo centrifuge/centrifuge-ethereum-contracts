@@ -12,6 +12,7 @@ contract MockAnchorRepository {
   // A simplistic representation of a document anchor
   struct Anchor {
     bytes32 documentRoot;
+    uint32 anchoredBlock;
   }
 
   mapping(uint256 => Anchor) private _anchors;
@@ -28,7 +29,7 @@ contract MockAnchorRepository {
     require(anchorId != 0x0);
     require(documentRoot != 0x0);
 
-    _anchors[anchorId] = Anchor(documentRoot);
+    _anchors[anchorId] = Anchor(documentRoot, uint32(block.number));
   }
 
   /**
@@ -43,13 +44,13 @@ contract MockAnchorRepository {
   returns (
     uint256 identifier,
     bytes32 merkleRoot,
-    uint32 blockNumber
+    uint32 anchoredBlock
     )
   {
     return (
       id,
       _anchors[id].documentRoot,
-      0x0
+      _anchors[id].anchoredBlock
     );
   }
 }

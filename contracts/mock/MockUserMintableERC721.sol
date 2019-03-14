@@ -37,7 +37,7 @@ contract MockUserMintableERC721 is UserMintableERC721 {
   )
   external
   view
-  returns (bytes32 documentRoot)
+  returns (bytes32 documentRoot, uint32 anchoredBlock)
   {
     return super._getDocumentRoot(anchorId);
   }
@@ -156,6 +156,7 @@ contract MockUserMintableERC721 is UserMintableERC721 {
 
   function requireSignedByIdentity(
     bytes32 documentRoot,
+    uint32 anchoredAt,
     address identity,
     bytes32 signingRoot,
     bytes32[] calldata singingRootProof,
@@ -169,6 +170,7 @@ contract MockUserMintableERC721 is UserMintableERC721 {
 
     return super._requireSignedByIdentity(
       documentRoot,
+      anchoredAt,
       identity,
       signingRoot,
       singingRootProof,

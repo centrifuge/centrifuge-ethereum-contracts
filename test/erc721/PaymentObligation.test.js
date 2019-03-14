@@ -31,7 +31,7 @@ contract("PaymentObligation", function (accounts) {
         beforeEach(async function () {
             this.anchorRegistry = await MockAnchorRegistry.new();
             this.identityFactory = await MockIdentityFactory.new();
-            this.identity  = await Identity.new(accounts[2],[publicKey],[P2P_SIGNATURE]);
+            this.identity = await Identity.new(accounts[2], [publicKey], [P2P_SIGNATURE]);
             this.registry = await MockPaymentObligation.new(this.anchorRegistry.address, this.identityFactory.address);
         });
 
@@ -99,8 +99,38 @@ contract("PaymentObligation", function (accounts) {
             ));
         });
 
+        it("should fail if the anchored is signed with a revoked key", async function () {
 
-        it("should fails if the identity key ckeck fails", async function () {
+
+            let identity = await Identity.new(accounts[0], [publicKey], [P2P_SIGNATURE]);
+            await identity.revokeKey(publicKey);
+
+            await this.anchorRegistry.setAnchorById(
+                documentIdentifier,
+                validRootHash
+            );
+
+            await this.identityFactory.registerIdentity(sender.value);
+
+            await this.registry.setOwnAddress(contractAddress);
+            await this.registry.setSender(sender.value);
+            await this.registry.setIdentity(identity.address);
+
+            await shouldRevert(
+                this.registry.mint(
+                    accounts[2],
+                    tokenId,
+                    tokenURI,
+                    documentIdentifier,
+                    poMintParams.properties,
+                    poMintParams.values,
+                    poMintParams.salts,
+                    poMintParams.proofs
+                ),
+                "Anchored signed with a revoked key");
+        });
+
+        it("should fail if the identity key check fails", async function () {
 
             await this.anchorRegistry.setAnchorById(
                 documentIdentifier,
@@ -192,7 +222,7 @@ contract("PaymentObligation", function (accounts) {
 
 
             let replacedStatus = [...poMintParams.salts];
-            replacedStatus.splice(4,1,nextVersion.salt);// replace status salt with next version
+            replacedStatus.splice(4, 1, nextVersion.salt);// replace status salt with next version
 
 
             await this.identityFactory.registerIdentity(sender.value);
