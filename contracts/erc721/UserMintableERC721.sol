@@ -6,8 +6,10 @@ import "openzeppelin-eth/contracts/token/ERC721/ERC721Metadata.sol";
 import "openzeppelin-eth/contracts/token/ERC721/ERC721.sol";
 import "openzeppelin-eth/contracts/token/ERC721/ERC721Enumerable.sol";
 import "contracts/AnchorRepository.sol";
+import "contracts/Identity.sol";
 import "contracts/IdentityFactory.sol";
 import "contracts/lib/MerkleProof.sol";
+import "openzeppelin-eth/contracts/cryptography/ECDSA.sol";
 
 
 /**
@@ -19,6 +21,10 @@ import "contracts/lib/MerkleProof.sol";
  * The precise proofs validation expects proof generation with compact properties  https://github.com/centrifuge/centrifuge-protobufs
  */
 contract UserMintableERC721 is Initializable, ERC721, ERC721Enumerable, ERC721Metadata {
+
+  using ECDSA for bytes32;
+
+
   // anchor registry
   address internal _anchorRegistry;
   // identity factory
@@ -35,6 +41,10 @@ contract UserMintableERC721 is Initializable, ERC721, ERC721Enumerable, ERC721Me
 
   // Mapping from token details to token ID
   mapping(uint256 => OwnedAnchor) internal _tokenDetails;
+
+  // Value of the Signature purpose for an identity
+  // solium-disable-next-line
+  uint256 constant internal SIGNATURE_PURPOSE = 0x774a43710604e3ce8db630136980a6ba5a65b5e6686ee51009ed5f3fded6ea7e;
 
   /**
    * @dev Gets the anchor registry's address that is backing this token
@@ -133,7 +143,7 @@ contract UserMintableERC721 is Initializable, ERC721, ERC721Enumerable, ERC721Me
   }
 
   /**
-   * @dev Address getter. This is need in order to be able to override
+   * @dev Address getter. This is needed in order to be able to override
    * the return value in testing Mock for precise proof testing
    * @return address the address of the contact
    */
@@ -143,6 +153,32 @@ contract UserMintableERC721 is Initializable, ERC721, ERC721Enumerable, ERC721Me
   returns (address)
   {
     return address(this);
+  }
+
+  /**
+   * @dev msg.sender getter. This is needed in order to be able to override
+   * the return value in testing Mock for precise proof testing
+   * @return address msg.sender
+   */
+  function _getSender()
+  internal
+  view
+  returns (address)
+  {
+    return msg.sender;
+  }
+
+  /**
+   * @dev Identity contract getter. This is needed in order to be able to override
+   * the return value in testing Mock for precise proof testing
+   * @return Identity a Identity contract
+   */
+  function _getIdentity(address identity)
+  internal
+  view
+  returns (Identity)
+  {
+    return Identity(identity);
   }
 
   /**
@@ -169,19 +205,18 @@ contract UserMintableERC721 is Initializable, ERC721, ERC721Enumerable, ERC721Me
   }
 
   /**
-   * @dev Checks if the provided proof is part of the document root,
-   * convert the value to address check if it was created
-   * using the linked identity factory
+   * @dev Checks if the provided proof is part of the document root
+   * and checks if it was created using the linked identity factory
    * @param documentRoot bytes32 the anchored document root
    * @param property bytes property for leaf construction
-   * @param value bytes value for leaf construction
+   * @param identity address Identity Contract used as a value for leaf construction
    * @param salt bytes32 salt for leaf construction
    * @param proof bytes32[] proofs for leaf construction
    */
   function _requireValidIdentity(
     bytes32 documentRoot,
     bytes memory property,
-    bytes memory value,
+    address identity,
     bytes32 salt,
     bytes32[] memory proof
   )
@@ -195,7 +230,7 @@ contract UserMintableERC721 is Initializable, ERC721, ERC721Enumerable, ERC721Me
         sha256(
           abi.encodePacked(
             property,
-            value,
+            identity,
             salt
           )
         )
@@ -204,7 +239,6 @@ contract UserMintableERC721 is Initializable, ERC721, ERC721Enumerable, ERC721Me
     );
 
     // Check if address was created by the identity factory
-    address identity = bytesToAddress(value);
     IdentityFactory identityFactory_ = IdentityFactory(_identityFactory);
     bool valid = identityFactory_.createdIdentity(identity);
     require(
@@ -431,6 +465,65 @@ contract UserMintableERC721 is Initializable, ERC721, ERC721Enumerable, ERC721Me
   }
 
   /**
+   * @dev Checks that provided document is signed by an identity
+   * and validates and checks if the public key used is a valid
+   * SIGNING_KEY
+   * @param documentRoot bytes32 the anchored document root
+   * @param identity address Identity that signed the document
+   * @param signingRoot bytes32 The message that was signed
+   * @param signature bytes The signature
+   * used to contract the property for precise proofs
+   * @param salt bytes32 salt for leaf construction
+   * @param proof bytes32[] proofs for leaf construction
+   */
+
+  function _requireSignedByIdentity(
+    bytes32 documentRoot,
+    address identity,
+    bytes32 signingRoot,
+    bytes memory signature,
+    bytes32 salt,
+    bytes32[] memory proof
+  )
+  internal
+  view
+  {
+
+    // Extract the public key from the signature
+    bytes32 pbKey_ = bytes32(
+      uint256(
+        signingRoot.toEthSignedMessageHash().recover(signature)
+      )
+    );
+
+    // Reconstruct the precise proof property based on the provided identity
+    // and the extracted public key
+    bytes memory property_ = abi.encodePacked(
+      hex"0300000000000001", // compact prop for "signatures_tree.signatures"
+      identity,
+      pbKey_,
+      hex"00000004" // compact prop for "signature"
+    );
+
+
+    // Check with precise proofs if the signature is part of the documentRoot
+    require(
+      MerkleProof.verifySha256(
+        proof,
+        documentRoot,
+        sha256(abi.encodePacked(property_, signature, salt))
+      ),
+      "Signature not signed by provided identity"
+    );
+
+    // Check if the public key has a signature purpose on the provided identity
+    require(
+      _getIdentity(identity).keyHasPurpose(pbKey_, SIGNATURE_PURPOSE),
+      "Signature key not valid"
+    );
+  }
+
+  /**
    * @dev Parses bytes and extracts a bytes8 value from
    * the given starting point
    * @param payload bytes From where to extract the index
@@ -470,26 +563,6 @@ contract UserMintableERC721 is Initializable, ERC721, ERC721Enumerable, ERC721Me
     // solium-disable-next-line security/no-inline-assembly
     assembly {
       result := mload(add(payload, 0x20))
-    }
-  }
-
-  /**
-   * @dev Parses bytes and extracts a address value
-   * @param payload bytes From where to extract the index
-   * @return address the converted address
-   */
-  function bytesToAddress(
-    bytes memory payload
-  )
-  internal
-  pure
-  returns(
-    address addr
-  )
-  {
-    // solium-disable-next-line security/no-inline-assembly
-    assembly {
-      addr := mload(add(payload, 20))
     }
   }
 

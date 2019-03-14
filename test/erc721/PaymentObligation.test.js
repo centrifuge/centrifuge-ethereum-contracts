@@ -1,8 +1,11 @@
-const shouldRevert = require('../tools/assertTx').shouldRevert
-let MockPaymentObligation = artifacts.require("MockPaymentObligation");
-let MockAnchorRegistry = artifacts.require("MockAnchorRepository");
-let MockIdentityFactory = artifacts.require("MockIdentityFactory");
-let proof = require("./proof.js");
+const {getEventValue} = require("../tools/contractEvents");
+const shouldRevert = require('../tools/assertTx').shouldRevert;
+const {P2P_IDENTITY, P2P_SIGNATURE, ACTION} = require('../constants');
+const MockPaymentObligation = artifacts.require("MockPaymentObligation");
+const MockAnchorRegistry = artifacts.require("MockAnchorRepository");
+const MockIdentityFactory = artifacts.require("MockIdentityFactory");
+const Identity = artifacts.require("Identity");
+const proof = require("./proof.js");
 
 contract("PaymentObligation", function (accounts) {
 
@@ -12,12 +15,8 @@ contract("PaymentObligation", function (accounts) {
         currency,
         due_date,
         sender,
-        status,
         nextVersion,
-        nftUnique,
-        readRole,
-        readRoleAction,
-        tokenRole,
+        publicKey,
         tokenId,
         documentIdentifier,
         validRootHash,
@@ -32,6 +31,7 @@ contract("PaymentObligation", function (accounts) {
         beforeEach(async function () {
             this.anchorRegistry = await MockAnchorRegistry.new();
             this.identityFactory = await MockIdentityFactory.new();
+            this.identity  = await Identity.new(accounts[2],[publicKey],[P2P_SIGNATURE]);
             this.registry = await MockPaymentObligation.new(this.anchorRegistry.address, this.identityFactory.address);
         });
 
@@ -41,9 +41,12 @@ contract("PaymentObligation", function (accounts) {
                 documentIdentifier,
                 validRootHash
             );
-            await this.identityFactory.registerIdentity(sender.value);
-            await this.registry.setOwnAddress(contractAddress);
 
+            await this.identityFactory.registerIdentity(sender.value);
+
+            await this.registry.setOwnAddress(contractAddress);
+            await this.registry.setSender(sender.value);
+            await this.registry.setIdentity(this.identity.address);
 
             await this.registry.mint(
                 accounts[2],
@@ -96,6 +99,50 @@ contract("PaymentObligation", function (accounts) {
             ));
         });
 
+
+        it("should fails if the identity key ckeck fails", async function () {
+
+            await this.anchorRegistry.setAnchorById(
+                documentIdentifier,
+                validRootHash
+            );
+
+            await this.identityFactory.registerIdentity(sender.value);
+
+            await this.registry.setOwnAddress(contractAddress);
+            await this.registry.setSender(sender.value);
+
+            await shouldRevert(this.registry.mint(
+                accounts[2],
+                tokenId,
+                tokenURI,
+                documentIdentifier,
+                poMintParams.properties,
+                poMintParams.values,
+                poMintParams.salts,
+                poMintParams.proofs
+            ));
+        });
+
+        it("should not mint a token if the a Merkle proof fails", async function () {
+            await this.anchorRegistry.setAnchorById(
+                documentIdentifier,
+                validRootHash
+            );
+            await this.identityFactory.registerIdentity(sender.value);
+
+            await shouldRevert(this.registry.mint(
+                accounts[2],
+                tokenId,
+                tokenURI,
+                documentIdentifier,
+                poMintParams.properties,
+                [...poMintParams.values].reverse(),
+                poMintParams.salts,
+                poMintParams.proofs
+            ));
+        });
+
         it("should fail if the token exists", async function () {
 
             await this.anchorRegistry.setAnchorById(
@@ -106,6 +153,8 @@ contract("PaymentObligation", function (accounts) {
             await this.identityFactory.registerIdentity(sender.value);
 
             await this.registry.setOwnAddress(contractAddress);
+            await this.registry.setSender(sender.value);
+            await this.registry.setIdentity(this.identity.address);
 
             await this.registry.mint(
                 accounts[2],
@@ -149,7 +198,8 @@ contract("PaymentObligation", function (accounts) {
             await this.identityFactory.registerIdentity(sender.value);
 
             await this.registry.setOwnAddress(contractAddress);
-
+            await this.registry.setSender(sender.value);
+            await this.registry.setIdentity(this.identity.address);
 
             await shouldRevert(
                 this.registry.mint(
