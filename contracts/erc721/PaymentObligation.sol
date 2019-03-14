@@ -139,7 +139,6 @@ contract PaymentObligation is Initializable, UserMintableERC721 {
       anchorId
     );
 
-
     // Check if status of invoice is unpaid
     require(
       MerkleProof.verifySha256(
@@ -173,6 +172,7 @@ contract PaymentObligation is Initializable, UserMintableERC721 {
       merkleRoot_,
       _getSender(),
       bytes32(bytesToUint(values[SIGNING_ROOT_IDX])),
+      proofs[SIGNING_ROOT_IDX],
       values[SIGNATURE_IDX],
       salts[SIGNATURE_IDX],
       proofs[SIGNATURE_IDX]
