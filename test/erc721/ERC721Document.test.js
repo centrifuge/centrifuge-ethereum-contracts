@@ -14,7 +14,7 @@ contract("UserMintableERC721", function (accounts) {
         grossAmount,
         currency,
         sender,
-        signatureRoot,
+        signingRoot,
         signature,
         nextVersion,
         nftUnique,
@@ -387,8 +387,8 @@ contract("UserMintableERC721", function (accounts) {
             await shouldRevert(mockRegistry.requireSignedByIdentity(
                 validRootHash,
                 sender.value,
-                signatureRoot.value,
-                signatureRoot.sorted_hashes,
+                signingRoot.value,
+                signingRoot.sorted_hashes,
                 signature.value,
                 signature.salt,
                 signature.sorted_hashes
@@ -408,8 +408,8 @@ contract("UserMintableERC721", function (accounts) {
             await shouldRevert(mockRegistry.requireSignedByIdentity(
                 validRootHash,
                 sender.value,
-                signatureRoot.hash,
-                signatureRoot.sorted_hashes,
+                signingRoot.hash,
+                signingRoot.sorted_hashes,
                 signature.hash,
                 signature.salt,
                 signature.sorted_hashes
@@ -430,8 +430,8 @@ contract("UserMintableERC721", function (accounts) {
             await shouldRevert(mockRegistry.requireSignedByIdentity(
                 validRootHash,
                 sender.value,
-                signatureRoot.hash,
-                signatureRoot.sorted_hashes,
+                signingRoot.hash,
+                signingRoot.sorted_hashes,
                 signature.value,
                 signature.salt,
                 signature.sorted_hashes
@@ -449,8 +449,8 @@ contract("UserMintableERC721", function (accounts) {
             await shouldRevert(mockRegistry.requireSignedByIdentity(
                 validRootHash,
                 sender.value,
-                signatureRoot.hash,
-                signatureRoot.sorted_hashes,
+                signingRoot.hash,
+                signingRoot.sorted_hashes,
                 signature.value,
                 signature.salt,
                 signature.sorted_hashes
@@ -469,8 +469,8 @@ contract("UserMintableERC721", function (accounts) {
             await mockRegistry.requireSignedByIdentity(
                 validRootHash,
                 sender.value,
-                signatureRoot.hash,
-                signatureRoot.sorted_hashes,
+                signingRoot.hash,
+                signingRoot.sorted_hashes,
                 signature.value,
                 signature.salt,
                 signature.sorted_hashes
