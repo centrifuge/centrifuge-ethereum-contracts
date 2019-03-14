@@ -47,7 +47,8 @@ contract("Gas costs", function (accounts) {
         validRootHash,
         contractAddress,
         tokenURI,
-        poMintParams
+        poMintParams,
+        publicKey
     } = proof;
 
     let nextDocumentIdentifier = nextVersion.value;
@@ -58,8 +59,7 @@ contract("Gas costs", function (accounts) {
 
     beforeEach(async function () {
         this.anchorRepository = await AnchorRepository.new();
-        this.identity = await Identity.new(accounts[0],[],[]);
-        await this.identity.addKey(addressToBytes32(accounts[1]), ACTION, 1);
+        this.identity = await Identity.new(accounts[0],[publicKey,addressToBytes32(accounts[1])],[P2P_SIGNATURE,ACTION]);
         this.identityFactory = await IdentityFactory.new();
         this.poRegistry = await MockPaymentObligation.new(this.anchorRepository.address,this.identityFactory.address);
 
@@ -165,7 +165,7 @@ contract("Gas costs", function (accounts) {
     });
 
     describe("check the gas cost for mint", async function () {
-        const mintMaxGas = 733819;
+        const mintMaxGas = 833819;
         it(`should have mint gas cost less then ${mintMaxGas} `, async function () {
 
             await this.anchorRepository.commit(
@@ -174,6 +174,8 @@ contract("Gas costs", function (accounts) {
                 []
             );
             await this.poRegistry.setOwnAddress(contractAddress);
+            await this.poRegistry.setSender(sender.value);
+            await this.poRegistry.setIdentity(this.identity.address);
             await this.identityFactory.registerIdentity(sender.value);
 
 
@@ -193,7 +195,7 @@ contract("Gas costs", function (accounts) {
     });
 
     describe("check the gas cost for mint with the identity proxy for ACTION key", async function () {
-        const mintMaxGas = 733819;
+        const mintMaxGas = 833819;
         it(`should have mint gas cost less then ${mintMaxGas} `, async function () {
             await this.anchorRepository.commit(
                 docIdPreImage,
@@ -202,6 +204,8 @@ contract("Gas costs", function (accounts) {
             );
 
             await this.poRegistry.setOwnAddress(contractAddress);
+            await this.poRegistry.setSender(sender.value);
+            await this.poRegistry.setIdentity(this.identity.address);
             await this.identityFactory.registerIdentity(sender.value);
 
             const data = await this.poRegistry.contract.methods.mint(

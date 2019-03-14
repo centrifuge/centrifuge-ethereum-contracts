@@ -17,7 +17,7 @@
     "compile": "npm run clean && truffle compile",
     "lint:sol:fix": "solium -d contracts/ --fix",
     "test": "npm run compile && NODE_ENV=test truffle test",
-    "start-ganache": "ganache-cli  --networkId 99999 -p 8545 -m \"tumble gas embody bright agree pony smoke laptop index sight shallow hungry\"",
+    "start-ganache": "ganache-cli  --networkId 99999 -l 8000000 -p 8545 -m \"tumble gas embody bright agree pony smoke laptop index sight shallow hungry\"",
     "migrate": "truffle migrate --compile-all --reset"
   },
   "nodemonConfig": {
