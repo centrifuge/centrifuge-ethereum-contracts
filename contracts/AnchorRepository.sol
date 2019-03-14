@@ -124,24 +124,6 @@ contract AnchorRepository is Initializable {
   view
   returns (
     uint256 anchorId,
-    bytes32 documentRoot
-  )
-  {
-    return (
-      id,
-      _commits[id].docRoot
-    );
-  }
-
-  /**
-   * @param id Id for an Anchor.
-   * @return Struct with anchorId, documentRoot, anchoredBlockNumber
-   */
-  function getAnchorDetails(uint256 id)
-  external
-  view
-  returns (
-    uint256 anchorId,
     bytes32 documentRoot,
     uint32 blockNumber
   )

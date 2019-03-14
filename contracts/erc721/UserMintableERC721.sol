@@ -159,7 +159,7 @@ contract UserMintableERC721 is Initializable, ERC721, ERC721Enumerable, ERC721Me
   returns (bytes32 documentRoot)
   {
     AnchorRepository ar_ = AnchorRepository(_anchorRegistry);
-    (, bytes32 merkleRoot_) = ar_.getAnchorById(anchorId);
+    (, bytes32 merkleRoot_, ) = ar_.getAnchorById(anchorId);
     require(
       merkleRoot_ != 0x0,
       "Document in not anchored in the registry"
@@ -232,7 +232,7 @@ contract UserMintableERC721 is Initializable, ERC721, ERC721Enumerable, ERC721Me
   view
   {
     AnchorRepository ar_ = AnchorRepository(_anchorRegistry);
-    (, bytes32 nextMerkleRoot_) = ar_.getAnchorById(nextAnchorId);
+    (, bytes32 nextMerkleRoot_, ) = ar_.getAnchorById(nextAnchorId);
 
     require(
       nextMerkleRoot_ == 0x0,

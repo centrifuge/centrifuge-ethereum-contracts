@@ -117,7 +117,7 @@ contract("AnchorRepository", function (accounts) {
             assert.equal(bufferToHex(hashedAnchorId), web3.utils.toHex(response[0]));
             assert.equal(documentRoot, response[1]);
 
-            let blckNoResponse = await this.anchorRepository.getAnchorDetails.call(hashedAnchorId, callOptions);
+            let blckNoResponse = await this.anchorRepository.getAnchorById.call(hashedAnchorId, callOptions);
             assert.equal(bufferToHex(hashedAnchorId), web3.utils.toHex(blckNoResponse[0]));
             assert.equal(documentRoot, blckNoResponse[1]);
             assert.isTrue(blckNoResponse[2].gt(0));
