@@ -117,7 +117,7 @@ contract AnchorRepository is Initializable {
 
   /**
    * @param id Id for an Anchor.
-   * @return Struct with anchorId, documentRoot
+   * @return Struct with anchorId, documentRoot, anchoredBlock
    */
   function getAnchorById(uint256 id)
   external
