@@ -377,7 +377,7 @@ contract("UserMintableERC721", function (accounts) {
     describe("_requireSignedByIdentity", async function () {
 
 
-        it("Should fail when the precise proofs validation fails ", async function () {
+        it("Should fail when the singingRoot is not part of the document ", async function () {
 
             let mockRegistry = await MockUserMintableERC721.new("ERC-721 Document Anchor", "TDA", this.anchorRegistry.address, this.identityFactory.address, mandatoryFields);
 
@@ -388,13 +388,38 @@ contract("UserMintableERC721", function (accounts) {
                 validRootHash,
                 sender.value,
                 signatureRoot.value,
+                signatureRoot.sorted_hashes,
                 signature.value,
                 signature.salt,
                 signature.sorted_hashes
                 ),
-                "Signature not signed by provided identity"
+                "Signing Root not part of the document"
             );
         })
+
+
+        it("Should fail when signature is not part of the document root ", async function () {
+
+            let mockRegistry = await MockUserMintableERC721.new("ERC-721 Document Anchor", "TDA", this.anchorRegistry.address, this.identityFactory.address, mandatoryFields);
+
+            await mockRegistry.setOwnAddress(contractAddress);
+            await mockRegistry.setIdentity(this.identity.address);
+
+            await shouldRevert(mockRegistry.requireSignedByIdentity(
+                validRootHash,
+                sender.value,
+                signatureRoot.hash,
+                signatureRoot.sorted_hashes,
+                signature.hash,
+                signature.salt,
+                signature.sorted_hashes
+                ),
+                "Provided signature is not part of the document root"
+            );
+        })
+
+
+
 
         it("Should fail when it can not find the identity contract ", async function () {
 
@@ -406,6 +431,7 @@ contract("UserMintableERC721", function (accounts) {
                 validRootHash,
                 sender.value,
                 signatureRoot.hash,
+                signatureRoot.sorted_hashes,
                 signature.value,
                 signature.salt,
                 signature.sorted_hashes
@@ -424,6 +450,7 @@ contract("UserMintableERC721", function (accounts) {
                 validRootHash,
                 sender.value,
                 signatureRoot.hash,
+                signatureRoot.sorted_hashes,
                 signature.value,
                 signature.salt,
                 signature.sorted_hashes
@@ -443,6 +470,7 @@ contract("UserMintableERC721", function (accounts) {
                 validRootHash,
                 sender.value,
                 signatureRoot.hash,
+                signatureRoot.sorted_hashes,
                 signature.value,
                 signature.salt,
                 signature.sorted_hashes

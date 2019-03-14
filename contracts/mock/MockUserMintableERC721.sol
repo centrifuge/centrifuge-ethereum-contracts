@@ -158,6 +158,7 @@ contract MockUserMintableERC721 is UserMintableERC721 {
     bytes32 documentRoot,
     address identity,
     bytes32 signingRoot,
+    bytes32[] calldata singingRootProof,
     bytes calldata signature,
     bytes32 salt,
     bytes32[] calldata proof
@@ -170,6 +171,7 @@ contract MockUserMintableERC721 is UserMintableERC721 {
       documentRoot,
       identity,
       signingRoot,
+      singingRootProof,
       signature,
       salt,
       proof
