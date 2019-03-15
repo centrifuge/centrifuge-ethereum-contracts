@@ -481,7 +481,7 @@ contract("UserMintableERC721", function (accounts) {
                 signature.salt,
                 signature.sorted_hashes
                 ),
-                "Anchored signed with a revoked key"
+                "Document signed with a revoked key"
             );
         })
 
