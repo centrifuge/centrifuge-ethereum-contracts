@@ -8,6 +8,12 @@ module.exports = {
     compilers: {
         solc: {
             version: "0.5.3",
+            settings: {
+                optimizer: {
+                    enabled: true,
+                    runs: 1000,
+                }
+            }
         },
     },
     networks: {
@@ -33,7 +39,7 @@ module.exports = {
             gas: 4712388 // Gas limit used for deploys
         },
         kovan: {
-            provider:new HDWalletProvider(privateKey, endpoint.replace('rinkeby', 'kovan')),
+            provider: new HDWalletProvider(privateKey, endpoint.replace('rinkeby', 'kovan')),
             port: 8545,
             network_id: "42", // kovan network ID
             from: account,
