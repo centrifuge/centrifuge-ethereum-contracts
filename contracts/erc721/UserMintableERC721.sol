@@ -41,10 +41,45 @@ contract UserMintableERC721 is Initializable, ERC721, ERC721Enumerable, ERC721Me
 
   // Mapping from token details to token ID
   mapping(uint256 => OwnedAnchor) internal _tokenDetails;
+  // Constants for compact properties
+  // compact property for "invoice.gross_amount",invoice = 1, gross_amount = 14
+  bytes constant internal INVOICE_GROSS_AMOUNT = hex"000100000000000e";
+  // compact property for invoice.currency, invoice = 1, currency = 13
+  bytes constant internal INVOICE_CURRENCY = hex"000100000000000d";
+  // compact property for  invoice.due_date, invoice = 1, due_date = 22
+  bytes constant internal INVOICE_DUE_DATE = hex"0001000000000016";
+  // compact property for  invoice.sender, invoice = 1, sender = 19
+  bytes constant internal INVOICE_SENDER = hex"0001000000000013";
+  // compact property for  invoice.status, invoice = 1, status = 2
+  bytes constant internal INVOICE_STATUS = hex"0001000000000002";
+  // compact prop for "next_version"
+  bytes constant internal NEXT_VERSION = hex"0100000000000004";
+  // compact prop from "nfts"
+  bytes constant internal NFTS = hex"0100000000000014";
+  // compact prop for "read_rules"
+  bytes constant internal READ_RULES = hex"0100000000000013";
+  // compact prop for "roles" on a read rule
+  bytes constant internal READ_RULES_ROLES = hex"00000002";
+  // compact prop for "action" on a read rule
+  bytes constant internal READ_RULES_ACTION = hex"00000004";
+  // compact prop for "roles"
+  bytes constant internal ROLES = hex"0100000000000001";
+  // compact prop for "nfts" on a role
+  bytes constant internal ROLES_NFTS = hex"00000004";
+  // compact prop for "signatures_tree.signatures"
+  bytes constant internal SIGNATURE_TREE_SIGNATURES = hex"0300000000000001";
+  // compact prop for "signature" for a signature tree signature
+  bytes constant internal SIGNATURE_TREE_SIGNATURES_SIGNATURE = hex"00000004";
 
-  // Value of the Signature purpose for an identity
+  // Constants used as values
+  // Value for a Read Action. 1 means is has Read Access
+  bytes constant internal READ_ACTION_VALUE = hex"0000000000000001";
+  // Value for invoice status. bytes for 'unpaid'
+  bytes constant internal INVOICE_STATUS_UNPAID = hex"756e70616964";
+  // Value of the Signature purpose for an identity. sha256('CENTRIFUGE@SIGNING')
   // solium-disable-next-line
   uint256 constant internal SIGNING_PURPOSE = 0x774a43710604e3ce8db630136980a6ba5a65b5e6686ee51009ed5f3fded6ea7e;
+
 
   /**
    * @dev Gets the anchor registry's address that is backing this token
@@ -277,7 +312,7 @@ contract UserMintableERC721 is Initializable, ERC721, ERC721Enumerable, ERC721Me
         documentRoot,
         sha256(
           abi.encodePacked(
-            hex"0100000000000004", // compact prop for "next_version"
+            NEXT_VERSION,
             nextAnchorId,
             salt
           )
@@ -307,7 +342,7 @@ contract UserMintableERC721 is Initializable, ERC721, ERC721Enumerable, ERC721Me
     // Reconstruct the property
     // the property format: nfts[registryAddress]
     bytes memory property_ = abi.encodePacked(
-      hex"0100000000000014", // compact prop from "nfts"
+      NFTS,
       _getOwnAddress(),
       hex"000000000000000000000000" // precise proofs generates a bytes32 hex
     );
@@ -349,9 +384,9 @@ contract UserMintableERC721 is Initializable, ERC721, ERC721Enumerable, ERC721Me
     // Reconstruct the property
     // the property format: read_rules[readRuleIndex].roles[readRuleRoleIndex]
     bytes memory property_ = abi.encodePacked(
-      hex"0100000000000013", // compact prop for "read_rules"
+      READ_RULES,
       readRuleIndex_,
-      hex"00000002", // compact prop for "roles"
+      READ_RULES_ROLES,
       readRuleRoleIndex_
     );
 
@@ -393,9 +428,9 @@ contract UserMintableERC721 is Initializable, ERC721, ERC721Enumerable, ERC721Me
     // Reconstruct the property
     // the property format: read_rules[readRuleIndex].action
     bytes memory property_ = abi.encodePacked(
-      hex"0100000000000013", // compact prop for "read_rules"
+      READ_RULES,
       readRuleIndex,
-      hex"00000004" // compact prop for "action"
+      READ_RULES_ACTION
     );
 
     require(
@@ -405,7 +440,7 @@ contract UserMintableERC721 is Initializable, ERC721, ERC721Enumerable, ERC721Me
         sha256(
           abi.encodePacked(
             property_,
-            hex"0000000000000001", // Read action value has to be 1
+            READ_ACTION_VALUE, // Read action value has to be 1
             salt
           )
         )
@@ -441,9 +476,9 @@ contract UserMintableERC721 is Initializable, ERC721, ERC721Enumerable, ERC721Me
     // Reconstruct the property
     // the property format: roles[roleIndex].nfts[tokenIndex]
     bytes memory property_ = abi.encodePacked(
-      hex"0100000000000001", // compact prop for "roles"
+      ROLES,
       roleIndex,
-      hex"00000004", // compact prop for "nfts"
+      ROLES_NFTS,
       tokenIndex_
     );
     // Reconstruct the value
@@ -509,10 +544,10 @@ contract UserMintableERC721 is Initializable, ERC721, ERC721Enumerable, ERC721Me
     // Reconstruct the precise proof property based on the provided identity
     // and the extracted public key
     bytes memory property_ = abi.encodePacked(
-      hex"0300000000000001", // compact prop for "signatures_tree.signatures"
+      SIGNATURE_TREE_SIGNATURES,
       identity,
       pbKey_,
-      hex"00000004" // compact prop for "signature"
+      SIGNATURE_TREE_SIGNATURES_SIGNATURE
     );
 
 

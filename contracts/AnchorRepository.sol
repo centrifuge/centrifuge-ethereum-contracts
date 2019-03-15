@@ -36,7 +36,7 @@ contract AnchorRepository is Initializable {
   // store _commits
   mapping(uint256 => Anchor) internal _commits;
   // The number of blocks for which a precommit is valid
-  uint256 constant internal EXPIRATION_LENGTH = 15;
+  uint256 constant internal EXPIRATION_LENGTH = 480;
 
   /**
    * @param anchorId Id for an Anchor.

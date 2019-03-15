@@ -83,12 +83,9 @@ contract PaymentObligation is Initializable, UserMintableERC721 {
   initializer
   {
     //@dev Order is important. Any change will impact the mint method
-    // compact property for "invoice.gross_amount",invoice = 1, gross_amount = 14
-    _mandatoryFields.push(hex"000100000000000e");
-    // compact property for invoice.currency, invoice = 1, currency = 13
-    _mandatoryFields.push(hex"000100000000000d");
-    // compact property for  invoice.due_date, invoice = 1, due_date = 22
-    _mandatoryFields.push(hex"0001000000000016");
+    _mandatoryFields.push(INVOICE_GROSS_AMOUNT);
+    _mandatoryFields.push(INVOICE_CURRENCY);
+    _mandatoryFields.push(INVOICE_DUE_DATE);
 
     UserMintableERC721.initialize(
       "Centrifuge Payment Obligations",
@@ -146,8 +143,8 @@ contract PaymentObligation is Initializable, UserMintableERC721 {
         merkleRoot_,
         sha256(
           abi.encodePacked(
-            hex"0001000000000002", // compact property for  invoice.status, invoice = 1, status = 2
-            hex"756e70616964", // bytes value for "unpaid"
+            INVOICE_STATUS, // compact property for  invoice.status, invoice = 1, status = 2
+            INVOICE_STATUS_UNPAID, // bytes value for "unpaid"
             salts[STATUS_IDX]
           )
         )
@@ -160,7 +157,7 @@ contract PaymentObligation is Initializable, UserMintableERC721 {
     // Check if sender is a registered identity
     super._requireValidIdentity(
       merkleRoot_,
-      hex"0001000000000013", // compact property for  invoice.sender, invoice = 1, sender = 19
+      INVOICE_SENDER,
       _getSender(),
       salts[SENDER_IDX],
       proofs[SENDER_IDX]
