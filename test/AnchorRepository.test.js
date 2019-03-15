@@ -63,7 +63,7 @@ contract("AnchorRepository", function (accounts) {
             let {anchorId, signingRoot, callOptions} = await getBasicTestNeeds(accounts);
 
             await shouldSucceed(this.anchorRepository.preCommit(sha256(anchorId), signingRoot, callOptions));
-            await mineNBlocks(15);
+            await mineNBlocks(480);
             await shouldSucceed(this.anchorRepository.preCommit(sha256(anchorId), signingRoot, callOptions));
         });
 
