@@ -11,7 +11,7 @@ contract KeyManager {
 
   event KeyRevoked(
     bytes32 indexed key,
-    uint256 indexed revokedAt,
+    uint32 indexed revokedAt,
     uint256 indexed keyType
   );
 
@@ -32,7 +32,7 @@ contract KeyManager {
   mapping(uint256 => bytes32[]) internal _keysByPurpose;
 
   /**
-   * @param key bytes32 public key or keccak256 hash of the public key to be added
+   * @param key bytes32 public key
    * @param purpose uint representing the purpose for the public key
    * @param keyType uint representing the type for the public key
    */
@@ -51,6 +51,11 @@ contract KeyManager {
       "Key is revoked"
     );
 
+    require(
+      key != addressToKey(address(this)) && purpose != MANAGEMENT,
+      "Own address can not be a management key"
+    );
+
     if (!keyHasPurpose(key, purpose)) {
       _keys[key].keyType = keyType;
       _keys[key].purposes.push(purpose);
@@ -60,7 +65,7 @@ contract KeyManager {
   }
 
   /**
-  * @param key bytes32 public key or keccak256 hash of the public key
+  * @param key bytes32 public key
   * @param purposes Array of purposes for the public key.
   * @param keyType uint representing the type for the public key
   */
@@ -89,9 +94,19 @@ contract KeyManager {
   function revokeKey(bytes32 key)
   external
   onlyManagement
+  notSelf(key)
   {
     // check if key exists
-    require(_keys[key].purposes.length > 0, "Key does not exit");
+    require(
+      _keys[key].purposes.length > 0,
+      "Key does not exit"
+    );
+
+    // Do not allow revocation for revoked keys
+    require(
+      _keys[key].revokedAt == 0,
+      "Key is revoked"
+    );
 
     _keys[key].revokedAt = uint32(block.number);
     emit KeyRevoked(
@@ -103,10 +118,10 @@ contract KeyManager {
 
   /**
    * @dev Retrieve details about a key
-   * @param key the public key
+   * @param value the public key
    * @return Struct with hash of the key, purposes and revokedAt
    */
-  function getKey(bytes32 keyHash)
+  function getKey(bytes32 value)
   public
   view
   returns (
@@ -116,14 +131,14 @@ contract KeyManager {
   )
   {
     return (
-    keyHash,
-    _keys[keyHash].purposes,
-    _keys[keyHash].revokedAt
+    value,
+    _keys[value].purposes,
+    _keys[value].revokedAt
     );
   }
 
   /**
-   * @param key bytes32 public key or keccak256 hash of the public key
+   * @param key bytes32 public key
    * @param purpose Uint representing the purpose of the key
    * @return 'true' if the key is found and has the proper purpose
    */
@@ -170,8 +185,8 @@ contract KeyManager {
 
   /**
    * @dev Convert an Ethereum address (20 bytes) to an ERC725 key (32 bytes)
-   * by keccak256-ing it in order to avoid byte shifting and preserving privacy
    * @param addr address 20 bytes eth address
+   * @return bytes32 converted address
    */
   function addressToKey(address addr)
   public
@@ -189,6 +204,14 @@ contract KeyManager {
     require(
       keyHasPurpose(key_, MANAGEMENT),
       "No management right"
+    );
+    _;
+  }
+
+  modifier notSelf(bytes32 key) {
+    require(
+      key != addressToKey(msg.sender),
+      "Can not perform action on own key"
     );
     _;
   }
