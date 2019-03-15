@@ -55,13 +55,19 @@ contract KeyManager {
       key != addressToKey(address(this)) && purpose != MANAGEMENT,
       "Own address can not be a management key"
     );
+    require(
+      !keyHasPurpose(key, purpose),
+      "Key already has the given purpose"
+    );
 
-    if (!keyHasPurpose(key, purpose)) {
+    // set the key type only the first type
+    if (_keys[key].purposes.length == 0) {
       _keys[key].keyType = keyType;
-      _keys[key].purposes.push(purpose);
-      _keysByPurpose[purpose].push(key);
-      emit KeyAdded(key, purpose, keyType);
     }
+    _keys[key].purposes.push(purpose);
+    _keysByPurpose[purpose].push(key);
+    emit KeyAdded(key, purpose, keyType);
+
   }
 
   /**
@@ -99,7 +105,7 @@ contract KeyManager {
     // check if key exists
     require(
       _keys[key].purposes.length > 0,
-      "Key does not exit"
+      "Key does not exist"
     );
 
     // Do not allow revocation for revoked keys

@@ -39,19 +39,14 @@ contract("KeyManager", function (accounts) {
             assert.equal(P2P_IDENTITY, web3.utils.toHex(response[1][0]));
             assert.equal(P2P_SIGNATURE, web3.utils.toHex(response[1][1]));
             assert.equal(0, response[2]);
-        })
+        });
 
-
-        it('should add the same purpose only one time to a key', async function () {
+        it("Should revert when if key already has given purpose", async function () {
             const {key} = await getBasicTestNeeds();
-            await this.identity.addKey(key, P2P_IDENTITY, 1);
-            await this.identity.addMultiPurposeKey(key, [P2P_IDENTITY, P2P_SIGNATURE], 1);
-            await this.identity.addKey(key, P2P_SIGNATURE, 1);
-            const response = await this.identity.getKey(key);
-            assert.equal(key, response[0]);
-            assert.equal(P2P_IDENTITY, web3.utils.toHex(response[1][0]));
-            assert.equal(P2P_SIGNATURE, web3.utils.toHex(response[1][1]));
-            assert.equal(0, response[2].toNumber());
+            await shouldRevert(
+                this.identity.addMultiPurposeKey(key, [P2P_IDENTITY, P2P_IDENTITY], 1),
+                "Key already has the given purpose"
+            );
         })
 
         it("Should not find a key", async function () {
@@ -66,7 +61,7 @@ contract("KeyManager", function (accounts) {
             const {key} = await getBasicTestNeeds();
             await shouldRevert(
                 this.identity.revokeKey(key),
-                "Key does not exit"
+                "Key does not exist"
             );
         })
 
@@ -80,6 +75,7 @@ contract("KeyManager", function (accounts) {
                 "Key is revoked"
             );
         })
+
 
         it("Should revoke a key", async function () {
             const {key} = await getBasicTestNeeds();
@@ -186,16 +182,6 @@ contract("KeyManager", function (accounts) {
                 assert.equal(web3.utils.toHex(events[1].purpose), P2P_SIGNATURE);
             });
 
-        })
-
-        it("Should dispatch 1 KeyAdded event because one purpose existed", async function () {
-            const {key} = await getBasicTestNeeds();
-            await this.identity.addKey(key, P2P_IDENTITY, 1);
-            await this.identity.addMultiPurposeKey(key, [P2P_IDENTITY, P2P_SIGNATURE], 1).then(tx => {
-                const events = getEvents(tx, "KeyAdded");
-                assert.equal(1, events.length);
-                assert.equal(web3.utils.toHex(events[0].purpose), P2P_SIGNATURE);
-            });
         })
 
     })
