@@ -6,7 +6,6 @@ import "openzeppelin-eth/contracts/cryptography/ECDSA.sol";
 
 
 contract Identity is KeyManager {
-  using ECDSA for bytes32;
   /**
   * @dev Create Identity and set default keys
   * @param managementAddress address value for management key. This is the owner
@@ -21,6 +20,12 @@ contract Identity is KeyManager {
   )
   public
   {
+    // Check that own address is not a managementKey
+    require(
+      managementAddress != address(this),
+      "Own address can not be a management key"
+    );
+
     // Add MANAGEMENT_KEY
     bytes32 managementKey_ = addressToKey(managementAddress);
     _keys[managementKey_].purposes.push(MANAGEMENT);
