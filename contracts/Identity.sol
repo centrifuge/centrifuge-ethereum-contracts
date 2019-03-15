@@ -72,29 +72,4 @@ contract Identity is KeyManager {
     // solium-disable-next-line security/no-call-value
     return to.call.value(value)(data);
   }
-
-  /**
-   * @dev Checks the purpose of keys used for signing.
-   * @param message bytes32 message to be verified. Must be generated with abi.encodePacked(arg1, arg2, arg3)
-   * @param signature bytes Signed data
-   * @param purpose uint256 of the key
-   */
-  function isSignedWithPurpose(
-    bytes32 message,
-    bytes memory signature,
-    uint256 purpose
-  )
-  public
-  view
-  returns (bool valid)
-  {
-    bytes32 pbKey_ = addressToKey(
-      message.toEthSignedMessageHash().recover(signature)
-    );
-
-    if (keyHasPurpose(pbKey_, purpose) && _keys[pbKey_].revokedAt == 0) {
-      return true;
-    }
-    return false;
-  }
 }

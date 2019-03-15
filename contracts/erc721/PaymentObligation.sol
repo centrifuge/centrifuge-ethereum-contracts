@@ -28,11 +28,13 @@ contract PaymentObligation is Initializable, UserMintableERC721 {
   uint8 constant internal DUE_DATE_IDX = 2;
   uint8 constant internal SENDER_IDX = 3;
   uint8 constant internal STATUS_IDX = 4;
-  uint8 constant internal NEXT_VERSION_IDX = 5;
-  uint8 constant internal NFT_UNIQUE_IDX = 6;
-  uint8 constant internal READ_ROLE_IDX = 7;
-  uint8 constant internal READ_ROLE_ACTION_IDX = 8;
-  uint8 constant internal TOKEN_ROLE_IDX = 9;
+  uint8 constant internal SIGNING_ROOT_IDX = 5;
+  uint8 constant internal SIGNATURE_IDX = 6;
+  uint8 constant internal NEXT_VERSION_IDX = 7;
+  uint8 constant internal NFT_UNIQUE_IDX = 8;
+  uint8 constant internal READ_ROLE_IDX = 9;
+  uint8 constant internal READ_ROLE_ACTION_IDX = 10;
+  uint8 constant internal TOKEN_ROLE_IDX = 11;
 
   // Token details, specific field values
   mapping(uint256 => PODetails) internal _poDetails;
@@ -133,10 +135,9 @@ contract PaymentObligation is Initializable, UserMintableERC721 {
     );
 
     // Get the document root from AnchorRepository
-    bytes32 merkleRoot_ = super._getDocumentRoot(
+    (bytes32 merkleRoot_, uint32 anchoredBlock_) = super._getDocumentRoot(
       anchorId
     );
-
 
     // Check if status of invoice is unpaid
     require(
@@ -154,13 +155,28 @@ contract PaymentObligation is Initializable, UserMintableERC721 {
       "Invoice status is not unpaid"
     );
 
+
+
     // Check if sender is a registered identity
     super._requireValidIdentity(
       merkleRoot_,
       hex"0001000000000013", // compact property for  invoice.sender, invoice = 1, sender = 19
-      values[SENDER_IDX],
+      _getSender(),
       salts[SENDER_IDX],
       proofs[SENDER_IDX]
+    );
+
+
+    // Make sure that the sender signed the document
+    super._requireSignedByIdentity(
+      merkleRoot_,
+      anchoredBlock_,
+      _getSender(),
+      bytes32(bytesToUint(values[SIGNING_ROOT_IDX])),
+      proofs[SIGNING_ROOT_IDX],
+      values[SIGNATURE_IDX],
+      salts[SIGNATURE_IDX],
+      proofs[SIGNATURE_IDX]
     );
 
     // Enforce that there is not a newer version of the document on chain
