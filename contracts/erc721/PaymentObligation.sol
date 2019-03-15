@@ -135,7 +135,7 @@ contract PaymentObligation is Initializable, UserMintableERC721 {
     );
 
     // Get the document root from AnchorRepository
-    (bytes32 merkleRoot_, uint32 anchoredAt_) = super._getDocumentRoot(
+    (bytes32 merkleRoot_, uint32 anchoredBlock_) = super._getDocumentRoot(
       anchorId
     );
 
@@ -170,7 +170,7 @@ contract PaymentObligation is Initializable, UserMintableERC721 {
     // Make sure that the sender signed the document
     super._requireSignedByIdentity(
       merkleRoot_,
-      anchoredAt_,
+      anchoredBlock_,
       _getSender(),
       bytes32(bytesToUint(values[SIGNING_ROOT_IDX])),
       proofs[SIGNING_ROOT_IDX],

@@ -466,8 +466,9 @@ contract UserMintableERC721 is Initializable, ERC721, ERC721Enumerable, ERC721Me
    * @dev Checks that provided document is signed by the given identity
    * and validates and checks if the public key used is a valid SIGNING_KEY
    * @param documentRoot bytes32 the anchored document root
+   * @param anchoredBlock uint32 block number for when the document root was anchored
    * @param identity address Identity that signed the document
-   * @param signingRoot bytes32 The message that was signed
+   * @param signingRoot bytes32 hash of all invoice fields that was signed
    * @param singingRootProof bytes32[] proofs for signing root
    * @param signature bytes The signature
    * used to contract the property for precise proofs
@@ -477,7 +478,7 @@ contract UserMintableERC721 is Initializable, ERC721, ERC721Enumerable, ERC721Me
 
   function _requireSignedByIdentity(
     bytes32 documentRoot,
-    uint32 anchoredAt,
+    uint32 anchoredBlock,
     address identity,
     bytes32 signingRoot,
     bytes32[] memory singingRootProof,
@@ -535,8 +536,8 @@ contract UserMintableERC721 is Initializable, ERC721, ERC721Enumerable, ERC721Me
     (, , uint32 revokedAt_) = _getIdentity(identity).getKey(pbKey_);
     if (revokedAt_ > 0) {
       require(
-        anchoredAt < revokedAt_,
-        "Anchored signed with a revoked key"
+        anchoredBlock < revokedAt_,
+        "Document signed with a revoked key"
       );
     }
 
