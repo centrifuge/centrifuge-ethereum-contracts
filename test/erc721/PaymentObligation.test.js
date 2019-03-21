@@ -69,7 +69,7 @@ contract("PaymentObligation", function (accounts) {
             // check token details
             let tokenDetails = await this.registry.getTokenDetails(tokenId);
 
-            assert.equal(tokenDetails[0].toLowerCase(), sender.toLowerCase())
+            assert.equal(tokenDetails[0].toLowerCase(), sender.value.toLowerCase())
             assert.equal(tokenDetails[1], grossAmount.value)
             assert.equal(tokenDetails[2], currency.value)
             assert.equal(tokenDetails[3], due_date.value)
