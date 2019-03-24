@@ -73,7 +73,7 @@ contract UserMintableERC721 is Initializable, ERC721, ERC721Enumerable, ERC721Me
 
   // Constants used as values
   // Value for a Read Action. 1 means is has Read Access
-  bytes constant internal READ_ACTION_VALUE = hex"0000000000000001";
+  bytes constant internal READ_ACTION_VALUE = hex"0000000000000002";
   // Value for invoice status. bytes for 'unpaid'
   bytes constant internal INVOICE_STATUS_UNPAID = hex"756e70616964";
   // Value of the Signature purpose for an identity. sha256('CENTRIFUGE@SIGNING')
