@@ -142,13 +142,13 @@ contract PaymentObligation is Initializable, UserMintableERC721 {
       anchorId
     );
 
-    bytes32 singatureRoot_ = bytes32(bytesToUint(values[SIGNING_ROOT_IDX]));
+    bytes32 signingRoot_ = bytes32(bytesToUint(values[SIGNING_ROOT_IDX]));
 
     // Check if status of invoice is unpaid
     require(
       MerkleProof.verifySha256(
         proofs[STATUS_IDX],
-        singatureRoot_,
+        signingRoot_,
         sha256(
           abi.encodePacked(
             INVOICE_STATUS, // compact property for  invoice.status, invoice = 1, status = 2
@@ -165,7 +165,7 @@ contract PaymentObligation is Initializable, UserMintableERC721 {
 
     // Check if sender is a registered identity
     super._requireValidIdentity(
-      singatureRoot_,
+      signingRoot_,
       INVOICE_SENDER,
         sender_,
       salts[SENDER_IDX],
@@ -178,7 +178,7 @@ contract PaymentObligation is Initializable, UserMintableERC721 {
       documentRoot_,
       anchoredBlock_,
       sender_,
-      singatureRoot_,
+      signingRoot_,
       proofs[SIGNING_ROOT_IDX],
       values[SIGNATURE_IDX],
       salts[SIGNATURE_IDX],
@@ -187,7 +187,7 @@ contract PaymentObligation is Initializable, UserMintableERC721 {
 
     // Enforce that there is not a newer version of the document on chain
     super._requireIsLatestDocumentVersion(
-      singatureRoot_,
+      signingRoot_,
       bytesToUint(values[NEXT_VERSION_IDX]),
       salts[NEXT_VERSION_IDX],
       proofs[NEXT_VERSION_IDX]
@@ -195,7 +195,7 @@ contract PaymentObligation is Initializable, UserMintableERC721 {
 
     // Verify that only one token per document/registry is minted
     super._requireOneTokenPerDocument(
-      singatureRoot_,
+      signingRoot_,
       tokenId,
       salts[NFT_UNIQUE_IDX],
       proofs[NFT_UNIQUE_IDX]
@@ -203,7 +203,7 @@ contract PaymentObligation is Initializable, UserMintableERC721 {
 
     // Check if document has a read rule defined
     bytes8 readRoleIndex = super._requireReadRole(
-      singatureRoot_,
+      signingRoot_,
       properties[READ_ROLE_IDX],
       values[READ_ROLE_IDX],
       salts[READ_ROLE_IDX],
@@ -212,7 +212,7 @@ contract PaymentObligation is Initializable, UserMintableERC721 {
 
     // Check if the read rule has a read action
     super._requireReadAction(
-      singatureRoot_,
+      signingRoot_,
       readRoleIndex,
       salts[READ_ROLE_ACTION_IDX],
       proofs[READ_ROLE_ACTION_IDX]
@@ -220,7 +220,7 @@ contract PaymentObligation is Initializable, UserMintableERC721 {
 
     // Check if the token has the read role assigned to it
     super._requireTokenHasRole(
-      singatureRoot_,
+      signingRoot_,
       tokenId,
       properties[TOKEN_ROLE_IDX],
       values[READ_ROLE_IDX], // the value from read role proof
@@ -232,7 +232,7 @@ contract PaymentObligation is Initializable, UserMintableERC721 {
       to,
       tokenId,
       anchorId,
-      singatureRoot_,
+      signingRoot_,
       tokenURI,
       values,
       salts,

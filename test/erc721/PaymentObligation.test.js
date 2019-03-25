@@ -128,7 +128,43 @@ contract("PaymentObligation", function (accounts) {
                     poMintParams.salts,
                     poMintParams.proofs
                 ),
-                "Document signed with a revoked key");
+                "Document signed with a revoked key"
+            );
+        });
+
+        it("should fail if the signingRoot is not a direct child of the document root", async function () {
+
+
+            let identity = await Identity.new(accounts[0], [publicKey], [P2P_SIGNATURE]);
+            await identity.revokeKey(publicKey);
+
+            await this.anchorRegistry.setAnchorById(
+                documentIdentifier,
+                validRootHash
+            );
+
+            await this.identityFactory.registerIdentity(sender.value);
+
+            await this.registry.setOwnAddress(contractAddress);
+            await this.registry.setSender(sender.value);
+            await this.registry.setIdentity(identity.address);
+            // Make sure that the signingRoot proofs have more than one item
+            let proofs = [...poMintParams.proofs];
+            proofs[5] = [poMintParams.proofs[5][0], poMintParams.proofs[5][0]];
+
+            await shouldRevert(
+                this.registry.mint(
+                    accounts[2],
+                    tokenId,
+                    tokenURI,
+                    documentIdentifier,
+                    poMintParams.properties,
+                    poMintParams.values,
+                    poMintParams.salts,
+                    proofs
+                ),
+                "SigningRoot has to be top level"
+            );
         });
 
         it("should fail if the identity key check fails", async function () {

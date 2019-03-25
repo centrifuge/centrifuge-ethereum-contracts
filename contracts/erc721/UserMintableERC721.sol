@@ -516,6 +516,10 @@ contract UserMintableERC721 is Initializable, ERC721, ERC721Enumerable, ERC721Me
   internal
   view
   {
+    require(
+      singingRootProof.length == 1,
+      "SigningRoot has to be top level"
+    );
 
     require(
       MerkleProof.verifySha256(
