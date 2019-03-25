@@ -26,6 +26,69 @@ contract("PaymentObligation", function (accounts) {
     } = proof;
 
 
+
+    describe("tokenHasLatestDocument", async function () {
+        beforeEach(async function () {
+
+            this.anchorRegistry = await MockAnchorRegistry.new();
+            this.identityFactory = await MockIdentityFactory.new();
+            this.identity = await Identity.new(accounts[2], [publicKey], [P2P_SIGNATURE]);
+            this.registry = await MockPaymentObligation.new(this.anchorRegistry.address, this.identityFactory.address);
+
+            await this.anchorRegistry.setAnchorById(
+                documentIdentifier,
+                validRootHash
+            );
+
+            await this.identityFactory.registerIdentity(sender.value);
+
+            await this.registry.setOwnAddress(contractAddress);
+            await this.registry.setSender(sender.value);
+            await this.registry.setIdentity(this.identity.address);
+
+            await this.registry.mint(
+                accounts[2],
+                tokenId,
+                tokenURI,
+                documentIdentifier,
+                poMintParams.properties,
+                poMintParams.values,
+                poMintParams.salts,
+                poMintParams.proofs
+            )
+                .then(function (tx, logs) {
+                    // Check mint event
+                    const event = tx.logs[1].args;
+                    assert.equal(event.to.toLowerCase(), accounts[2].toLowerCase());
+                    assert.equal(web3.utils.toHex(event.tokenId), tokenId);
+                    assert.equal(event.tokenURI, tokenURI);
+                });
+        });
+
+        it("Token should have the latest document version", async function() {
+            let tokenHasLatestDocument = await this.registry.tokenHasLatestDocument(tokenId);
+            assert.equal(tokenHasLatestDocument,true);
+        })
+
+        it("Token should have not the latest document version", async function() {
+            await this.anchorRegistry.setAnchorById(
+                nextVersion.value,
+                validRootHash
+            );
+            let tokenHasLatestDocument = await this.registry.tokenHasLatestDocument(tokenId);
+
+            let tokenDetails = await this.registry.getTokenDetails(tokenId);
+            assert.equal(tokenHasLatestDocument,false);
+        })
+
+        it("Should return false if the token does not exist", async function() {
+            let tokenHasLatestDocument = await this.registry.tokenHasLatestDocument(documentIdentifier);
+            assert.equal(tokenHasLatestDocument,false);
+        })
+
+
+    });
+
     describe("mint", async function () {
 
         beforeEach(async function () {
@@ -74,12 +137,15 @@ contract("PaymentObligation", function (accounts) {
             assert.equal(tokenDetails[2], currency.value)
             assert.equal(tokenDetails[3], due_date.value)
             assert.equal(web3.utils.toHex(tokenDetails[4]), documentIdentifier)
-            assert.equal(tokenDetails[5], validRootHash);
+            assert.equal(web3.utils.toHex(tokenDetails[5]), nextVersion.value)
+            assert.equal(tokenDetails[6], validRootHash);
 
             //check token uri
             let tokenUri = await this.registry.tokenURI(tokenId);
             assert.equal(tokenUri, tokenURI)
         });
+
+
 
         it("should not mint a token if the a Merkle proof fails", async function () {
             await this.anchorRegistry.setAnchorById(
