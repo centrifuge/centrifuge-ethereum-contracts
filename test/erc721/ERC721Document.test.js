@@ -397,6 +397,27 @@ contract("UserMintableERC721", function (accounts) {
             );
         })
 
+        it("Should fail when the singingRoot is not part of the document ", async function () {
+
+            let mockRegistry = await MockUserMintableERC721.new("ERC-721 Document Anchor", "TDA", this.anchorRegistry.address, this.identityFactory.address, mandatoryFields);
+
+            await mockRegistry.setOwnAddress(contractAddress);
+            await mockRegistry.setIdentity(this.identity.address);
+
+            await shouldRevert(mockRegistry.requireSignedByIdentity(
+                validRootHash,
+                1000,
+                sender.value,
+                signingRoot.value,
+                [...signingRoot.sorted_hashes,documentIdentifier],
+                signature.value,
+                signature.salt,
+                signature.sorted_hashes
+                ),
+                "SigningRoot can have only one sibling"
+            );
+        })
+
 
         it("Should fail when signature is not part of the document root ", async function () {
 

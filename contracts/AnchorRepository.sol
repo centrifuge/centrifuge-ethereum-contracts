@@ -76,13 +76,13 @@ contract AnchorRepository is Initializable {
   /**
    * @param anchorIdPreImage pre-image for an AnchorID.
    * @param documentRoot merkle tree for a document that will be anchored/commited. It also contains the signatures
-   * @param documentProofs Array containing proofs for the document's signatures.
+   * @param proof bytes32 proof for the document's signatures.
    * The documentRoot must be a merkle tree constructed from the signingRoot plus all signatures
    */
   function commit(
     uint256 anchorIdPreImage,
     bytes32 documentRoot,
-    bytes32[] calldata documentProofs
+    bytes32 proof
   )
   external
   {
@@ -103,7 +103,7 @@ contract AnchorRepository is Initializable {
       require(_preCommits[anchorId].identity == msg.sender,"Precommit owned by someone else");
       require(
         MerkleProof.verifySha256(
-          documentProofs,
+          proof,
           documentRoot,
           _preCommits[anchorId].signingRoot
         ),

@@ -12,11 +12,13 @@ const Identity = artifacts.require("Identity");
 async function getBasicTestNeeds(accounts) {
 
     const anchorId = web3.utils.randomHex(32);
-    const elements = [web3.utils.randomHex(32), web3.utils.randomHex(32), web3.utils.randomHex(32), web3.utils.randomHex(32)];
+    const elements = [web3.utils.randomHex(32), web3.utils.randomHex(32)];
     const merkleTree = new MerkleTree(elements, sha256);
     const documentRoot = merkleTree.getHexRoot();
-    const proof = merkleTree.getHexProof(elements[0]);
+    const proof = merkleTree.getHexProof(elements[0])[0];
     const signingRoot = bufferToHex(sha256(elements[0]));
+
+    console.log(proof);
 
     return {
         anchorId,

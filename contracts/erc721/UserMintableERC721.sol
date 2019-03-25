@@ -518,12 +518,12 @@ contract UserMintableERC721 is Initializable, ERC721, ERC721Enumerable, ERC721Me
   {
     require(
       singingRootProof.length == 1,
-      "SigningRoot has to be top level"
+      "SigningRoot can have only one sibling"
     );
 
     require(
       MerkleProof.verifySha256(
-        singingRootProof,
+        singingRootProof[0],
         documentRoot,
         signingRoot
       ),
