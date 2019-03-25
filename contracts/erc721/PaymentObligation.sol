@@ -16,6 +16,7 @@ contract PaymentObligation is Initializable, UserMintableERC721 {
   );
 
   struct PODetails {
+    address invoiceSender;
     bytes grossAmount;
     bytes currency;
     bytes dueDate;
@@ -41,6 +42,7 @@ contract PaymentObligation is Initializable, UserMintableERC721 {
 
   /**
   * @dev Returns the values associated with a token
+  * @param invoiceSender address The identity which created the invoice and minted the nft
   * @param grossAmount bytes The gross amount of the invoice
   * @param currency bytes The currency used in the invoice
   * @param dueDate bytes The Due data of the invoice
@@ -52,6 +54,7 @@ contract PaymentObligation is Initializable, UserMintableERC721 {
   external
   view
   returns (
+    address invoiceSender,
     bytes memory grossAmount,
     bytes memory currency,
     bytes memory dueDate,
@@ -60,6 +63,7 @@ contract PaymentObligation is Initializable, UserMintableERC721 {
   )
   {
     return (
+      _poDetails[tokenId].invoiceSender,
       _poDetails[tokenId].grossAmount,
       _poDetails[tokenId].currency,
       _poDetails[tokenId].dueDate,
@@ -153,12 +157,13 @@ contract PaymentObligation is Initializable, UserMintableERC721 {
     );
 
 
+    address sender_ = _getSender();
 
     // Check if sender is a registered identity
     super._requireValidIdentity(
       merkleRoot_,
       INVOICE_SENDER,
-      _getSender(),
+        sender_,
       salts[SENDER_IDX],
       proofs[SENDER_IDX]
     );
@@ -168,7 +173,7 @@ contract PaymentObligation is Initializable, UserMintableERC721 {
     super._requireSignedByIdentity(
       merkleRoot_,
       anchoredBlock_,
-      _getSender(),
+      sender_,
       bytes32(bytesToUint(values[SIGNING_ROOT_IDX])),
       proofs[SIGNING_ROOT_IDX],
       values[SIGNATURE_IDX],
@@ -231,6 +236,7 @@ contract PaymentObligation is Initializable, UserMintableERC721 {
     );
 
     _poDetails[tokenId] = PODetails(
+      sender_,
       values[GROSS_AMOUNT_IDX],
       values[CURRENCY_IDX],
       values[DUE_DATE_IDX]
