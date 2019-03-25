@@ -50,6 +50,8 @@ contract("Identity", function (accounts) {
             assert.equal(1, numOfCalls.toNumber());
         })
 
+
+
         it('should revert execute for non ACTION keys ', async function () {
             const data = this.testProxy.contract.methods.callMe().encodeABI();
             await shouldRevert(
@@ -58,6 +60,13 @@ contract("Identity", function (accounts) {
             );
         })
 
+        it('should revert execute if contract does not exist ', async function () {
+            const data = this.testProxy.contract.methods.callMe().encodeABI();
+            await this.identity.addKey(addressToBytes32(accounts[1]), ACTION, 1);
+            await shouldRevert(
+                this.identity.execute(this.testProxy.address, 0, data, {from: accounts[2]})
+            );
+        });
     })
 
 });

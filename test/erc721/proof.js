@@ -88,18 +88,18 @@ module.exports = {
             tokenRole.salt,
         ],
         proofs:[
-            grossAmount.sorted_hashes,
-            currency.sorted_hashes,
-            due_date.sorted_hashes,
-            sender.sorted_hashes,
-            status.sorted_hashes,
+            grossAmount.sorted_hashes.slice(0,-1),
+            currency.sorted_hashes.slice(0,-1),
+            due_date.sorted_hashes.slice(0,-1),
+            sender.sorted_hashes.slice(0,-1),
+            status.sorted_hashes.slice(0,-1),
             signingRoot.sorted_hashes,
             signature.sorted_hashes,
-            nextVersion.sorted_hashes,
-            nftUnique.sorted_hashes,
-            readRole.sorted_hashes,
-            readRoleAction.sorted_hashes,
-            tokenRole.sorted_hashes,
+            nextVersion.sorted_hashes.slice(0,-1),
+            nftUnique.sorted_hashes.slice(0,-1),
+            readRole.sorted_hashes.slice(0,-1),
+            readRoleAction.sorted_hashes.slice(0,-1),
+            tokenRole.sorted_hashes.slice(0,-1),
         ]
     }
 };

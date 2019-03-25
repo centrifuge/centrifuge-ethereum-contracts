@@ -1,4 +1,4 @@
-pragma solidity 0.5.3;
+pragma solidity ^0.5.6;
 pragma experimental ABIEncoderV2;
 
 import "zos-lib/contracts/Initializable.sol";
@@ -33,14 +33,7 @@ contract UserMintableERC721 is Initializable, ERC721, ERC721Enumerable, ERC721Me
   // array of field names that are being proved using the document root and precise-proofs
   bytes[] internal _mandatoryFields;
 
-  // The ownable anchor
-  struct OwnedAnchor {
-    uint256 anchorId;
-    bytes32 rootHash;
-  }
 
-  // Mapping from token details to token ID
-  mapping(uint256 => OwnedAnchor) internal _tokenDetails;
   // Constants for compact properties
   // compact property for "invoice.gross_amount",invoice = 1, gross_amount = 14
   bytes constant internal INVOICE_GROSS_AMOUNT = hex"000100000000000e";
@@ -173,7 +166,6 @@ contract UserMintableERC721 is Initializable, ERC721, ERC721Enumerable, ERC721Me
     }
 
     super._mint(to, tokenId);
-    _tokenDetails[tokenId] = OwnedAnchor(anchorId, merkleRoot);
     _setTokenURI(tokenId, tokenURI);
   }
 

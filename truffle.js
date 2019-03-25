@@ -7,11 +7,11 @@ let privateKey = process.env.ETH_PRIVATE_KEY || "0xb5fffc3933d93dc956772c69b42c4
 module.exports = {
     compilers: {
         solc: {
-            version: "0.5.3",
+            version: "0.5.6",
             settings: {
                 optimizer: {
                     enabled: true,
-                    runs: 1000,
+                    runs: 200,
                 }
             }
         },

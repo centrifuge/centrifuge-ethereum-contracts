@@ -1,4 +1,4 @@
-pragma solidity 0.5.3;
+pragma solidity ^0.5.6;
 pragma experimental ABIEncoderV2;
 
 import "zos-lib/contracts/Initializable.sol";
@@ -20,6 +20,8 @@ contract PaymentObligation is Initializable, UserMintableERC721 {
     bytes grossAmount;
     bytes currency;
     bytes dueDate;
+    uint256 anchorId;
+    bytes32 documentRoot;
   }
 
   /** @dev Indexes of the mint method arrays
@@ -67,8 +69,8 @@ contract PaymentObligation is Initializable, UserMintableERC721 {
       _poDetails[tokenId].grossAmount,
       _poDetails[tokenId].currency,
       _poDetails[tokenId].dueDate,
-      _tokenDetails[tokenId].anchorId,
-      _tokenDetails[tokenId].rootHash
+      _poDetails[tokenId].anchorId,
+      _poDetails[tokenId].documentRoot
     );
   }
 
@@ -136,15 +138,17 @@ contract PaymentObligation is Initializable, UserMintableERC721 {
     );
 
     // Get the document root from AnchorRepository
-    (bytes32 merkleRoot_, uint32 anchoredBlock_) = super._getDocumentRoot(
+    (bytes32 documentRoot_, uint32 anchoredBlock_) = super._getDocumentRoot(
       anchorId
     );
+
+    bytes32 singatureRoot_ = bytes32(bytesToUint(values[SIGNING_ROOT_IDX]));
 
     // Check if status of invoice is unpaid
     require(
       MerkleProof.verifySha256(
         proofs[STATUS_IDX],
-        merkleRoot_,
+        singatureRoot_,
         sha256(
           abi.encodePacked(
             INVOICE_STATUS, // compact property for  invoice.status, invoice = 1, status = 2
@@ -161,7 +165,7 @@ contract PaymentObligation is Initializable, UserMintableERC721 {
 
     // Check if sender is a registered identity
     super._requireValidIdentity(
-      merkleRoot_,
+      singatureRoot_,
       INVOICE_SENDER,
         sender_,
       salts[SENDER_IDX],
@@ -171,10 +175,10 @@ contract PaymentObligation is Initializable, UserMintableERC721 {
 
     // Make sure that the sender signed the document
     super._requireSignedByIdentity(
-      merkleRoot_,
+      documentRoot_,
       anchoredBlock_,
       sender_,
-      bytes32(bytesToUint(values[SIGNING_ROOT_IDX])),
+      singatureRoot_,
       proofs[SIGNING_ROOT_IDX],
       values[SIGNATURE_IDX],
       salts[SIGNATURE_IDX],
@@ -183,7 +187,7 @@ contract PaymentObligation is Initializable, UserMintableERC721 {
 
     // Enforce that there is not a newer version of the document on chain
     super._requireIsLatestDocumentVersion(
-      merkleRoot_,
+      singatureRoot_,
       bytesToUint(values[NEXT_VERSION_IDX]),
       salts[NEXT_VERSION_IDX],
       proofs[NEXT_VERSION_IDX]
@@ -191,7 +195,7 @@ contract PaymentObligation is Initializable, UserMintableERC721 {
 
     // Verify that only one token per document/registry is minted
     super._requireOneTokenPerDocument(
-      merkleRoot_,
+      singatureRoot_,
       tokenId,
       salts[NFT_UNIQUE_IDX],
       proofs[NFT_UNIQUE_IDX]
@@ -199,7 +203,7 @@ contract PaymentObligation is Initializable, UserMintableERC721 {
 
     // Check if document has a read rule defined
     bytes8 readRoleIndex = super._requireReadRole(
-      merkleRoot_,
+      singatureRoot_,
       properties[READ_ROLE_IDX],
       values[READ_ROLE_IDX],
       salts[READ_ROLE_IDX],
@@ -208,7 +212,7 @@ contract PaymentObligation is Initializable, UserMintableERC721 {
 
     // Check if the read rule has a read action
     super._requireReadAction(
-      merkleRoot_,
+      singatureRoot_,
       readRoleIndex,
       salts[READ_ROLE_ACTION_IDX],
       proofs[READ_ROLE_ACTION_IDX]
@@ -216,7 +220,7 @@ contract PaymentObligation is Initializable, UserMintableERC721 {
 
     // Check if the token has the read role assigned to it
     super._requireTokenHasRole(
-      merkleRoot_,
+      singatureRoot_,
       tokenId,
       properties[TOKEN_ROLE_IDX],
       values[READ_ROLE_IDX], // the value from read role proof
@@ -228,7 +232,7 @@ contract PaymentObligation is Initializable, UserMintableERC721 {
       to,
       tokenId,
       anchorId,
-      merkleRoot_,
+      singatureRoot_,
       tokenURI,
       values,
       salts,
@@ -239,7 +243,9 @@ contract PaymentObligation is Initializable, UserMintableERC721 {
       sender_,
       values[GROSS_AMOUNT_IDX],
       values[CURRENCY_IDX],
-      values[DUE_DATE_IDX]
+      values[DUE_DATE_IDX],
+      anchorId,
+      documentRoot_
     );
 
     emit PaymentObligationMinted(
