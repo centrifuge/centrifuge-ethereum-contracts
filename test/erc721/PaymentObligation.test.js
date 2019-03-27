@@ -128,7 +128,8 @@ contract("PaymentObligation", function (accounts) {
                     poMintParams.salts,
                     poMintParams.proofs
                 ),
-                "Document signed with a revoked key");
+                "Document signed with a revoked key"
+            );
         });
 
         it("should fail if the identity key check fails", async function () {

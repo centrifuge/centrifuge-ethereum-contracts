@@ -1,4 +1,5 @@
 const {P2P_IDENTITY, P2P_SIGNATURE, ACTION, MANAGEMENT} = require('./constants');
+const shouldSucceed = require('./tools/assertTx').shouldSucceed;
 const shouldRevert = require('./tools/assertTx').shouldRevert;
 const getEvents = require('./tools/contractEvents').getEvents;
 const addressToBytes32 = require('./tools/utils').addressToBytes32;
@@ -29,6 +30,18 @@ contract("KeyManager", function (accounts) {
             const {key} = await getBasicTestNeeds()
             await shouldRevert(this.identity.addMultiPurposeKey(key, [P2P_SIGNATURE], 1, {from: accounts[1]}));
             await shouldRevert(this.identity.addKey(key, P2P_SIGNATURE, 1, {from: accounts[1]}));
+        })
+
+        it("should not allow adding a key if the MANAGEMENT is a revoked ", async function () {
+            const {key} = await getBasicTestNeeds()
+            await shouldSucceed(this.identity.addKey(addressToBytes32(accounts[1]), MANAGEMENT, 1));
+            await shouldSucceed(this.identity.addKey(key, P2P_SIGNATURE, 1, {from: accounts[1]}));
+
+            await this.identity.revokeKey(addressToBytes32(accounts[1]));
+            await shouldRevert(
+                this.identity.addKey(key, P2P_IDENTITY, 1, {from: accounts[1]}),
+                "No management right"
+            );
         })
 
         it("Should add a key with both P2P_IDENTITY and P2P_SIGNATURE purposes and retrieve it", async function () {

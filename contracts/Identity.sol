@@ -1,4 +1,4 @@
-pragma solidity 0.5.3;
+pragma solidity ^0.5.7;
 
 import "zos-lib/contracts/Initializable.sol";
 import "contracts/KeyManager.sol";
@@ -63,18 +63,25 @@ contract Identity is KeyManager {
   function execute(
     address to,
     uint256 value,
-    bytes calldata data
+    bytes memory data
   )
-  external
-  returns (bool success, bytes memory result)
+  public
+  returns (bool success)
   {
 
     bytes32 key_ = addressToKey(msg.sender);
     require(
-      keyHasPurpose(key_, ACTION),
-      "Requester must an ACTION purpose"
+      keyHasPurpose(key_, ACTION) && _keys[key_].revokedAt == 0,
+      "Requester must have an ACTION purpose"
     );
-    // solium-disable-next-line security/no-call-value
-    return to.call.value(value)(data);
+
+    // solium-disable-next-line security/no-inline-assembly
+    assembly {
+      // check if contract to be call exists
+      if iszero(extcodesize(to)) {
+        revert(0, 0)
+      }
+      success := call(gas, to, value, add(data, 0x20), mload(data), 0, 0)
+    }
   }
 }

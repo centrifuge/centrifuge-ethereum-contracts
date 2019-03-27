@@ -1,4 +1,4 @@
-pragma solidity 0.5.3;
+pragma solidity ^0.5.7;
 
 
 contract KeyManager {
@@ -52,7 +52,7 @@ contract KeyManager {
     );
 
     require(
-      key != addressToKey(address(this)) && purpose != MANAGEMENT,
+      !(key == addressToKey(address(this)) && purpose == MANAGEMENT),
       "Own address can not be a management key"
     );
     require(
@@ -208,7 +208,7 @@ contract KeyManager {
   modifier onlyManagement() {
     bytes32 key_ = addressToKey(msg.sender);
     require(
-      keyHasPurpose(key_, MANAGEMENT),
+      keyHasPurpose(key_, MANAGEMENT) && _keys[key_].revokedAt == 0,
       "No management right"
     );
     _;

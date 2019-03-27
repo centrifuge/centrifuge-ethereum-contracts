@@ -1,4 +1,4 @@
-pragma solidity 0.5.3;
+pragma solidity ^0.5.7;
 
 import "zos-lib/contracts/Initializable.sol";
 import "contracts/lib/MerkleProof.sol";
@@ -48,6 +48,11 @@ contract AnchorRepository is Initializable {
   )
   external
   {
+    // do not allow 0x0 signingRoots
+    require(
+      signingRoot != 0x0,
+      "Signing Root can not be 0x0"
+    );
 
     // not allowing to pre-commit for an existing anchor
     require(_commits[anchorId].docRoot == 0x0,"Commit exists for the given anchor");
@@ -71,16 +76,21 @@ contract AnchorRepository is Initializable {
   /**
    * @param anchorIdPreImage pre-image for an AnchorID.
    * @param documentRoot merkle tree for a document that will be anchored/commited. It also contains the signatures
-   * @param documentProofs Array containing proofs for the document's signatures.
+   * @param proof bytes32 proof for the document's signatures.
    * The documentRoot must be a merkle tree constructed from the signingRoot plus all signatures
    */
   function commit(
     uint256 anchorIdPreImage,
     bytes32 documentRoot,
-    bytes32[] calldata documentProofs
+    bytes32 proof
   )
   external
   {
+    // do not allow 0x0 documentRoots
+    require(
+      documentRoot != 0x0,
+      "Document Root can not be 0x0"
+    );
 
     uint256 anchorId = uint256(sha256(abi.encodePacked(anchorIdPreImage)));
 
@@ -93,7 +103,7 @@ contract AnchorRepository is Initializable {
       require(_preCommits[anchorId].identity == msg.sender,"Precommit owned by someone else");
       require(
         MerkleProof.verifySha256(
-          documentProofs,
+          proof,
           documentRoot,
           _preCommits[anchorId].signingRoot
         ),
