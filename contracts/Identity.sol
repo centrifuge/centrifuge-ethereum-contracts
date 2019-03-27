@@ -1,4 +1,4 @@
-pragma solidity ^0.5.6;
+pragma solidity ^0.5.7;
 
 import "zos-lib/contracts/Initializable.sol";
 import "contracts/KeyManager.sol";
@@ -72,7 +72,7 @@ contract Identity is KeyManager {
     bytes32 key_ = addressToKey(msg.sender);
     require(
       keyHasPurpose(key_, ACTION) && _keys[key_].revokedAt == 0,
-      "Requester must an ACTION purpose"
+      "Requester must have an ACTION purpose"
     );
 
     // solium-disable-next-line security/no-inline-assembly

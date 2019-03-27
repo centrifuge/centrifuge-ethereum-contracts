@@ -1,4 +1,4 @@
-pragma solidity ^0.5.6;
+pragma solidity ^0.5.7;
 
 import "zos-lib/contracts/Initializable.sol";
 import "contracts/lib/MerkleProof.sol";

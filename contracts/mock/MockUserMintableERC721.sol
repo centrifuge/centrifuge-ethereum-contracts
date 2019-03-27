@@ -1,4 +1,4 @@
-pragma solidity ^0.5.6;
+pragma solidity ^0.5.7;
 pragma experimental ABIEncoderV2;
 
 import "contracts/erc721/UserMintableERC721.sol";
@@ -53,7 +53,7 @@ contract MockUserMintableERC721 is UserMintableERC721 {
   view
   {
     super._requireValidIdentity(
-       documentRoot,
+      documentRoot,
       property,
       identity,
       salt,

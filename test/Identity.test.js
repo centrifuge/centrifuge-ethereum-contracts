@@ -37,7 +37,7 @@ contract("Identity", function (accounts) {
             const data = this.testProxy.contract.methods.callMe().encodeABI();
             await shouldRevert(
                 this.identity.execute(this.testProxy.address, 0, data),
-                "Requester must an ACTION purpose"
+                "Requester must have an ACTION purpose"
             );
         })
 
@@ -56,7 +56,7 @@ contract("Identity", function (accounts) {
             const data = this.testProxy.contract.methods.callMe().encodeABI();
             await shouldRevert(
                 this.identity.execute(this.testProxy.address, 0, data, {from: accounts[2]}),
-                "Requester must an ACTION purpose"
+                "Requester must have an ACTION purpose"
             );
         })
 

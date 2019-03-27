@@ -1,4 +1,4 @@
-pragma solidity ^0.5.6;
+pragma solidity ^0.5.7;
 pragma experimental ABIEncoderV2;
 
 import "zos-lib/contracts/Initializable.sol";
@@ -167,7 +167,7 @@ contract PaymentObligation is Initializable, UserMintableERC721 {
     super._requireValidIdentity(
       signingRoot_,
       INVOICE_SENDER,
-        sender_,
+      sender_,
       salts[SENDER_IDX],
       proofs[SENDER_IDX]
     );
