@@ -86,7 +86,7 @@ contract PaymentObligation is Initializable, UserMintableERC721 {
   * @param tokenId uint256 the id for the token
   * @return bool
   */
-  function tokenHasLatestDocument(
+  function isTokenLatestDocument(
     uint256 tokenId
   )
   external

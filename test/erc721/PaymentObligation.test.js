@@ -27,7 +27,7 @@ contract("PaymentObligation", function (accounts) {
 
 
 
-    describe("tokenHasLatestDocument", async function () {
+    describe("isTokenLatestDocument", async function () {
         beforeEach(async function () {
 
             this.anchorRegistry = await MockAnchorRegistry.new();
@@ -66,8 +66,8 @@ contract("PaymentObligation", function (accounts) {
         });
 
         it("Token should have the latest document version", async function() {
-            let tokenHasLatestDocument = await this.registry.tokenHasLatestDocument(tokenId);
-            assert.equal(tokenHasLatestDocument,true);
+            let isTokenLatestDocument = await this.registry.isTokenLatestDocument(tokenId);
+            assert.equal(isTokenLatestDocument,true);
         })
 
         it("Token should have not the latest document version", async function() {
@@ -75,15 +75,15 @@ contract("PaymentObligation", function (accounts) {
                 nextVersion.value,
                 validRootHash
             );
-            let tokenHasLatestDocument = await this.registry.tokenHasLatestDocument(tokenId);
+            let isTokenLatestDocument = await this.registry.isTokenLatestDocument(tokenId);
 
             let tokenDetails = await this.registry.getTokenDetails(tokenId);
-            assert.equal(tokenHasLatestDocument,false);
+            assert.equal(isTokenLatestDocument,false);
         })
 
         it("Should return false if the token does not exist", async function() {
-            let tokenHasLatestDocument = await this.registry.tokenHasLatestDocument(documentIdentifier);
-            assert.equal(tokenHasLatestDocument,false);
+            let isTokenLatestDocument = await this.registry.isTokenLatestDocument(documentIdentifier);
+            assert.equal(isTokenLatestDocument,false);
         })
 
 
