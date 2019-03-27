@@ -21,6 +21,7 @@ contract PaymentObligation is Initializable, UserMintableERC721 {
     bytes currency;
     bytes dueDate;
     uint256 anchorId;
+    uint256 nextAnchorId;
     bytes32 documentRoot;
   }
 
@@ -44,15 +45,19 @@ contract PaymentObligation is Initializable, UserMintableERC721 {
 
   /**
   * @dev Returns the values associated with a token
-  * @param invoiceSender address The identity which created the invoice and minted the nft
-  * @param grossAmount bytes The gross amount of the invoice
-  * @param currency bytes The currency used in the invoice
-  * @param dueDate bytes The Due data of the invoice
-  * @param anchorId uint256 The ID of the document as identified
+  * @param tokenId uint256 the id for the token
+  * @return invoiceSender address The identity which created the invoice and minted the nft
+  * @return grossAmount bytes The gross amount of the invoice
+  * @return currency bytes The currency used in the invoice
+  * @return dueDate bytes The Due data of the invoice
+  * @return anchorId uint256 The ID of the document as identified
   * by the set up anchorRegistry
-  * @param documentRoot bytes32 The root hash of the merkle proof/doc
+  * @return nextAnchorId uint256 The next ID of the document in case of an update
+  * @return documentRoot bytes32 The root hash of the merkle proof/doc
   */
-  function getTokenDetails(uint256 tokenId)
+  function getTokenDetails(
+    uint256 tokenId
+  )
   external
   view
   returns (
@@ -61,6 +66,7 @@ contract PaymentObligation is Initializable, UserMintableERC721 {
     bytes memory currency,
     bytes memory dueDate,
     uint256 anchorId,
+    uint256 nextAnchorId,
     bytes32 documentRoot
   )
   {
@@ -70,8 +76,33 @@ contract PaymentObligation is Initializable, UserMintableERC721 {
       _poDetails[tokenId].currency,
       _poDetails[tokenId].dueDate,
       _poDetails[tokenId].anchorId,
+      _poDetails[tokenId].nextAnchorId,
       _poDetails[tokenId].documentRoot
     );
+  }
+
+  /**
+  * @dev Check if the given token has an anchored next version
+  * @param tokenId uint256 the id for the token
+  * @return bool
+  */
+  function isTokenLatestDocument(
+    uint256 tokenId
+  )
+  external
+  view
+  returns (
+    bool
+  )
+  {
+
+    uint256 nextAnchorId_ = _poDetails[tokenId].nextAnchorId;
+    if (nextAnchorId_ == 0x0)
+      return false;
+
+    AnchorRepository ar_ = AnchorRepository(_anchorRegistry);
+    (, bytes32 nextDocumentRoot_, ) = ar_.getAnchorById(nextAnchorId_);
+    return  nextDocumentRoot_ == 0x0;
   }
 
 
@@ -141,8 +172,8 @@ contract PaymentObligation is Initializable, UserMintableERC721 {
     (bytes32 documentRoot_, uint32 anchoredBlock_) = super._getDocumentRoot(
       anchorId
     );
-
     bytes32 signingRoot_ = bytes32(bytesToUint(values[SIGNING_ROOT_IDX]));
+    uint256 nextAnchorId_ = bytesToUint(values[NEXT_VERSION_IDX]);
 
     // Check if status of invoice is unpaid
     require(
@@ -160,14 +191,11 @@ contract PaymentObligation is Initializable, UserMintableERC721 {
       "Invoice status is not unpaid"
     );
 
-
-    address sender_ = _getSender();
-
     // Check if sender is a registered identity
     super._requireValidIdentity(
       signingRoot_,
       INVOICE_SENDER,
-      sender_,
+      _getSender(),
       salts[SENDER_IDX],
       proofs[SENDER_IDX]
     );
@@ -177,7 +205,7 @@ contract PaymentObligation is Initializable, UserMintableERC721 {
     super._requireSignedByIdentity(
       documentRoot_,
       anchoredBlock_,
-      sender_,
+      _getSender(),
       signingRoot_,
       proofs[SIGNING_ROOT_IDX],
       values[SIGNATURE_IDX],
@@ -188,7 +216,7 @@ contract PaymentObligation is Initializable, UserMintableERC721 {
     // Enforce that there is not a newer version of the document on chain
     super._requireIsLatestDocumentVersion(
       signingRoot_,
-      bytesToUint(values[NEXT_VERSION_IDX]),
+      nextAnchorId_,
       salts[NEXT_VERSION_IDX],
       proofs[NEXT_VERSION_IDX]
     );
@@ -228,6 +256,7 @@ contract PaymentObligation is Initializable, UserMintableERC721 {
       proofs[TOKEN_ROLE_IDX]
     );
 
+    //mint the token
     super._mintAnchor(
       to,
       tokenId,
@@ -239,12 +268,14 @@ contract PaymentObligation is Initializable, UserMintableERC721 {
       proofs
     );
 
+    // Store the token details
     _poDetails[tokenId] = PODetails(
-      sender_,
+      _getSender(),
       values[GROSS_AMOUNT_IDX],
       values[CURRENCY_IDX],
       values[DUE_DATE_IDX],
       anchorId,
+      nextAnchorId_,
       documentRoot_
     );
 
