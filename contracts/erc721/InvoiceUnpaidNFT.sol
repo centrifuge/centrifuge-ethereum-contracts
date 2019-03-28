@@ -9,7 +9,7 @@ import "contracts/Identity.sol";
 
 contract InvoiceUnpaidNFT is Initializable, UserMintableERC721 {
 
-  event UnpaidInvoiceMinted(
+  event InvoiceUnpaidMinted(
     address to,
     uint256 tokenId,
     string tokenURI
@@ -126,7 +126,7 @@ contract InvoiceUnpaidNFT is Initializable, UserMintableERC721 {
 
     UserMintableERC721.initialize(
       "Centrifuge Unpaid Invoices",
-      "CENT_UNPAID_INVOICE",
+      "CENT_INVOICE_UNPAID",
       anchorRegistry,
       identityFactory
     );
@@ -279,7 +279,7 @@ contract InvoiceUnpaidNFT is Initializable, UserMintableERC721 {
       documentRoot_
     );
 
-    emit UnpaidInvoiceMinted(
+    emit InvoiceUnpaidMinted(
       to,
       tokenId,
       tokenURI

@@ -22,7 +22,7 @@ contract("InvoiceUnpaidNFT", function (accounts) {
         validRootHash,
         contractAddress,
         tokenURI,
-        unpaidInvoiceMintParams
+        invoiceUnpaidMintParams
     } = proof;
 
 
@@ -51,10 +51,10 @@ contract("InvoiceUnpaidNFT", function (accounts) {
                 tokenId,
                 tokenURI,
                 documentIdentifier,
-                unpaidInvoiceMintParams.properties,
-                unpaidInvoiceMintParams.values,
-                unpaidInvoiceMintParams.salts,
-                unpaidInvoiceMintParams.proofs
+                invoiceUnpaidMintParams.properties,
+                invoiceUnpaidMintParams.values,
+                invoiceUnpaidMintParams.salts,
+                invoiceUnpaidMintParams.proofs
             )
                 .then(function (tx, logs) {
                     // Check mint event
@@ -98,7 +98,7 @@ contract("InvoiceUnpaidNFT", function (accounts) {
             this.registry = await MockInvoiceUnpaidNFT.new(this.anchorRegistry.address, this.identityFactory.address);
         });
 
-        it("should mint a token if the Merkle unpaidInvoiceMintParams.proofs validates", async function () {
+        it("should mint a token if the Merkle invoiceUnpaidMintParams.proofs validates", async function () {
 
             await this.anchorRegistry.setAnchorById(
                 documentIdentifier,
@@ -116,10 +116,10 @@ contract("InvoiceUnpaidNFT", function (accounts) {
                 tokenId,
                 tokenURI,
                 documentIdentifier,
-                unpaidInvoiceMintParams.properties,
-                unpaidInvoiceMintParams.values,
-                unpaidInvoiceMintParams.salts,
-                unpaidInvoiceMintParams.proofs
+                invoiceUnpaidMintParams.properties,
+                invoiceUnpaidMintParams.values,
+                invoiceUnpaidMintParams.salts,
+                invoiceUnpaidMintParams.proofs
             )
                 .then(function (tx, logs) {
                     // Check mint event
@@ -159,10 +159,10 @@ contract("InvoiceUnpaidNFT", function (accounts) {
                 tokenId,
                 tokenURI,
                 documentIdentifier,
-                unpaidInvoiceMintParams.properties,
-                [...unpaidInvoiceMintParams.values].reverse(),
-                unpaidInvoiceMintParams.salts,
-                unpaidInvoiceMintParams.proofs
+                invoiceUnpaidMintParams.properties,
+                [...invoiceUnpaidMintParams.values].reverse(),
+                invoiceUnpaidMintParams.salts,
+                invoiceUnpaidMintParams.proofs
             ));
         });
 
@@ -189,10 +189,10 @@ contract("InvoiceUnpaidNFT", function (accounts) {
                     tokenId,
                     tokenURI,
                     documentIdentifier,
-                    unpaidInvoiceMintParams.properties,
-                    unpaidInvoiceMintParams.values,
-                    unpaidInvoiceMintParams.salts,
-                    unpaidInvoiceMintParams.proofs
+                    invoiceUnpaidMintParams.properties,
+                    invoiceUnpaidMintParams.values,
+                    invoiceUnpaidMintParams.salts,
+                    invoiceUnpaidMintParams.proofs
                 ),
                 "Document signed with a revoked key"
             );
@@ -215,10 +215,10 @@ contract("InvoiceUnpaidNFT", function (accounts) {
                 tokenId,
                 tokenURI,
                 documentIdentifier,
-                unpaidInvoiceMintParams.properties,
-                unpaidInvoiceMintParams.values,
-                unpaidInvoiceMintParams.salts,
-                unpaidInvoiceMintParams.proofs
+                invoiceUnpaidMintParams.properties,
+                invoiceUnpaidMintParams.values,
+                invoiceUnpaidMintParams.salts,
+                invoiceUnpaidMintParams.proofs
             ));
         });
 
@@ -234,10 +234,10 @@ contract("InvoiceUnpaidNFT", function (accounts) {
                 tokenId,
                 tokenURI,
                 documentIdentifier,
-                unpaidInvoiceMintParams.properties,
-                [...unpaidInvoiceMintParams.values].reverse(),
-                unpaidInvoiceMintParams.salts,
-                unpaidInvoiceMintParams.proofs
+                invoiceUnpaidMintParams.properties,
+                [...invoiceUnpaidMintParams.values].reverse(),
+                invoiceUnpaidMintParams.salts,
+                invoiceUnpaidMintParams.proofs
             ));
         });
 
@@ -259,10 +259,10 @@ contract("InvoiceUnpaidNFT", function (accounts) {
                 tokenId,
                 tokenURI,
                 documentIdentifier,
-                unpaidInvoiceMintParams.properties,
-                unpaidInvoiceMintParams.values,
-                unpaidInvoiceMintParams.salts,
-                unpaidInvoiceMintParams.proofs
+                invoiceUnpaidMintParams.properties,
+                invoiceUnpaidMintParams.values,
+                invoiceUnpaidMintParams.salts,
+                invoiceUnpaidMintParams.proofs
             );
 
             await shouldRevert(
@@ -271,10 +271,10 @@ contract("InvoiceUnpaidNFT", function (accounts) {
                     tokenId,
                     tokenURI,
                     documentIdentifier,
-                    unpaidInvoiceMintParams.properties,
-                    unpaidInvoiceMintParams.values,
-                    unpaidInvoiceMintParams.salts,
-                    unpaidInvoiceMintParams.proofs
+                    invoiceUnpaidMintParams.properties,
+                    invoiceUnpaidMintParams.values,
+                    invoiceUnpaidMintParams.salts,
+                    invoiceUnpaidMintParams.proofs
                 ),
                 "Token exists"
             );
@@ -289,7 +289,7 @@ contract("InvoiceUnpaidNFT", function (accounts) {
             );
 
 
-            let replacedStatus = [...unpaidInvoiceMintParams.salts];
+            let replacedStatus = [...invoiceUnpaidMintParams.salts];
             replacedStatus.splice(4, 1, nextVersion.salt);// replace status salt with next version
 
 
@@ -305,10 +305,10 @@ contract("InvoiceUnpaidNFT", function (accounts) {
                     tokenId,
                     tokenURI,
                     documentIdentifier,
-                    unpaidInvoiceMintParams.properties,
-                    unpaidInvoiceMintParams.values,
+                    invoiceUnpaidMintParams.properties,
+                    invoiceUnpaidMintParams.values,
                     replacedStatus,
-                    unpaidInvoiceMintParams.proofs
+                    invoiceUnpaidMintParams.proofs
                 ),
                 "Invoice status is not unpaid"
             );
