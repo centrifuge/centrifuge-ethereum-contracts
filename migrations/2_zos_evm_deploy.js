@@ -29,10 +29,13 @@ async function deploy(options) {
         contractAlias: 'AnchorRepository',
         initMethod: 'initialize'
     }, options));
+
+    let tokenUriBase = `http://metadata.centrifuge.io/invoice-unpaid/${options.network}/`;
+
     const unpaidInvoice = await create(Object.assign({
         contractAlias: 'InvoiceUnpaidNFT',
         initMethod: 'initialize',
-        initArgs: [anchorRepository.address, identityFactory.address]
+        initArgs: [tokenUriBase,anchorRepository.address, identityFactory.address]
     }, options));
 
 }

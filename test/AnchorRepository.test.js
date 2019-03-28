@@ -18,8 +18,6 @@ async function getBasicTestNeeds(accounts) {
     const proof = merkleTree.getHexProof(elements[0])[0];
     const signingRoot = bufferToHex(sha256(elements[0]));
 
-    console.log(proof);
-
     return {
         anchorId,
         signingRoot,

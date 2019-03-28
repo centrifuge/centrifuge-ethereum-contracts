@@ -12,12 +12,14 @@ contract MockInvoiceUnpaidNFT is  InvoiceUnpaidNFT {
   address private _identity;
 
   constructor(
+    string memory tokenUriBase,
     address anchorRegistry,
     address identityFactory
   )
   public
   {
     InvoiceUnpaidNFT.initialize(
+      tokenUriBase,
       anchorRegistry,
       identityFactory
     );
