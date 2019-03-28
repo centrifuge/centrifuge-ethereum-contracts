@@ -6,7 +6,7 @@ const {keccak, bufferToHex, toBuffer, sha256} = require('ethereumjs-util');
 const IdentityFactory = artifacts.require("MockIdentityFactory");
 const AnchorRepository = artifacts.require("AnchorRepository");
 const Identity = artifacts.require("Identity");
-const MockPaymentObligation = artifacts.require("MockPaymentObligation");
+const MockInvoiceUnpaidNFT = artifacts.require("MockInvoiceUnpaidNFT");
 const proof = require('./erc721/proof');
 
 async function getBasicTestNeeds(accounts) {
@@ -47,7 +47,7 @@ contract("Gas costs", function (accounts) {
         validRootHash,
         contractAddress,
         tokenURI,
-        poMintParams,
+        invoiceUnpaidMintParams,
         publicKey
     } = proof;
 
@@ -61,7 +61,7 @@ contract("Gas costs", function (accounts) {
         this.anchorRepository = await AnchorRepository.new();
         this.identity = await Identity.new(accounts[0],[publicKey,addressToBytes32(accounts[1])],[P2P_SIGNATURE,ACTION]);
         this.identityFactory = await IdentityFactory.new();
-        this.poRegistry = await MockPaymentObligation.new(this.anchorRepository.address,this.identityFactory.address);
+        this.poRegistry = await MockInvoiceUnpaidNFT.new(this.anchorRepository.address,this.identityFactory.address);
 
     });
 
@@ -184,10 +184,10 @@ contract("Gas costs", function (accounts) {
                 tokenId,
                 tokenURI,
                 documentIdentifier,
-                poMintParams.properties,
-                poMintParams.values,
-                poMintParams.salts,
-                poMintParams.proofs
+                invoiceUnpaidMintParams.properties,
+                invoiceUnpaidMintParams.values,
+                invoiceUnpaidMintParams.salts,
+                invoiceUnpaidMintParams.proofs
             );
             console.log('Actual mint gas cost:', mintGasCost);
             assert.isBelow(mintGasCost, mintMaxGas, `Gas Price for mint is to high`)
@@ -213,10 +213,10 @@ contract("Gas costs", function (accounts) {
                 tokenId,
                 tokenURI,
                 documentIdentifier,
-                poMintParams.properties,
-                poMintParams.values,
-                poMintParams.salts,
-                poMintParams.proofs
+                invoiceUnpaidMintParams.properties,
+                invoiceUnpaidMintParams.values,
+                invoiceUnpaidMintParams.salts,
+                invoiceUnpaidMintParams.proofs
             ).encodeABI();
 
             const mintGasCost = await this.identity.execute.estimateGas(this.poRegistry.address, 0, data, {from: accounts[1]});

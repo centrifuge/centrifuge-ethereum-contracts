@@ -1,13 +1,13 @@
 const {getEventValue} = require("../tools/contractEvents");
 const shouldRevert = require('../tools/assertTx').shouldRevert;
 const {P2P_IDENTITY, P2P_SIGNATURE, ACTION} = require('../constants');
-const MockPaymentObligation = artifacts.require("MockPaymentObligation");
+const MockInvoiceUnpaidNFT = artifacts.require("MockInvoiceUnpaidNFT");
 const MockAnchorRegistry = artifacts.require("MockAnchorRepository");
 const MockIdentityFactory = artifacts.require("MockIdentityFactory");
 const Identity = artifacts.require("Identity");
 const proof = require("./proof.js");
 
-contract("PaymentObligation", function (accounts) {
+contract("InvoiceUnpaidNFT", function (accounts) {
 
 
     let {
@@ -22,7 +22,7 @@ contract("PaymentObligation", function (accounts) {
         validRootHash,
         contractAddress,
         tokenURI,
-        poMintParams
+        invoiceUnpaidMintParams
     } = proof;
 
 
@@ -33,7 +33,7 @@ contract("PaymentObligation", function (accounts) {
             this.anchorRegistry = await MockAnchorRegistry.new();
             this.identityFactory = await MockIdentityFactory.new();
             this.identity = await Identity.new(accounts[2], [publicKey], [P2P_SIGNATURE]);
-            this.registry = await MockPaymentObligation.new(this.anchorRegistry.address, this.identityFactory.address);
+            this.registry = await MockInvoiceUnpaidNFT.new(this.anchorRegistry.address, this.identityFactory.address);
 
             await this.anchorRegistry.setAnchorById(
                 documentIdentifier,
@@ -51,10 +51,10 @@ contract("PaymentObligation", function (accounts) {
                 tokenId,
                 tokenURI,
                 documentIdentifier,
-                poMintParams.properties,
-                poMintParams.values,
-                poMintParams.salts,
-                poMintParams.proofs
+                invoiceUnpaidMintParams.properties,
+                invoiceUnpaidMintParams.values,
+                invoiceUnpaidMintParams.salts,
+                invoiceUnpaidMintParams.proofs
             )
                 .then(function (tx, logs) {
                     // Check mint event
@@ -95,10 +95,10 @@ contract("PaymentObligation", function (accounts) {
             this.anchorRegistry = await MockAnchorRegistry.new();
             this.identityFactory = await MockIdentityFactory.new();
             this.identity = await Identity.new(accounts[2], [publicKey], [P2P_SIGNATURE]);
-            this.registry = await MockPaymentObligation.new(this.anchorRegistry.address, this.identityFactory.address);
+            this.registry = await MockInvoiceUnpaidNFT.new(this.anchorRegistry.address, this.identityFactory.address);
         });
 
-        it("should mint a token if the Merkle poMintParams.proofs validates", async function () {
+        it("should mint a token if the Merkle invoiceUnpaidMintParams.proofs validates", async function () {
 
             await this.anchorRegistry.setAnchorById(
                 documentIdentifier,
@@ -116,10 +116,10 @@ contract("PaymentObligation", function (accounts) {
                 tokenId,
                 tokenURI,
                 documentIdentifier,
-                poMintParams.properties,
-                poMintParams.values,
-                poMintParams.salts,
-                poMintParams.proofs
+                invoiceUnpaidMintParams.properties,
+                invoiceUnpaidMintParams.values,
+                invoiceUnpaidMintParams.salts,
+                invoiceUnpaidMintParams.proofs
             )
                 .then(function (tx, logs) {
                     // Check mint event
@@ -159,10 +159,10 @@ contract("PaymentObligation", function (accounts) {
                 tokenId,
                 tokenURI,
                 documentIdentifier,
-                poMintParams.properties,
-                [...poMintParams.values].reverse(),
-                poMintParams.salts,
-                poMintParams.proofs
+                invoiceUnpaidMintParams.properties,
+                [...invoiceUnpaidMintParams.values].reverse(),
+                invoiceUnpaidMintParams.salts,
+                invoiceUnpaidMintParams.proofs
             ));
         });
 
@@ -189,10 +189,10 @@ contract("PaymentObligation", function (accounts) {
                     tokenId,
                     tokenURI,
                     documentIdentifier,
-                    poMintParams.properties,
-                    poMintParams.values,
-                    poMintParams.salts,
-                    poMintParams.proofs
+                    invoiceUnpaidMintParams.properties,
+                    invoiceUnpaidMintParams.values,
+                    invoiceUnpaidMintParams.salts,
+                    invoiceUnpaidMintParams.proofs
                 ),
                 "Document signed with a revoked key"
             );
@@ -215,10 +215,10 @@ contract("PaymentObligation", function (accounts) {
                 tokenId,
                 tokenURI,
                 documentIdentifier,
-                poMintParams.properties,
-                poMintParams.values,
-                poMintParams.salts,
-                poMintParams.proofs
+                invoiceUnpaidMintParams.properties,
+                invoiceUnpaidMintParams.values,
+                invoiceUnpaidMintParams.salts,
+                invoiceUnpaidMintParams.proofs
             ));
         });
 
@@ -234,10 +234,10 @@ contract("PaymentObligation", function (accounts) {
                 tokenId,
                 tokenURI,
                 documentIdentifier,
-                poMintParams.properties,
-                [...poMintParams.values].reverse(),
-                poMintParams.salts,
-                poMintParams.proofs
+                invoiceUnpaidMintParams.properties,
+                [...invoiceUnpaidMintParams.values].reverse(),
+                invoiceUnpaidMintParams.salts,
+                invoiceUnpaidMintParams.proofs
             ));
         });
 
@@ -259,10 +259,10 @@ contract("PaymentObligation", function (accounts) {
                 tokenId,
                 tokenURI,
                 documentIdentifier,
-                poMintParams.properties,
-                poMintParams.values,
-                poMintParams.salts,
-                poMintParams.proofs
+                invoiceUnpaidMintParams.properties,
+                invoiceUnpaidMintParams.values,
+                invoiceUnpaidMintParams.salts,
+                invoiceUnpaidMintParams.proofs
             );
 
             await shouldRevert(
@@ -271,10 +271,10 @@ contract("PaymentObligation", function (accounts) {
                     tokenId,
                     tokenURI,
                     documentIdentifier,
-                    poMintParams.properties,
-                    poMintParams.values,
-                    poMintParams.salts,
-                    poMintParams.proofs
+                    invoiceUnpaidMintParams.properties,
+                    invoiceUnpaidMintParams.values,
+                    invoiceUnpaidMintParams.salts,
+                    invoiceUnpaidMintParams.proofs
                 ),
                 "Token exists"
             );
@@ -289,7 +289,7 @@ contract("PaymentObligation", function (accounts) {
             );
 
 
-            let replacedStatus = [...poMintParams.salts];
+            let replacedStatus = [...invoiceUnpaidMintParams.salts];
             replacedStatus.splice(4, 1, nextVersion.salt);// replace status salt with next version
 
 
@@ -305,10 +305,10 @@ contract("PaymentObligation", function (accounts) {
                     tokenId,
                     tokenURI,
                     documentIdentifier,
-                    poMintParams.properties,
-                    poMintParams.values,
+                    invoiceUnpaidMintParams.properties,
+                    invoiceUnpaidMintParams.values,
                     replacedStatus,
-                    poMintParams.proofs
+                    invoiceUnpaidMintParams.proofs
                 ),
                 "Invoice status is not unpaid"
             );

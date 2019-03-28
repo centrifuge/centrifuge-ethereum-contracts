@@ -7,15 +7,15 @@ import "contracts/erc721/UserMintableERC721.sol";
 import "contracts/Identity.sol";
 
 
-contract PaymentObligation is Initializable, UserMintableERC721 {
+contract InvoiceUnpaidNFT is Initializable, UserMintableERC721 {
 
-  event PaymentObligationMinted(
+  event InvoiceUnpaidMinted(
     address to,
     uint256 tokenId,
     string tokenURI
   );
 
-  struct PODetails {
+  struct TokenDetails {
     address invoiceSender;
     bytes grossAmount;
     bytes currency;
@@ -41,7 +41,7 @@ contract PaymentObligation is Initializable, UserMintableERC721 {
   uint8 constant internal TOKEN_ROLE_IDX = 11;
 
   // Token details, specific field values
-  mapping(uint256 => PODetails) internal _poDetails;
+  mapping(uint256 => TokenDetails) internal _tokenDetails;
 
   /**
   * @dev Returns the values associated with a token
@@ -71,13 +71,13 @@ contract PaymentObligation is Initializable, UserMintableERC721 {
   )
   {
     return (
-      _poDetails[tokenId].invoiceSender,
-      _poDetails[tokenId].grossAmount,
-      _poDetails[tokenId].currency,
-      _poDetails[tokenId].dueDate,
-      _poDetails[tokenId].anchorId,
-      _poDetails[tokenId].nextAnchorId,
-      _poDetails[tokenId].documentRoot
+      _tokenDetails[tokenId].invoiceSender,
+      _tokenDetails[tokenId].grossAmount,
+      _tokenDetails[tokenId].currency,
+      _tokenDetails[tokenId].dueDate,
+      _tokenDetails[tokenId].anchorId,
+      _tokenDetails[tokenId].nextAnchorId,
+      _tokenDetails[tokenId].documentRoot
     );
   }
 
@@ -96,7 +96,7 @@ contract PaymentObligation is Initializable, UserMintableERC721 {
   )
   {
 
-    uint256 nextAnchorId_ = _poDetails[tokenId].nextAnchorId;
+    uint256 nextAnchorId_ = _tokenDetails[tokenId].nextAnchorId;
     if (nextAnchorId_ == 0x0)
       return false;
 
@@ -125,8 +125,8 @@ contract PaymentObligation is Initializable, UserMintableERC721 {
     _mandatoryFields.push(INVOICE_DUE_DATE);
 
     UserMintableERC721.initialize(
-      "Centrifuge Payment Obligations",
-      "CENT_PAY_OB",
+      "Centrifuge Unpaid Invoices",
+      "CENT_INVOICE_UNPAID",
       anchorRegistry,
       identityFactory
     );
@@ -269,7 +269,7 @@ contract PaymentObligation is Initializable, UserMintableERC721 {
     );
 
     // Store the token details
-    _poDetails[tokenId] = PODetails(
+    _tokenDetails[tokenId] = TokenDetails(
       _getSender(),
       values[GROSS_AMOUNT_IDX],
       values[CURRENCY_IDX],
@@ -279,7 +279,7 @@ contract PaymentObligation is Initializable, UserMintableERC721 {
       documentRoot_
     );
 
-    emit PaymentObligationMinted(
+    emit InvoiceUnpaidMinted(
       to,
       tokenId,
       tokenURI

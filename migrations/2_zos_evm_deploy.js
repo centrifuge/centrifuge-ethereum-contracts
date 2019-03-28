@@ -8,7 +8,7 @@ async function deploy(options) {
     //add({ contractsData: [{ name: 'Identity', alias: 'Identity' }] });
     add({contractsData: [{name: 'IdentityFactory', alias: 'IdentityFactory'}]});
     add({contractsData: [{name: 'AnchorRepository', alias: 'AnchorRepository'}]});
-    add({contractsData: [{name: 'PaymentObligation', alias: 'PaymentObligation'}]});
+    add({contractsData: [{name: 'InvoiceUnpaidNFT', alias: 'InvoiceUnpaidNFT'}]});
 
     // ZOS libs do not exist on local node so deploy them
     if ( options.network== "dev-99999")
@@ -29,8 +29,8 @@ async function deploy(options) {
         contractAlias: 'AnchorRepository',
         initMethod: 'initialize'
     }, options));
-    const paymentObligation = await create(Object.assign({
-        contractAlias: 'PaymentObligation',
+    const unpaidInvoice = await create(Object.assign({
+        contractAlias: 'InvoiceUnpaidNFT',
         initMethod: 'initialize',
         initArgs: [anchorRepository.address, identityFactory.address]
     }, options));

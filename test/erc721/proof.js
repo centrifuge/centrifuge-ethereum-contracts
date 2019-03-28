@@ -44,7 +44,7 @@ module.exports = {
     readRuleIndex,
     tokenURI,
     publicKey,
-    poMintParams: {
+    invoiceUnpaidMintParams: {
         properties: [
             grossAmount.property,
             currency.property,
