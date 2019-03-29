@@ -17,6 +17,7 @@ contract MockUserMintableERC721 is UserMintableERC721 {
   constructor(
     string memory name,
     string memory symbol,
+    string memory tokenUriBase,
     address anchorRegistry,
     address identityFactory,
     bytes[] memory mandatoryFields
@@ -27,6 +28,7 @@ contract MockUserMintableERC721 is UserMintableERC721 {
     UserMintableERC721.initialize(
       name,
       symbol,
+      tokenUriBase,
       anchorRegistry,
       identityFactory
     );
@@ -186,7 +188,6 @@ contract MockUserMintableERC721 is UserMintableERC721 {
     uint256 tokenId,
     uint256 anchorId,
     bytes32 merkleRoot,
-    string memory tokenURI,
     bytes[] memory values,
     bytes32[] memory salts,
     bytes32[][] memory proofs
@@ -198,7 +199,6 @@ contract MockUserMintableERC721 is UserMintableERC721 {
       tokenId,
       anchorId,
       merkleRoot,
-      tokenURI,
       values,
       salts,
       proofs

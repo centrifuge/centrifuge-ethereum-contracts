@@ -2,7 +2,6 @@ pragma solidity ^0.5.7;
 pragma experimental ABIEncoderV2;
 
 import "zos-lib/contracts/Initializable.sol";
-import "contracts/lib/MerkleProof.sol";
 import "contracts/erc721/UserMintableERC721.sol";
 import "contracts/Identity.sol";
 
@@ -11,8 +10,7 @@ contract InvoiceUnpaidNFT is Initializable, UserMintableERC721 {
 
   event InvoiceUnpaidMinted(
     address to,
-    uint256 tokenId,
-    string tokenURI
+    uint256 tokenId
   );
 
   struct TokenDetails {
@@ -107,12 +105,14 @@ contract InvoiceUnpaidNFT is Initializable, UserMintableERC721 {
 
 
   /**
+   * @param tokenUriBase string base for constructing token uris. It must end with /
    * @param anchorRegistry address The address of the anchor registry
    * @param identityFactory address The address of the identity factory
    * that is backing this token's mint method.
    * that ensures that the sender is authorized to mint the token
    */
   function initialize(
+    string memory tokenUriBase,
     address anchorRegistry,
     address identityFactory
   )
@@ -127,6 +127,7 @@ contract InvoiceUnpaidNFT is Initializable, UserMintableERC721 {
     UserMintableERC721.initialize(
       "Centrifuge Unpaid Invoices",
       "CENT_INVOICE_UNPAID",
+      tokenUriBase,
       anchorRegistry,
       identityFactory
     );
@@ -137,7 +138,6 @@ contract InvoiceUnpaidNFT is Initializable, UserMintableERC721 {
    * and comparing it to the anchor registry's stored hash/doc ID.
    * @param to address The recipient of the minted token
    * @param tokenId uint256 The ID for the minted token
-   * @param tokenURI string The metadata uri
    * @param anchorId uint256 The ID of the document as identified
    * by the set up anchorRegistry.
    * @param properties bytes[] The properties of the leafs that are being proved
@@ -153,7 +153,6 @@ contract InvoiceUnpaidNFT is Initializable, UserMintableERC721 {
   function mint(
     address to,
     uint256 tokenId,
-    string memory tokenURI,
     uint256 anchorId,
     bytes[] memory properties,
     bytes[] memory values,
@@ -172,8 +171,8 @@ contract InvoiceUnpaidNFT is Initializable, UserMintableERC721 {
     (bytes32 documentRoot_, uint32 anchoredBlock_) = super._getDocumentRoot(
       anchorId
     );
-    bytes32 signingRoot_ = bytes32(bytesToUint(values[SIGNING_ROOT_IDX]));
-    uint256 nextAnchorId_ = bytesToUint(values[NEXT_VERSION_IDX]);
+    bytes32 signingRoot_ = bytes32(Utilities.bytesToUint(values[SIGNING_ROOT_IDX]));
+    uint256 nextAnchorId_ = Utilities.bytesToUint(values[NEXT_VERSION_IDX]);
 
     // Check if status of invoice is unpaid
     require(
@@ -262,7 +261,6 @@ contract InvoiceUnpaidNFT is Initializable, UserMintableERC721 {
       tokenId,
       anchorId,
       signingRoot_,
-      tokenURI,
       values,
       salts,
       proofs
@@ -281,8 +279,7 @@ contract InvoiceUnpaidNFT is Initializable, UserMintableERC721 {
 
     emit InvoiceUnpaidMinted(
       to,
-      tokenId,
-      tokenURI
+      tokenId
     );
   }
 

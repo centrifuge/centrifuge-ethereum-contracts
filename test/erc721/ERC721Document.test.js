@@ -30,13 +30,14 @@ contract("UserMintableERC721", function (accounts) {
     } = proof;
 
     const mandatoryFields = [grossAmount.property, currency.property];
+    const tokenUriBase = "http://metadata.com/";
 
 
     beforeEach(async function () {
         this.anchorRegistry = await MockAnchorRegistry.new();
         this.identityFactory = await MockIdentityFactory.new();
         this.identity  = await Identity.new(accounts[2],[publicKey],[P2P_SIGNATURE]);
-        this.registry = await MockUserMintableERC721.new("ERC-721 Document Anchor", "TDA", this.anchorRegistry.address, this.identityFactory.address, mandatoryFields);
+        this.registry = await MockUserMintableERC721.new("ERC-721 Document Anchor", "TDA", tokenUriBase, this.anchorRegistry.address, this.identityFactory.address, mandatoryFields);
     });
 
     describe("UserMintableERC721 Deployment", async function () {
@@ -44,7 +45,7 @@ contract("UserMintableERC721", function (accounts) {
         it("should be deployable as an independent registry", async function () {
             let anchorRegistry = await MockAnchorRegistry.new();
             let identityFactory = await MockIdentityFactory.new();
-            let instance = await MockUserMintableERC721.new("ERC721 Document Anchor 2", "TDA2", anchorRegistry.address, identityFactory.address, mandatoryFields);
+            let instance = await MockUserMintableERC721.new("ERC721 Document Anchor 2", "TDA2",  tokenUriBase, anchorRegistry.address, identityFactory.address, mandatoryFields);
 
             assert.equal("ERC721 Document Anchor 2", await instance.name.call(), "The registry should be deployed with the specific name");
             assert.equal("TDA2", await instance.symbol.call(), "The registry should be deployed with the specific symbol");
@@ -62,14 +63,12 @@ contract("UserMintableERC721", function (accounts) {
     describe("_getDocumentRoot", async function () {
 
         it("Should return the correct anchored document root", async function () {
-            let mockRegistry = await MockUserMintableERC721.new("ERC-721 Document Anchor", "TDA", this.anchorRegistry.address, this.identityFactory.address, mandatoryFields);
-
             await this.anchorRegistry.setAnchorById(
                 documentIdentifier,
                 validRootHash
             );
 
-            const anchoredRoot = await mockRegistry.getDocumentRoot(
+            const anchoredRoot = await this.registry.getDocumentRoot(
                 documentIdentifier
             )
 
@@ -80,9 +79,8 @@ contract("UserMintableERC721", function (accounts) {
         })
 
         it("Should fail if the document anchor is not in the registry", async function () {
-            let mockRegistry = await MockUserMintableERC721.new("ERC-721 Document Anchor", "TDA", this.anchorRegistry.address, this.identityFactory.address, mandatoryFields);
-            await shouldRevert(
-                mockRegistry.getDocumentRoot(
+           await shouldRevert(
+                this.registry.getDocumentRoot(
                     documentIdentifier
                 ),
                 "Document in not anchored in the registry"
@@ -96,14 +94,12 @@ contract("UserMintableERC721", function (accounts) {
     describe("_requireIsLatestDocumentVersion", async function () {
 
         it("Should validate that the document version is the latest ", async function () {
-            let mockRegistry = await MockUserMintableERC721.new("ERC-721 Document Anchor", "TDA", this.anchorRegistry.address, this.identityFactory.address, mandatoryFields);
-
             await this.anchorRegistry.setAnchorById(
                 documentIdentifier,
                 validRootHash
             );
 
-            await mockRegistry.requireIsLatestDocumentVersion(
+            await this.registry.requireIsLatestDocumentVersion(
                 validRootHash,
                 nextVersion.value,
                 nextVersion.salt,
@@ -112,8 +108,6 @@ contract("UserMintableERC721", function (accounts) {
         })
 
         it("Should fail when there is a newer version of the document ", async function () {
-            let mockRegistry = await MockUserMintableERC721.new("ERC-721 Document Anchor", "TDA", this.anchorRegistry.address, this.identityFactory.address, mandatoryFields);
-
             //anchor next identifier
             await this.anchorRegistry.setAnchorById(
                 nextVersion.value,
@@ -122,7 +116,7 @@ contract("UserMintableERC721", function (accounts) {
 
 
             await shouldRevert(
-                mockRegistry.requireIsLatestDocumentVersion(
+                this.registry.requireIsLatestDocumentVersion(
                     validRootHash,
                     nextVersion.value,
                     nextVersion.salt,
@@ -135,10 +129,8 @@ contract("UserMintableERC721", function (accounts) {
         })
 
         it("Should fail if the next version proof is not valid", async function () {
-            let mockRegistry = await MockUserMintableERC721.new("ERC-721 Document Anchor", "TDA", this.anchorRegistry.address, this.identityFactory.address, mandatoryFields);
-
             await shouldRevert(
-                mockRegistry.requireIsLatestDocumentVersion(
+                this.registry.requireIsLatestDocumentVersion(
                     validRootHash,
                     documentIdentifier,
                     nextVersion.salt,
@@ -155,9 +147,8 @@ contract("UserMintableERC721", function (accounts) {
     describe("_requireValidIdentity", async function () {
 
         it("Should fail if the identity is not registered", async function () {
-            let mockRegistry = await MockUserMintableERC721.new("ERC-721 Document Anchor", "TDA", this.anchorRegistry.address, this.identityFactory.address, mandatoryFields);
 
-            await shouldRevert(mockRegistry.requireValidIdentity(
+            await shouldRevert(this.registry.requireValidIdentity(
                 validRootHash,
                 sender.property,
                 sender.value,
@@ -170,11 +161,10 @@ contract("UserMintableERC721", function (accounts) {
 
 
         it("Should fail if proof fails", async function () {
-            let mockRegistry = await MockUserMintableERC721.new("ERC-721 Document Anchor", "TDA", this.anchorRegistry.address, this.identityFactory.address, mandatoryFields);
 
             await this.identityFactory.registerIdentity(sender.value);
 
-            await shouldRevert(mockRegistry.requireValidIdentity(
+            await shouldRevert(this.registry.requireValidIdentity(
                 validRootHash,
                 sender.property,
                 accounts[0],
@@ -186,11 +176,10 @@ contract("UserMintableERC721", function (accounts) {
         });
 
         it("Should pass with a valid proof and a registered identity", async function () {
-            let mockRegistry = await MockUserMintableERC721.new("ERC-721 Document Anchor", "TDA", this.anchorRegistry.address, this.identityFactory.address, mandatoryFields);
 
-            await mockRegistry.setOwnAddress(contractAddress);
+            await this.registry.setOwnAddress(contractAddress);
 
-            await mockRegistry.requireOneTokenPerDocument(
+            await this.registry.requireOneTokenPerDocument(
                 validRootHash,
                 nftUnique.value,
                 nftUnique.salt,
@@ -199,7 +188,7 @@ contract("UserMintableERC721", function (accounts) {
 
             await this.identityFactory.registerIdentity(sender.value);
 
-            await mockRegistry.requireValidIdentity(
+            await this.registry.requireValidIdentity(
                 validRootHash,
                 sender.property,
                 sender.value,
@@ -214,10 +203,7 @@ contract("UserMintableERC721", function (accounts) {
     describe("_requireOneTokenPerDocument", async function () {
 
         it("Should fail if the contract address does not match", async function () {
-            let mockRegistry = await MockUserMintableERC721.new("ERC-721 Document Anchor", "TDA", this.anchorRegistry.address, this.identityFactory.address, mandatoryFields);
-
-
-            await shouldRevert(mockRegistry.requireOneTokenPerDocument(
+            await shouldRevert(this.registry.requireOneTokenPerDocument(
                 validRootHash,
                 nftUnique.value,
                 nftUnique.salt,
@@ -228,11 +214,9 @@ contract("UserMintableERC721", function (accounts) {
         });
 
         it("Should pass with a valid proof", async function () {
-            let mockRegistry = await MockUserMintableERC721.new("ERC-721 Document Anchor", "TDA", this.anchorRegistry.address, this.identityFactory.address, mandatoryFields);
+            await this.registry.setOwnAddress(contractAddress);
 
-            await mockRegistry.setOwnAddress(contractAddress);
-
-            await mockRegistry.requireOneTokenPerDocument(
+            await this.registry.requireOneTokenPerDocument(
                 validRootHash,
                 nftUnique.value,
                 nftUnique.salt,
@@ -246,9 +230,7 @@ contract("UserMintableERC721", function (accounts) {
     describe("_hasReadRule", async function () {
 
         it("Should fail if the proof is not valid", async function () {
-            let mockRegistry = await MockUserMintableERC721.new("ERC-721 Document Anchor", "TDA", this.anchorRegistry.address, this.identityFactory.address, mandatoryFields);
-
-            await shouldRevert(mockRegistry.requireReadRole(
+            await shouldRevert(this.registry.requireReadRole(
                 validRootHash,
                 "0x1",
                 readRole.value,
@@ -260,9 +242,7 @@ contract("UserMintableERC721", function (accounts) {
         })
 
         it("Should pass and extract the proper index ", async function () {
-            let mockRegistry = await MockUserMintableERC721.new("ERC-721 Document Anchor", "TDA", this.anchorRegistry.address, this.identityFactory.address, mandatoryFields);
-
-            const index = await mockRegistry.requireReadRole(
+            const index = await this.registry.requireReadRole(
                 validRootHash,
                 readRole.property,
                 readRole.value,
@@ -278,10 +258,7 @@ contract("UserMintableERC721", function (accounts) {
     describe("_requireReadAction", async function () {
 
         it("Should fail if read rule index is not valud", async function () {
-            let mockRegistry = await MockUserMintableERC721.new("ERC-721 Document Anchor", "TDA", this.anchorRegistry.address, this.identityFactory.address, mandatoryFields);
-
-
-            await shouldRevert(mockRegistry.requireReadAction(
+             await shouldRevert(this.registry.requireReadAction(
                 validRootHash,
                 "0x0000000000000022",
                 readRoleAction.salt,
@@ -292,9 +269,7 @@ contract("UserMintableERC721", function (accounts) {
         })
 
         it("Should pass with the proper proof ", async function () {
-            let mockRegistry = await MockUserMintableERC721.new("ERC-721 Document Anchor", "TDA", this.anchorRegistry.address, this.identityFactory.address, mandatoryFields);
-
-            await mockRegistry.requireReadAction(
+             await this.registry.requireReadAction(
                 validRootHash,
                 readRuleIndex,
                 readRoleAction.salt,
@@ -307,9 +282,7 @@ contract("UserMintableERC721", function (accounts) {
     describe("_requireTokenHasRole", async function () {
 
         it("Should fail if the contract address does not match", async function () {
-            let mockRegistry = await MockUserMintableERC721.new("ERC-721 Document Anchor", "TDA", this.anchorRegistry.address, this.identityFactory.address, mandatoryFields);
-
-            await shouldRevert(mockRegistry.requireTokenHasRole(
+           await shouldRevert(this.registry.requireTokenHasRole(
                 validRootHash,
                 tokenId,
                 tokenRole.property,
@@ -323,10 +296,8 @@ contract("UserMintableERC721", function (accounts) {
 
 
         it("Should fail if the token Id does not match", async function () {
-            let mockRegistry = await MockUserMintableERC721.new("ERC-721 Document Anchor", "TDA", this.anchorRegistry.address, this.identityFactory.address, mandatoryFields);
-
-            await mockRegistry.setOwnAddress(contractAddress);
-            await shouldRevert(mockRegistry.requireTokenHasRole(
+            await this.registry.setOwnAddress(contractAddress);
+            await shouldRevert(this.registry.requireTokenHasRole(
                 validRootHash,
                 "0x1",
                 tokenRole.property,
@@ -339,11 +310,8 @@ contract("UserMintableERC721", function (accounts) {
         })
 
         it("Should fail if the role index does not macth ", async function () {
-
-            let mockRegistry = await MockUserMintableERC721.new("ERC-721 Document Anchor", "TDA", this.anchorRegistry.address, this.identityFactory.address, mandatoryFields);
-
-            await mockRegistry.setOwnAddress(contractAddress);
-            await shouldRevert(mockRegistry.requireTokenHasRole(
+            await this.registry.setOwnAddress(contractAddress);
+            await shouldRevert(this.registry.requireTokenHasRole(
                 validRootHash,
                 tokenId,
                 tokenRole.property,
@@ -356,11 +324,8 @@ contract("UserMintableERC721", function (accounts) {
         })
 
         it("Should pass with a valid proof ", async function () {
-
-            let mockRegistry = await MockUserMintableERC721.new("ERC-721 Document Anchor", "TDA", this.anchorRegistry.address, this.identityFactory.address, mandatoryFields);
-
-            await mockRegistry.setOwnAddress(contractAddress);
-            await mockRegistry.requireTokenHasRole(
+            await this.registry.setOwnAddress(contractAddress);
+            await this.registry.requireTokenHasRole(
                 validRootHash,
                 tokenId,
                 tokenRole.property,
@@ -377,13 +342,10 @@ contract("UserMintableERC721", function (accounts) {
 
 
         it("Should fail when the singingRoot is not part of the document ", async function () {
+            await this.registry.setOwnAddress(contractAddress);
+            await this.registry.setIdentity(this.identity.address);
 
-            let mockRegistry = await MockUserMintableERC721.new("ERC-721 Document Anchor", "TDA", this.anchorRegistry.address, this.identityFactory.address, mandatoryFields);
-
-            await mockRegistry.setOwnAddress(contractAddress);
-            await mockRegistry.setIdentity(this.identity.address);
-
-            await shouldRevert(mockRegistry.requireSignedByIdentity(
+            await shouldRevert(this.registry.requireSignedByIdentity(
                 validRootHash,
                 1000,
                 sender.value,
@@ -398,13 +360,10 @@ contract("UserMintableERC721", function (accounts) {
         })
 
         it("Should fail when the singingRoot is not part of the document ", async function () {
+            await this.registry.setOwnAddress(contractAddress);
+            await this.registry.setIdentity(this.identity.address);
 
-            let mockRegistry = await MockUserMintableERC721.new("ERC-721 Document Anchor", "TDA", this.anchorRegistry.address, this.identityFactory.address, mandatoryFields);
-
-            await mockRegistry.setOwnAddress(contractAddress);
-            await mockRegistry.setIdentity(this.identity.address);
-
-            await shouldRevert(mockRegistry.requireSignedByIdentity(
+            await shouldRevert(this.registry.requireSignedByIdentity(
                 validRootHash,
                 1000,
                 sender.value,
@@ -420,13 +379,10 @@ contract("UserMintableERC721", function (accounts) {
 
 
         it("Should fail when signature is not part of the document root ", async function () {
+            await this.registry.setOwnAddress(contractAddress);
+            await this.registry.setIdentity(this.identity.address);
 
-            let mockRegistry = await MockUserMintableERC721.new("ERC-721 Document Anchor", "TDA", this.anchorRegistry.address, this.identityFactory.address, mandatoryFields);
-
-            await mockRegistry.setOwnAddress(contractAddress);
-            await mockRegistry.setIdentity(this.identity.address);
-
-            await shouldRevert(mockRegistry.requireSignedByIdentity(
+            await shouldRevert(this.registry.requireSignedByIdentity(
                 validRootHash,
                 1000,
                 sender.value,
@@ -444,12 +400,9 @@ contract("UserMintableERC721", function (accounts) {
 
 
         it("Should fail when it can not find the identity contract ", async function () {
+            await this.registry.setOwnAddress(contractAddress);
 
-            let mockRegistry = await MockUserMintableERC721.new("ERC-721 Document Anchor", "TDA", this.anchorRegistry.address, this.identityFactory.address, mandatoryFields);
-
-            await mockRegistry.setOwnAddress(contractAddress);
-
-            await shouldRevert(mockRegistry.requireSignedByIdentity(
+            await shouldRevert(this.registry.requireSignedByIdentity(
                 validRootHash,
                 1000,
                 sender.value,
@@ -462,14 +415,11 @@ contract("UserMintableERC721", function (accounts) {
             );
         });
         it("Should fail when the signing key is not present on the identity ", async function () {
-
-            let mockRegistry = await MockUserMintableERC721.new("ERC-721 Document Anchor", "TDA", this.anchorRegistry.address, this.identityFactory.address, mandatoryFields);
             let identity = await Identity.new(accounts[2],[accounts[1]],[P2P_SIGNATURE]);
+            await this.registry.setOwnAddress(contractAddress);
+            await this.registry.setIdentity(identity.address);
 
-            await mockRegistry.setOwnAddress(contractAddress);
-            await mockRegistry.setIdentity(identity.address);
-
-            await shouldRevert(mockRegistry.requireSignedByIdentity(
+            await shouldRevert(this.registry.requireSignedByIdentity(
                 validRootHash,
                 1000,
                 sender.value,
@@ -484,15 +434,12 @@ contract("UserMintableERC721", function (accounts) {
         })
 
         it("Should fail when the anchor is after the key revocation ", async function () {
-
-            let mockRegistry = await MockUserMintableERC721.new("ERC-721 Document Anchor", "TDA", this.anchorRegistry.address, this.identityFactory.address, mandatoryFields);
             let identity = await Identity.new(accounts[0],[publicKey],[P2P_SIGNATURE]);
-
-            await mockRegistry.setOwnAddress(contractAddress);
-            await mockRegistry.setIdentity(identity.address);
+            await this.registry.setOwnAddress(contractAddress);
+            await this.registry.setIdentity(identity.address);
             await identity.revokeKey(publicKey);
 
-            await shouldRevert(mockRegistry.requireSignedByIdentity(
+            await shouldRevert(this.registry.requireSignedByIdentity(
                 validRootHash,
                 999999,
                 sender.value,
@@ -507,13 +454,10 @@ contract("UserMintableERC721", function (accounts) {
         })
 
         it("Should pass with a valid signature and a valid Identity ", async function () {
+            await this.registry.setOwnAddress(contractAddress);
+            await this.registry.setIdentity(this.identity.address);
 
-            let mockRegistry = await MockUserMintableERC721.new("ERC-721 Document Anchor", "TDA", this.anchorRegistry.address, this.identityFactory.address, mandatoryFields);
-
-            await mockRegistry.setOwnAddress(contractAddress);
-            await mockRegistry.setIdentity(this.identity.address);
-
-            await mockRegistry.requireSignedByIdentity(
+            await this.registry.requireSignedByIdentity(
                 validRootHash,
                 1000,
                 sender.value,
@@ -531,19 +475,15 @@ contract("UserMintableERC721", function (accounts) {
     describe("_mintAnchor", async function () {
 
         it("should mint a token if the Merkle proofs validates", async function () {
-            let mockRegistry = await MockUserMintableERC721.new("ERC-721 Document Anchor", "TDA", this.anchorRegistry.address, this.identityFactory.address, mandatoryFields);
-            let tokenURI = "http://test.com";
             await this.anchorRegistry.setAnchorById(
                 documentIdentifier,
                 validRootHash
             );
-            const tokenId = 1;
-            await mockRegistry.mintAnchor(
+            await this.registry.mintAnchor(
                 accounts[2],
                 tokenId,
                 documentIdentifier,
                 validRootHash,
-                tokenURI,
                 [
                     grossAmount.value,
                     currency.value
@@ -557,23 +497,22 @@ contract("UserMintableERC721", function (accounts) {
                     currency.sorted_hashes
                 ]
             )
+
+            let tokenUri = await this.registry.tokenURI(tokenId);
+            assert.equal(tokenUri.toLowerCase(),`${tokenUriBase}${this.registry.address}/${tokenId}`.toLowerCase());
 
         });
 
         it("should fail when minting an existing token", async function () {
-            let mockRegistry = await MockUserMintableERC721.new("ERC-721 Document Anchor", "TDA", this.anchorRegistry.address, this.identityFactory.address, mandatoryFields);
-            let tokenURI = "http://test.com";
             await this.anchorRegistry.setAnchorById(
                 documentIdentifier,
                 validRootHash
             );
-            const tokenId = 1;
-            await mockRegistry.mintAnchor(
+            await this.registry.mintAnchor(
                 accounts[2],
                 tokenId,
                 documentIdentifier,
                 validRootHash,
-                tokenURI,
                 [
                     grossAmount.value,
                     currency.value
@@ -588,12 +527,11 @@ contract("UserMintableERC721", function (accounts) {
                 ]
             )
 
-            await shouldRevert(mockRegistry.mintAnchor(
+            await shouldRevert(this.registry.mintAnchor(
                 accounts[2],
                 tokenId,
                 documentIdentifier,
                 validRootHash,
-                tokenURI,
                 [
                     grossAmount.value,
                     currency.value
@@ -612,23 +550,17 @@ contract("UserMintableERC721", function (accounts) {
 
 
         it("should fail minting a token if the document proofs do not validate", async function () {
-            let mockRegistry = await MockUserMintableERC721.new("ERC-721 Document Anchor", "TDA", this.anchorRegistry.address, this.identityFactory.address, mandatoryFields);
-            let invalidRootHash = "0x1e5e444f4c4c7278f5f31aeb407c3804e7c34f79f72b8438be665f8cee935744"
-            let tokenURI = "http://test.com";
+            let invalidRootHash = "0x1e5e444f4c4c7278f5f31aeb407c3804e7c34f79f72b8438be665f8cee935744";
             await this.anchorRegistry.setAnchorById(
                 documentIdentifier,
                 invalidRootHash
             );
-            const tokenId = 1;
 
-
-            await shouldRevert(mockRegistry.mintAnchor(
+            await shouldRevert(this.registry.mintAnchor(
                 accounts[2],
                 tokenId,
                 documentIdentifier,
                 invalidRootHash,
-                tokenURI
-                ,
                 [
                     grossAmount.value,
                     currency.value
