@@ -34,6 +34,10 @@ contract UserMintableERC721 is Initializable, ERC721, ERC721Enumerable, ERC721Me
   // array of field names that are being proved using the document root and precise-proofs
   bytes[] internal _mandatoryFields;
 
+  // Base for constructing dynamic metadata token URIS
+  // the token uri also contains the registry address. _tokenUriBase + contract address + tokenId
+  // This is used to be able to handle  the metadata for all the NFT based on UserMintableERC721
+  // in one metadata client. http://metadata.centrifuge.io
   string _tokenUriBase;
 
   // Constants for compact properties
@@ -133,6 +137,7 @@ contract UserMintableERC721 is Initializable, ERC721, ERC721Enumerable, ERC721Me
    * @param name string The name of this token
    * @param symbol string The shorthand token identifier
    * @param tokenUriBase string base for constructing token uris. It must end with /
+   * http://metadata.centrifuge.io/invoice-unpaid/
    * @param anchorRegistry address The address of the anchor registry
    * @param identityFactory address The address of the identity factory
    * using document root and precise-proofs.

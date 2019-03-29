@@ -30,7 +30,7 @@ async function deploy(options) {
         initMethod: 'initialize'
     }, options));
 
-    let tokenUriBase = `http://metadata.centrifuge.io/invoice-unpaid/${options.network}/`;
+    let tokenUriBase = process.env.TOKEN_URI_BASE ? `${process.env.TOKEN_URI_BASE}${options.network}/` : `http://metadata.centrifuge.io/invoice-unpaid/${options.network}/`;
 
     const unpaidInvoice = await create(Object.assign({
         contractAlias: 'InvoiceUnpaidNFT',
