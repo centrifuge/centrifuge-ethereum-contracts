@@ -1,25 +1,26 @@
-pragma solidity 0.5.3;
+pragma solidity ^0.5.7;
 pragma experimental ABIEncoderV2;
 
 import "zos-lib/contracts/Initializable.sol";
-import "contracts/lib/MerkleProof.sol";
 import "contracts/erc721/UserMintableERC721.sol";
 import "contracts/Identity.sol";
 
 
-contract PaymentObligation is Initializable, UserMintableERC721 {
+contract InvoiceUnpaidNFT is Initializable, UserMintableERC721 {
 
-  event PaymentObligationMinted(
+  event InvoiceUnpaidMinted(
     address to,
-    uint256 tokenId,
-    string tokenURI
+    uint256 tokenId
   );
 
-  struct PODetails {
+  struct TokenDetails {
     address invoiceSender;
     bytes grossAmount;
     bytes currency;
     bytes dueDate;
+    uint256 anchorId;
+    uint256 nextAnchorId;
+    bytes32 documentRoot;
   }
 
   /** @dev Indexes of the mint method arrays
@@ -38,19 +39,23 @@ contract PaymentObligation is Initializable, UserMintableERC721 {
   uint8 constant internal TOKEN_ROLE_IDX = 11;
 
   // Token details, specific field values
-  mapping(uint256 => PODetails) internal _poDetails;
+  mapping(uint256 => TokenDetails) internal _tokenDetails;
 
   /**
   * @dev Returns the values associated with a token
-  * @param invoiceSender address The identity which created the invoice and minted the nft
-  * @param grossAmount bytes The gross amount of the invoice
-  * @param currency bytes The currency used in the invoice
-  * @param dueDate bytes The Due data of the invoice
-  * @param anchorId uint256 The ID of the document as identified
+  * @param tokenId uint256 the id for the token
+  * @return invoiceSender address The identity which created the invoice and minted the nft
+  * @return grossAmount bytes The gross amount of the invoice
+  * @return currency bytes The currency used in the invoice
+  * @return dueDate bytes The Due data of the invoice
+  * @return anchorId uint256 The ID of the document as identified
   * by the set up anchorRegistry
-  * @param documentRoot bytes32 The root hash of the merkle proof/doc
+  * @return nextAnchorId uint256 The next ID of the document in case of an update
+  * @return documentRoot bytes32 The root hash of the merkle proof/doc
   */
-  function getTokenDetails(uint256 tokenId)
+  function getTokenDetails(
+    uint256 tokenId
+  )
   external
   view
   returns (
@@ -59,27 +64,55 @@ contract PaymentObligation is Initializable, UserMintableERC721 {
     bytes memory currency,
     bytes memory dueDate,
     uint256 anchorId,
+    uint256 nextAnchorId,
     bytes32 documentRoot
   )
   {
     return (
-      _poDetails[tokenId].invoiceSender,
-      _poDetails[tokenId].grossAmount,
-      _poDetails[tokenId].currency,
-      _poDetails[tokenId].dueDate,
+      _tokenDetails[tokenId].invoiceSender,
+      _tokenDetails[tokenId].grossAmount,
+      _tokenDetails[tokenId].currency,
+      _tokenDetails[tokenId].dueDate,
       _tokenDetails[tokenId].anchorId,
-      _tokenDetails[tokenId].rootHash
+      _tokenDetails[tokenId].nextAnchorId,
+      _tokenDetails[tokenId].documentRoot
     );
+  }
+
+  /**
+  * @dev Check if the given token has an anchored next version
+  * @param tokenId uint256 the id for the token
+  * @return bool
+  */
+  function isTokenLatestDocument(
+    uint256 tokenId
+  )
+  external
+  view
+  returns (
+    bool
+  )
+  {
+
+    uint256 nextAnchorId_ = _tokenDetails[tokenId].nextAnchorId;
+    if (nextAnchorId_ == 0x0)
+      return false;
+
+    AnchorRepository ar_ = AnchorRepository(_anchorRegistry);
+    (, bytes32 nextDocumentRoot_, ) = ar_.getAnchorById(nextAnchorId_);
+    return  nextDocumentRoot_ == 0x0;
   }
 
 
   /**
+   * @param tokenUriBase string base for constructing token uris. It must end with /
    * @param anchorRegistry address The address of the anchor registry
    * @param identityFactory address The address of the identity factory
    * that is backing this token's mint method.
    * that ensures that the sender is authorized to mint the token
    */
   function initialize(
+    string memory tokenUriBase,
     address anchorRegistry,
     address identityFactory
   )
@@ -92,8 +125,9 @@ contract PaymentObligation is Initializable, UserMintableERC721 {
     _mandatoryFields.push(INVOICE_DUE_DATE);
 
     UserMintableERC721.initialize(
-      "Centrifuge Payment Obligations",
-      "CENT_PAY_OB",
+      "Centrifuge Unpaid Invoices",
+      "CENT_INVOICE_UNPAID",
+      tokenUriBase,
       anchorRegistry,
       identityFactory
     );
@@ -104,7 +138,6 @@ contract PaymentObligation is Initializable, UserMintableERC721 {
    * and comparing it to the anchor registry's stored hash/doc ID.
    * @param to address The recipient of the minted token
    * @param tokenId uint256 The ID for the minted token
-   * @param tokenURI string The metadata uri
    * @param anchorId uint256 The ID of the document as identified
    * by the set up anchorRegistry.
    * @param properties bytes[] The properties of the leafs that are being proved
@@ -120,7 +153,6 @@ contract PaymentObligation is Initializable, UserMintableERC721 {
   function mint(
     address to,
     uint256 tokenId,
-    string memory tokenURI,
     uint256 anchorId,
     bytes[] memory properties,
     bytes[] memory values,
@@ -136,15 +168,17 @@ contract PaymentObligation is Initializable, UserMintableERC721 {
     );
 
     // Get the document root from AnchorRepository
-    (bytes32 merkleRoot_, uint32 anchoredBlock_) = super._getDocumentRoot(
+    (bytes32 documentRoot_, uint32 anchoredBlock_) = super._getDocumentRoot(
       anchorId
     );
+    bytes32 signingRoot_ = bytes32(Utilities.bytesToUint(values[SIGNING_ROOT_IDX]));
+    uint256 nextAnchorId_ = Utilities.bytesToUint(values[NEXT_VERSION_IDX]);
 
     // Check if status of invoice is unpaid
     require(
       MerkleProof.verifySha256(
         proofs[STATUS_IDX],
-        merkleRoot_,
+        signingRoot_,
         sha256(
           abi.encodePacked(
             INVOICE_STATUS, // compact property for  invoice.status, invoice = 1, status = 2
@@ -156,14 +190,11 @@ contract PaymentObligation is Initializable, UserMintableERC721 {
       "Invoice status is not unpaid"
     );
 
-
-    address sender_ = _getSender();
-
     // Check if sender is a registered identity
     super._requireValidIdentity(
-      merkleRoot_,
+      signingRoot_,
       INVOICE_SENDER,
-        sender_,
+      _getSender(),
       salts[SENDER_IDX],
       proofs[SENDER_IDX]
     );
@@ -171,10 +202,10 @@ contract PaymentObligation is Initializable, UserMintableERC721 {
 
     // Make sure that the sender signed the document
     super._requireSignedByIdentity(
-      merkleRoot_,
+      documentRoot_,
       anchoredBlock_,
-      sender_,
-      bytes32(bytesToUint(values[SIGNING_ROOT_IDX])),
+      _getSender(),
+      signingRoot_,
       proofs[SIGNING_ROOT_IDX],
       values[SIGNATURE_IDX],
       salts[SIGNATURE_IDX],
@@ -183,15 +214,15 @@ contract PaymentObligation is Initializable, UserMintableERC721 {
 
     // Enforce that there is not a newer version of the document on chain
     super._requireIsLatestDocumentVersion(
-      merkleRoot_,
-      bytesToUint(values[NEXT_VERSION_IDX]),
+      signingRoot_,
+      nextAnchorId_,
       salts[NEXT_VERSION_IDX],
       proofs[NEXT_VERSION_IDX]
     );
 
     // Verify that only one token per document/registry is minted
     super._requireOneTokenPerDocument(
-      merkleRoot_,
+      signingRoot_,
       tokenId,
       salts[NFT_UNIQUE_IDX],
       proofs[NFT_UNIQUE_IDX]
@@ -199,7 +230,7 @@ contract PaymentObligation is Initializable, UserMintableERC721 {
 
     // Check if document has a read rule defined
     bytes8 readRoleIndex = super._requireReadRole(
-      merkleRoot_,
+      signingRoot_,
       properties[READ_ROLE_IDX],
       values[READ_ROLE_IDX],
       salts[READ_ROLE_IDX],
@@ -208,7 +239,7 @@ contract PaymentObligation is Initializable, UserMintableERC721 {
 
     // Check if the read rule has a read action
     super._requireReadAction(
-      merkleRoot_,
+      signingRoot_,
       readRoleIndex,
       salts[READ_ROLE_ACTION_IDX],
       proofs[READ_ROLE_ACTION_IDX]
@@ -216,7 +247,7 @@ contract PaymentObligation is Initializable, UserMintableERC721 {
 
     // Check if the token has the read role assigned to it
     super._requireTokenHasRole(
-      merkleRoot_,
+      signingRoot_,
       tokenId,
       properties[TOKEN_ROLE_IDX],
       values[READ_ROLE_IDX], // the value from read role proof
@@ -224,28 +255,31 @@ contract PaymentObligation is Initializable, UserMintableERC721 {
       proofs[TOKEN_ROLE_IDX]
     );
 
+    //mint the token
     super._mintAnchor(
       to,
       tokenId,
       anchorId,
-      merkleRoot_,
-      tokenURI,
+      signingRoot_,
       values,
       salts,
       proofs
     );
 
-    _poDetails[tokenId] = PODetails(
-      sender_,
+    // Store the token details
+    _tokenDetails[tokenId] = TokenDetails(
+      _getSender(),
       values[GROSS_AMOUNT_IDX],
       values[CURRENCY_IDX],
-      values[DUE_DATE_IDX]
+      values[DUE_DATE_IDX],
+      anchorId,
+      nextAnchorId_,
+      documentRoot_
     );
 
-    emit PaymentObligationMinted(
+    emit InvoiceUnpaidMinted(
       to,
-      tokenId,
-      tokenURI
+      tokenId
     );
   }
 

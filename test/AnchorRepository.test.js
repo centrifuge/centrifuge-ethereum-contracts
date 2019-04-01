@@ -12,10 +12,10 @@ const Identity = artifacts.require("Identity");
 async function getBasicTestNeeds(accounts) {
 
     const anchorId = web3.utils.randomHex(32);
-    const elements = [web3.utils.randomHex(32), web3.utils.randomHex(32), web3.utils.randomHex(32), web3.utils.randomHex(32)];
+    const elements = [web3.utils.randomHex(32), web3.utils.randomHex(32)];
     const merkleTree = new MerkleTree(elements, sha256);
     const documentRoot = merkleTree.getHexRoot();
-    const proof = merkleTree.getHexProof(elements[0]);
+    const proof = merkleTree.getHexProof(elements[0])[0];
     const signingRoot = bufferToHex(sha256(elements[0]));
 
     return {
@@ -46,9 +46,26 @@ contract("AnchorRepository", function (accounts) {
             await shouldRevert(this.anchorRepository.preCommit(sha256(anchorId), signingRoot, callOptions));
         });
 
+        it("should not allow a preCommit if the singningRoot is 0x0", async function () {
+
+            const {anchorId, signingRoot, callOptions} = await getBasicTestNeeds(accounts);
+            await shouldRevert(
+                this.anchorRepository.preCommit(sha256(anchorId), "0x0000000000000000000000000000000000000000000000000000000000000000", callOptions),
+                "Signing Root can not be 0x0"
+            );
+        });
+
         it("should allow a commit without an existing precommit", async function () {
             const {anchorId, documentRoot, proof,  callOptions} = await getBasicTestNeeds(accounts);
             await shouldSucceed(this.anchorRepository.commit(anchorId, documentRoot, proof, callOptions));
+        });
+
+        it("should not allow a commit with 0 value for the document root", async function () {
+            const {anchorId, documentRoot, proof,  callOptions} = await getBasicTestNeeds(accounts);
+            await shouldRevert(
+                this.anchorRepository.commit(anchorId, "0x0000000000000000000000000000000000000000000000000000000000000000", proof, callOptions),
+                "Document Root can not be 0x0"
+            );
         });
 
 

@@ -6,16 +6,16 @@ const {keccak, bufferToHex, toBuffer, sha256} = require('ethereumjs-util');
 const IdentityFactory = artifacts.require("MockIdentityFactory");
 const AnchorRepository = artifacts.require("AnchorRepository");
 const Identity = artifacts.require("Identity");
-const MockPaymentObligation = artifacts.require("MockPaymentObligation");
+const MockInvoiceUnpaidNFT = artifacts.require("MockInvoiceUnpaidNFT");
 const proof = require('./erc721/proof');
 
 async function getBasicTestNeeds(accounts) {
 
     const anchorId = web3.utils.randomHex(32);
-    const elements = [web3.utils.randomHex(32), web3.utils.randomHex(32), web3.utils.randomHex(32), web3.utils.randomHex(32)];
+    const elements = [web3.utils.randomHex(32), web3.utils.randomHex(32)];
     const merkleTree = new MerkleTree(elements, sha256);
     const documentRoot = merkleTree.getHexRoot();
-    const proof = merkleTree.getHexProof(elements[0]);
+    const proof = merkleTree.getHexProof(elements[0])[0];
     const signingRoot = bufferToHex(sha256(elements[0]));
 
     return {
@@ -46,8 +46,7 @@ contract("Gas costs", function (accounts) {
         documentIdentifier,
         validRootHash,
         contractAddress,
-        tokenURI,
-        poMintParams,
+        invoiceUnpaidMintParams,
         publicKey
     } = proof;
 
@@ -61,7 +60,7 @@ contract("Gas costs", function (accounts) {
         this.anchorRepository = await AnchorRepository.new();
         this.identity = await Identity.new(accounts[0],[publicKey,addressToBytes32(accounts[1])],[P2P_SIGNATURE,ACTION]);
         this.identityFactory = await IdentityFactory.new();
-        this.poRegistry = await MockPaymentObligation.new(this.anchorRepository.address,this.identityFactory.address);
+        this.invoiceUnpaidRegistry = await MockInvoiceUnpaidNFT.new("somelink",this.anchorRepository.address,this.identityFactory.address);
 
     });
 
@@ -164,7 +163,7 @@ contract("Gas costs", function (accounts) {
         })
     });
 
-    describe("check the gas cost for mint", async function () {
+    describe("check the gas cost for minting an unpaid Invoice", async function () {
         const mintMaxGas = 833819;
         it(`should have mint gas cost less then ${mintMaxGas} `, async function () {
 
@@ -173,21 +172,20 @@ contract("Gas costs", function (accounts) {
                 validRootHash,
                 []
             );
-            await this.poRegistry.setOwnAddress(contractAddress);
-            await this.poRegistry.setSender(sender.value);
-            await this.poRegistry.setIdentity(this.identity.address);
+            await this.invoiceUnpaidRegistry.setOwnAddress(contractAddress);
+            await this.invoiceUnpaidRegistry.setSender(sender.value);
+            await this.invoiceUnpaidRegistry.setIdentity(this.identity.address);
             await this.identityFactory.registerIdentity(sender.value);
 
 
-            const mintGasCost = await this.poRegistry.mint.estimateGas(
+            const mintGasCost = await this.invoiceUnpaidRegistry.mint.estimateGas(
                 accounts[2],
                 tokenId,
-                tokenURI,
                 documentIdentifier,
-                poMintParams.properties,
-                poMintParams.values,
-                poMintParams.salts,
-                poMintParams.proofs
+                invoiceUnpaidMintParams.properties,
+                invoiceUnpaidMintParams.values,
+                invoiceUnpaidMintParams.salts,
+                invoiceUnpaidMintParams.proofs
             );
             console.log('Actual mint gas cost:', mintGasCost);
             assert.isBelow(mintGasCost, mintMaxGas, `Gas Price for mint is to high`)
@@ -203,23 +201,22 @@ contract("Gas costs", function (accounts) {
                 []
             );
 
-            await this.poRegistry.setOwnAddress(contractAddress);
-            await this.poRegistry.setSender(sender.value);
-            await this.poRegistry.setIdentity(this.identity.address);
+            await this.invoiceUnpaidRegistry.setOwnAddress(contractAddress);
+            await this.invoiceUnpaidRegistry.setSender(sender.value);
+            await this.invoiceUnpaidRegistry.setIdentity(this.identity.address);
             await this.identityFactory.registerIdentity(sender.value);
 
-            const data = await this.poRegistry.contract.methods.mint(
+            const data = await this.invoiceUnpaidRegistry.contract.methods.mint(
                 accounts[2],
                 tokenId,
-                tokenURI,
                 documentIdentifier,
-                poMintParams.properties,
-                poMintParams.values,
-                poMintParams.salts,
-                poMintParams.proofs
+                invoiceUnpaidMintParams.properties,
+                invoiceUnpaidMintParams.values,
+                invoiceUnpaidMintParams.salts,
+                invoiceUnpaidMintParams.proofs
             ).encodeABI();
 
-            const mintGasCost = await this.identity.execute.estimateGas(this.poRegistry.address, 0, data, {from: accounts[1]});
+            const mintGasCost = await this.identity.execute.estimateGas(this.invoiceUnpaidRegistry.address, 0, data, {from: accounts[1]});
             console.log('Actual mint gas cost:', mintGasCost);
             assert.isBelow(mintGasCost, mintMaxGas, `Gas Price for mint is to high`)
         })

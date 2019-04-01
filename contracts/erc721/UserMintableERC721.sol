@@ -1,4 +1,4 @@
-pragma solidity 0.5.3;
+pragma solidity ^0.5.7;
 pragma experimental ABIEncoderV2;
 
 import "zos-lib/contracts/Initializable.sol";
@@ -9,6 +9,7 @@ import "contracts/AnchorRepository.sol";
 import "contracts/Identity.sol";
 import "contracts/IdentityFactory.sol";
 import "contracts/lib/MerkleProof.sol";
+import "contracts/lib/Utilities.sol";
 import "openzeppelin-eth/contracts/cryptography/ECDSA.sol";
 
 
@@ -33,14 +34,12 @@ contract UserMintableERC721 is Initializable, ERC721, ERC721Enumerable, ERC721Me
   // array of field names that are being proved using the document root and precise-proofs
   bytes[] internal _mandatoryFields;
 
-  // The ownable anchor
-  struct OwnedAnchor {
-    uint256 anchorId;
-    bytes32 rootHash;
-  }
+  // Base for constructing dynamic metadata token URIS
+  // the token uri also contains the registry address. _tokenUriBase + contract address + tokenId
+  // This is used to be able to handle  the metadata for all the NFT based on UserMintableERC721
+  // in one metadata client. http://metadata.centrifuge.io
+  string _tokenUriBase;
 
-  // Mapping from token details to token ID
-  mapping(uint256 => OwnedAnchor) internal _tokenDetails;
   // Constants for compact properties
   // compact property for "invoice.gross_amount",invoice = 1, gross_amount = 14
   bytes constant internal INVOICE_GROSS_AMOUNT = hex"000100000000000e";
@@ -106,9 +105,39 @@ contract UserMintableERC721 is Initializable, ERC721, ERC721Enumerable, ERC721Me
   }
 
   /**
+   * @dev Returns an URI for a given token ID
+   * the Uri is constructed dynamic based. _tokenUriBase + contract address + tokenId
+   * Throws if the token ID does not exist. May return an empty string.
+   * @param tokenId uint256 ID of the token to query
+   */
+  function tokenURI(
+    uint256 tokenId
+  )
+  external
+  view
+  returns (
+    string memory
+  )
+  {
+    require(_exists(tokenId));
+
+    return string(
+      abi.encodePacked(
+        _tokenUriBase,
+        "0x",
+        Utilities.uintToHexStr(uint256(_getOwnAddress())),
+        "/0x",
+        Utilities.uintToHexStr(tokenId)
+      )
+    );
+  }
+
+  /**
    * @dev Constructor function
    * @param name string The name of this token
    * @param symbol string The shorthand token identifier
+   * @param tokenUriBase string base for constructing token uris. It must end with /
+   * http://metadata.centrifuge.io/invoice-unpaid/
    * @param anchorRegistry address The address of the anchor registry
    * @param identityFactory address The address of the identity factory
    * using document root and precise-proofs.
@@ -117,12 +146,14 @@ contract UserMintableERC721 is Initializable, ERC721, ERC721Enumerable, ERC721Me
   function initialize(
     string memory name,
     string memory symbol,
+    string memory tokenUriBase,
     address anchorRegistry,
     address identityFactory
   )
   public
   initializer
   {
+    _tokenUriBase = tokenUriBase;
     _anchorRegistry = anchorRegistry;
     _identityFactory = identityFactory;
 
@@ -139,7 +170,6 @@ contract UserMintableERC721 is Initializable, ERC721, ERC721Enumerable, ERC721Me
    * @param anchorId bytes32 The ID of the document as identified
    * by the set up anchorRegistry.
    * @param merkleRoot bytes32 The root hash of the merkle proof/doc
-   * @param tokenURI string The metadata uri
    * @param values bytes[] The values of the leafs that are being proved
    * using precise-proofs
    * @param salts bytes32[] The salts for the field that is being proved
@@ -153,7 +183,6 @@ contract UserMintableERC721 is Initializable, ERC721, ERC721Enumerable, ERC721Me
     uint256 tokenId,
     uint256 anchorId,
     bytes32 merkleRoot,
-    string memory tokenURI,
     bytes[] memory values,
     bytes32[] memory salts,
     bytes32[][] memory proofs
@@ -173,8 +202,6 @@ contract UserMintableERC721 is Initializable, ERC721, ERC721Enumerable, ERC721Me
     }
 
     super._mint(to, tokenId);
-    _tokenDetails[tokenId] = OwnedAnchor(anchorId, merkleRoot);
-    _setTokenURI(tokenId, tokenURI);
   }
 
   /**
@@ -379,8 +406,8 @@ contract UserMintableERC721 is Initializable, ERC721, ERC721Enumerable, ERC721Me
   returns (bytes8 readRuleIndex)
   {
     // Extract the indexes
-    bytes8 readRuleIndex_ = extractIndex(property, 8);
-    bytes8 readRuleRoleIndex_ = extractIndex(property, 20);
+    bytes8 readRuleIndex_ = Utilities.extractIndex(property, 8);
+    bytes8 readRuleRoleIndex_ = Utilities.extractIndex(property, 20);
     // Reconstruct the property
     // the property format: read_rules[readRuleIndex].roles[readRuleRoleIndex]
     bytes memory property_ = abi.encodePacked(
@@ -472,7 +499,7 @@ contract UserMintableERC721 is Initializable, ERC721, ERC721Enumerable, ERC721Me
   view
   {
     // Extract the token index
-    bytes8 tokenIndex_ = extractIndex(property, 44);
+    bytes8 tokenIndex_ = Utilities.extractIndex(property, 44);
     // Reconstruct the property
     // the property format: roles[roleIndex].nfts[tokenIndex]
     bytes memory property_ = abi.encodePacked(
@@ -524,10 +551,14 @@ contract UserMintableERC721 is Initializable, ERC721, ERC721Enumerable, ERC721Me
   internal
   view
   {
+    require(
+      singingRootProof.length == 1,
+      "SigningRoot can have only one sibling"
+    );
 
     require(
       MerkleProof.verifySha256(
-        singingRootProof,
+        singingRootProof[0],
         documentRoot,
         signingRoot
       ),
@@ -577,49 +608,5 @@ contract UserMintableERC721 is Initializable, ERC721, ERC721Enumerable, ERC721Me
     }
 
   }
-
-  /**
-   * @dev Parses bytes and extracts a bytes8 value from
-   * the given starting point
-   * @param payload bytes From where to extract the index
-   * @param startFrom uint256 where to start from
-   * @return bytes8 the index found, it defaults to 0x00000000000000
-   */
-  function extractIndex(
-    bytes memory payload,
-    uint256 startFrom
-  )
-  internal
-  pure
-  returns (
-    bytes8 index
-  )
-  {
-    // solium-disable-next-line security/no-inline-assembly
-    assembly {
-      index := mload(add(add(payload, 0x20), startFrom))
-    }
-  }
-
-  /**
-   * @dev Parses bytes and extracts a uint256 value
-   * @param payload bytes From where to extract the index
-   * @return result the converted address
-   */
-  function bytesToUint(
-    bytes memory payload
-  )
-  internal
-  pure
-  returns (
-    uint256 result
-  )
-  {
-    // solium-disable-next-line security/no-inline-assembly
-    assembly {
-      result := mload(add(payload, 0x20))
-    }
-  }
-
 
 }

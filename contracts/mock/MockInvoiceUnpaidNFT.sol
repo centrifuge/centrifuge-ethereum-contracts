@@ -1,23 +1,25 @@
-pragma solidity 0.5.3;
+pragma solidity ^0.5.7;
 pragma experimental ABIEncoderV2;
 
-import "../erc721/PaymentObligation.sol";
+import "../erc721/InvoiceUnpaidNFT.sol";
 import "contracts/Identity.sol";
 
 
-contract MockPaymentObligation is  PaymentObligation {
+contract MockInvoiceUnpaidNFT is  InvoiceUnpaidNFT {
 
   address private _ownAddress = address(this);
   address private _sender;
   address private _identity;
 
   constructor(
+    string memory tokenUriBase,
     address anchorRegistry,
     address identityFactory
   )
   public
   {
-    PaymentObligation.initialize(
+    InvoiceUnpaidNFT.initialize(
+      tokenUriBase,
       anchorRegistry,
       identityFactory
     );

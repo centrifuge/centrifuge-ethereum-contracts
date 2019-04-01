@@ -1,11 +1,11 @@
 {
-  "zosversion": "2",
+  "zosversion": "2.2",
   "name": "@centrifuge/ethereum-contracts",
   "version": "0.5.0",
   "contracts": {
     "IdentityFactory": "IdentityFactory",
     "AnchorRepository": "AnchorRepository",
-    "PaymentObligation": "PaymentObligation"
+    "InvoiceUnpaidNFT": "InvoiceUnpaidNFT"
   },
   "dependencies": {
     "openzeppelin-eth": "^2.1.3"

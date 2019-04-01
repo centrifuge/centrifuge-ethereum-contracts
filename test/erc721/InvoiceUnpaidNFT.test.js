@@ -1,13 +1,13 @@
 const {getEventValue} = require("../tools/contractEvents");
 const shouldRevert = require('../tools/assertTx').shouldRevert;
 const {P2P_IDENTITY, P2P_SIGNATURE, ACTION} = require('../constants');
-const MockPaymentObligation = artifacts.require("MockPaymentObligation");
+const MockInvoiceUnpaidNFT = artifacts.require("MockInvoiceUnpaidNFT");
 const MockAnchorRegistry = artifacts.require("MockAnchorRepository");
 const MockIdentityFactory = artifacts.require("MockIdentityFactory");
 const Identity = artifacts.require("Identity");
 const proof = require("./proof.js");
 
-contract("PaymentObligation", function (accounts) {
+contract("InvoiceUnpaidNFT", function (accounts) {
 
 
     let {
@@ -21,21 +21,18 @@ contract("PaymentObligation", function (accounts) {
         documentIdentifier,
         validRootHash,
         contractAddress,
-        tokenURI,
-        poMintParams
+        invoiceUnpaidMintParams
     } = proof;
 
+    const tokenUriBase = "http://metatada.com/";
 
-    describe("mint", async function () {
-
+    describe("isTokenLatestDocument", async function () {
         beforeEach(async function () {
+
             this.anchorRegistry = await MockAnchorRegistry.new();
             this.identityFactory = await MockIdentityFactory.new();
             this.identity = await Identity.new(accounts[2], [publicKey], [P2P_SIGNATURE]);
-            this.registry = await MockPaymentObligation.new(this.anchorRegistry.address, this.identityFactory.address);
-        });
-
-        it("should mint a token if the Merkle poMintParams.proofs validates", async function () {
+            this.registry = await MockInvoiceUnpaidNFT.new(tokenUriBase, this.anchorRegistry.address, this.identityFactory.address);
 
             await this.anchorRegistry.setAnchorById(
                 documentIdentifier,
@@ -51,19 +48,80 @@ contract("PaymentObligation", function (accounts) {
             await this.registry.mint(
                 accounts[2],
                 tokenId,
-                tokenURI,
                 documentIdentifier,
-                poMintParams.properties,
-                poMintParams.values,
-                poMintParams.salts,
-                poMintParams.proofs
+                invoiceUnpaidMintParams.properties,
+                invoiceUnpaidMintParams.values,
+                invoiceUnpaidMintParams.salts,
+                invoiceUnpaidMintParams.proofs
             )
                 .then(function (tx, logs) {
                     // Check mint event
                     const event = tx.logs[1].args;
                     assert.equal(event.to.toLowerCase(), accounts[2].toLowerCase());
                     assert.equal(web3.utils.toHex(event.tokenId), tokenId);
-                    assert.equal(event.tokenURI, tokenURI);
+                });
+        });
+
+        it("Token should have the latest document version", async function () {
+            let isTokenLatestDocument = await this.registry.isTokenLatestDocument(tokenId);
+            assert.equal(isTokenLatestDocument, true);
+        })
+
+        it("Token should have not the latest document version", async function () {
+            await this.anchorRegistry.setAnchorById(
+                nextVersion.value,
+                validRootHash
+            );
+            let isTokenLatestDocument = await this.registry.isTokenLatestDocument(tokenId);
+
+            let tokenDetails = await this.registry.getTokenDetails(tokenId);
+            assert.equal(isTokenLatestDocument, false);
+        })
+
+        it("Should return false if the token does not exist", async function () {
+            let isTokenLatestDocument = await this.registry.isTokenLatestDocument(documentIdentifier);
+            assert.equal(isTokenLatestDocument, false);
+        })
+
+
+    });
+
+    describe("mint", async function () {
+
+        beforeEach(async function () {
+            this.anchorRegistry = await MockAnchorRegistry.new();
+            this.identityFactory = await MockIdentityFactory.new();
+            this.identity = await Identity.new(accounts[2], [publicKey], [P2P_SIGNATURE]);
+            this.registry = await MockInvoiceUnpaidNFT.new(tokenUriBase, this.anchorRegistry.address, this.identityFactory.address);
+        });
+
+        it("should mint a token if the Merkle invoiceUnpaidMintParams.proofs validates", async function () {
+
+            await this.anchorRegistry.setAnchorById(
+                documentIdentifier,
+                validRootHash
+            );
+
+            await this.identityFactory.registerIdentity(sender.value);
+
+            await this.registry.setOwnAddress(contractAddress);
+            await this.registry.setSender(sender.value);
+            await this.registry.setIdentity(this.identity.address);
+
+            await this.registry.mint(
+                accounts[2],
+                tokenId,
+                documentIdentifier,
+                invoiceUnpaidMintParams.properties,
+                invoiceUnpaidMintParams.values,
+                invoiceUnpaidMintParams.salts,
+                invoiceUnpaidMintParams.proofs
+            )
+                .then(function (tx, logs) {
+                    // Check mint event
+                    const event = tx.logs[1].args;
+                    assert.equal(event.to.toLowerCase(), accounts[2].toLowerCase());
+                    assert.equal(web3.utils.toHex(event.tokenId), tokenId);
                 });
 
             // check token details
@@ -74,12 +132,14 @@ contract("PaymentObligation", function (accounts) {
             assert.equal(tokenDetails[2], currency.value)
             assert.equal(tokenDetails[3], due_date.value)
             assert.equal(web3.utils.toHex(tokenDetails[4]), documentIdentifier)
-            assert.equal(tokenDetails[5], validRootHash);
+            assert.equal(web3.utils.toHex(tokenDetails[5]), nextVersion.value)
+            assert.equal(tokenDetails[6], validRootHash);
 
             //check token uri
             let tokenUri = await this.registry.tokenURI(tokenId);
-            assert.equal(tokenUri, tokenURI)
+            assert.equal(tokenUri.toLowerCase(),`${tokenUriBase}${contractAddress}/${tokenId}`.toLowerCase());
         });
+
 
         it("should not mint a token if the a Merkle proof fails", async function () {
             await this.anchorRegistry.setAnchorById(
@@ -91,12 +151,11 @@ contract("PaymentObligation", function (accounts) {
             await shouldRevert(this.registry.mint(
                 accounts[2],
                 tokenId,
-                tokenURI,
                 documentIdentifier,
-                poMintParams.properties,
-                [...poMintParams.values].reverse(),
-                poMintParams.salts,
-                poMintParams.proofs
+                invoiceUnpaidMintParams.properties,
+                [...invoiceUnpaidMintParams.values].reverse(),
+                invoiceUnpaidMintParams.salts,
+                invoiceUnpaidMintParams.proofs
             ));
         });
 
@@ -121,14 +180,14 @@ contract("PaymentObligation", function (accounts) {
                 this.registry.mint(
                     accounts[2],
                     tokenId,
-                    tokenURI,
                     documentIdentifier,
-                    poMintParams.properties,
-                    poMintParams.values,
-                    poMintParams.salts,
-                    poMintParams.proofs
+                    invoiceUnpaidMintParams.properties,
+                    invoiceUnpaidMintParams.values,
+                    invoiceUnpaidMintParams.salts,
+                    invoiceUnpaidMintParams.proofs
                 ),
-                "Document signed with a revoked key");
+                "Document signed with a revoked key"
+            );
         });
 
         it("should fail if the identity key check fails", async function () {
@@ -146,12 +205,11 @@ contract("PaymentObligation", function (accounts) {
             await shouldRevert(this.registry.mint(
                 accounts[2],
                 tokenId,
-                tokenURI,
                 documentIdentifier,
-                poMintParams.properties,
-                poMintParams.values,
-                poMintParams.salts,
-                poMintParams.proofs
+                invoiceUnpaidMintParams.properties,
+                invoiceUnpaidMintParams.values,
+                invoiceUnpaidMintParams.salts,
+                invoiceUnpaidMintParams.proofs
             ));
         });
 
@@ -165,12 +223,11 @@ contract("PaymentObligation", function (accounts) {
             await shouldRevert(this.registry.mint(
                 accounts[2],
                 tokenId,
-                tokenURI,
                 documentIdentifier,
-                poMintParams.properties,
-                [...poMintParams.values].reverse(),
-                poMintParams.salts,
-                poMintParams.proofs
+                invoiceUnpaidMintParams.properties,
+                [...invoiceUnpaidMintParams.values].reverse(),
+                invoiceUnpaidMintParams.salts,
+                invoiceUnpaidMintParams.proofs
             ));
         });
 
@@ -190,24 +247,22 @@ contract("PaymentObligation", function (accounts) {
             await this.registry.mint(
                 accounts[2],
                 tokenId,
-                tokenURI,
                 documentIdentifier,
-                poMintParams.properties,
-                poMintParams.values,
-                poMintParams.salts,
-                poMintParams.proofs
+                invoiceUnpaidMintParams.properties,
+                invoiceUnpaidMintParams.values,
+                invoiceUnpaidMintParams.salts,
+                invoiceUnpaidMintParams.proofs
             );
 
             await shouldRevert(
                 this.registry.mint(
                     accounts[2],
                     tokenId,
-                    tokenURI,
                     documentIdentifier,
-                    poMintParams.properties,
-                    poMintParams.values,
-                    poMintParams.salts,
-                    poMintParams.proofs
+                    invoiceUnpaidMintParams.properties,
+                    invoiceUnpaidMintParams.values,
+                    invoiceUnpaidMintParams.salts,
+                    invoiceUnpaidMintParams.proofs
                 ),
                 "Token exists"
             );
@@ -222,7 +277,7 @@ contract("PaymentObligation", function (accounts) {
             );
 
 
-            let replacedStatus = [...poMintParams.salts];
+            let replacedStatus = [...invoiceUnpaidMintParams.salts];
             replacedStatus.splice(4, 1, nextVersion.salt);// replace status salt with next version
 
 
@@ -236,12 +291,11 @@ contract("PaymentObligation", function (accounts) {
                 this.registry.mint(
                     accounts[2],
                     tokenId,
-                    tokenURI,
                     documentIdentifier,
-                    poMintParams.properties,
-                    poMintParams.values,
+                    invoiceUnpaidMintParams.properties,
+                    invoiceUnpaidMintParams.values,
                     replacedStatus,
-                    poMintParams.proofs
+                    invoiceUnpaidMintParams.proofs
                 ),
                 "Invoice status is not unpaid"
             );
