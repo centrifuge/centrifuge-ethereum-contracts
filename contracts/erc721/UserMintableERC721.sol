@@ -286,7 +286,7 @@ contract UserMintableERC721 is Initializable, ERC721, ERC721Enumerable, ERC721Me
     require(
       MerkleProof.verifySha256(
         proof, 
-          signingRoot,
+        signingRoot,
         sha256(
           abi.encodePacked(
             property,
@@ -336,7 +336,7 @@ contract UserMintableERC721 is Initializable, ERC721, ERC721Enumerable, ERC721Me
     require(
       MerkleProof.verifySha256(
         proof,
-          signingRoot,
+        signingRoot,
         sha256(
           abi.encodePacked(
             NEXT_VERSION,
@@ -376,7 +376,7 @@ contract UserMintableERC721 is Initializable, ERC721, ERC721Enumerable, ERC721Me
     require(
       MerkleProof.verifySha256(
         proof,
-          signingRoot,
+        signingRoot,
         sha256(abi.encodePacked(property_, tokenId, salt))
       ),
       "Token uniqueness proof is not valid"
@@ -420,7 +420,7 @@ contract UserMintableERC721 is Initializable, ERC721, ERC721Enumerable, ERC721Me
     require(
       MerkleProof.verifySha256(
         proof,
-          signingRoot,
+        signingRoot,
         sha256(
           abi.encodePacked(
             property_,
@@ -463,7 +463,7 @@ contract UserMintableERC721 is Initializable, ERC721, ERC721Enumerable, ERC721Me
     require(
       MerkleProof.verifySha256(
         proof,
-          signingRoot,
+        signingRoot,
         sha256(
           abi.encodePacked(
             property_,
@@ -517,7 +517,7 @@ contract UserMintableERC721 is Initializable, ERC721, ERC721Enumerable, ERC721Me
     require(
       MerkleProof.verifySha256(
         proof,
-          signingRoot,
+        signingRoot,
         sha256(abi.encodePacked(property_, value_, salt))
       ),
       "Token Role not valid"
