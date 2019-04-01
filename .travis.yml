@@ -16,7 +16,7 @@ jobs:
     - npm run start-ganache &
     - npm run test
   - stage: Deploy and publish
-    if: "(branch = develop)"
+    if: "(branch = ci-flow)"
     script:
     - echo "//registry.npmjs.org/:_authToken=\${NPM_TOKEN}" >> $HOME/.npmrc 2> /dev/null
     - node ./scripts/publish.js  --to-tag canary --prerelease --networks rinkeby,kovan --from-tag canary
