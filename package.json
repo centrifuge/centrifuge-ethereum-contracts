@@ -18,7 +18,7 @@
     "lint:sol:fix": "solium -d contracts/ --fix",
     "test": "npm run compile && NODE_ENV=test truffle test",
     "start-ganache": "ganache-cli  --networkId 99999 -l 8000000 -p 8545 -m \"tumble gas embody bright agree pony smoke laptop index sight shallow hungry\"",
-    "migrate": "truffle migrate --compile-all --reset"
+    "migrate": "truffle migrate --compile-all "
   },
   "nodemonConfig": {
     "ignore": [
@@ -35,13 +35,17 @@
     "openzeppelin-eth": "2.1.3"
   },
   "devDependencies": {
+    "compare-versions": "^3.4.0",
     "ethereumjs-util": "5.2.0",
     "ethereumjs-wallet": "0.6.2",
+    "fs-extra": "^7.0.1",
     "ganache-cli": "6.1.8",
     "husky": "1.0.0-rc.15",
+    "semver": "^6.0.0",
     "solium": "1.2.2",
     "truffle": "^5.0.6",
     "truffle-hdwallet-provider": "1.0.2",
+    "yargs": "^13.2.2",
     "zos": "^2.2.2",
     "zos-lib": "^2.2.2"
   }
