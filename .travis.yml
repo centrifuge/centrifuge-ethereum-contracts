@@ -16,12 +16,12 @@ jobs:
     - npm run start-ganache &
     - npm run test
   - stage: Deploy and publish canary release
-    if: "(branch = ci-flow)"
+    if: "(NOT type IN (pull_request)) AND (branch = develop)"
     script:
       - echo "//registry.npmjs.org/:_authToken=\${NPM_TOKEN}" >> $HOME/.npmrc 2> /dev/null
       - node ./scripts/publish.js --from-tag canary --to-tag canary --prerelease --networks rinkeby,kovan
   - stage: Deploy and publish next release
-    if: "(branch = next)"
+    if: "(NOT type IN (pull_request)) AND (branch = next)"
     script:
       - git config --global user.name "${GH_NAME}"
       - git config --global user.email "${GH_EMAIL}"
