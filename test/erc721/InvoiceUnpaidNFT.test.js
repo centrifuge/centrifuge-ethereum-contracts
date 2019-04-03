@@ -59,6 +59,7 @@ contract("InvoiceUnpaidNFT", function (accounts) {
                     const event = tx.logs[1].args;
                     assert.equal(event.to.toLowerCase(), accounts[2].toLowerCase());
                     assert.equal(web3.utils.toHex(event.tokenId), tokenId);
+                    assert.equal(event.tokenIndex.toNumber(), 0);
                 });
         });
 
@@ -82,6 +83,69 @@ contract("InvoiceUnpaidNFT", function (accounts) {
             let isTokenLatestDocument = await this.registry.isTokenLatestDocument(documentIdentifier);
             assert.equal(isTokenLatestDocument, false);
         })
+
+
+    });
+
+    describe("InvoiceUnpaidMinted", async function () {
+
+        beforeEach(async function () {
+            this.anchorRegistry = await MockAnchorRegistry.new();
+            this.identityFactory = await MockIdentityFactory.new();
+            this.identity = await Identity.new(accounts[2], [publicKey], [P2P_SIGNATURE]);
+            this.registry = await MockInvoiceUnpaidNFT.new(tokenUriBase, this.anchorRegistry.address, this.identityFactory.address);
+        });
+
+        it("Should dispatch the right event", async function () {
+
+            await this.anchorRegistry.setAnchorById(
+                documentIdentifier,
+                validRootHash
+            );
+
+            await this.identityFactory.registerIdentity(sender.value);
+
+            await this.registry.setOwnAddress(contractAddress);
+            await this.registry.setSender(sender.value);
+            await this.registry.setIdentity(this.identity.address);
+
+            // add tokens
+            const firstId = 10001;
+            await this.registry.superMint(
+                accounts[2],
+                firstId,
+            )
+
+
+            // add tokens
+            const secondId = 10002;
+            await this.registry.superMint(
+                accounts[2],
+                secondId,
+            )
+
+            await this.registry.mint(
+                accounts[2],
+                tokenId,
+                documentIdentifier,
+                invoiceUnpaidMintParams.properties,
+                invoiceUnpaidMintParams.values,
+                invoiceUnpaidMintParams.salts,
+                invoiceUnpaidMintParams.proofs
+            )
+                .then(function (tx, logs) {
+                    // Check mint event
+                    const event = tx.logs[1].args;
+                    assert.equal(event.to.toLowerCase(), accounts[2].toLowerCase());
+                    assert.equal(web3.utils.toHex(event.tokenId), tokenId);
+                    assert.equal(event.tokenIndex.toNumber(), 2);
+                });
+
+
+            const totalSupply = await this.registry.totalSupply()
+            assert.equal(totalSupply.toNumber(), 3);
+
+        });
 
 
     });
@@ -122,6 +186,7 @@ contract("InvoiceUnpaidNFT", function (accounts) {
                     const event = tx.logs[1].args;
                     assert.equal(event.to.toLowerCase(), accounts[2].toLowerCase());
                     assert.equal(web3.utils.toHex(event.tokenId), tokenId);
+                    assert.equal(event.tokenIndex.toNumber(), 0);
                 });
 
             // check token details
@@ -137,7 +202,7 @@ contract("InvoiceUnpaidNFT", function (accounts) {
 
             //check token uri
             let tokenUri = await this.registry.tokenURI(tokenId);
-            assert.equal(tokenUri.toLowerCase(),`${tokenUriBase}${contractAddress}/${tokenId}`.toLowerCase());
+            assert.equal(tokenUri.toLowerCase(), `${tokenUriBase}${contractAddress}/${tokenId}`.toLowerCase());
         });
 
 

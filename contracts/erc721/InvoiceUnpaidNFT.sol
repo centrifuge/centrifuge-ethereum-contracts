@@ -10,7 +10,8 @@ contract InvoiceUnpaidNFT is Initializable, UserMintableERC721 {
 
   event InvoiceUnpaidMinted(
     address to,
-    uint256 tokenId
+    uint256 tokenId,
+    uint256 tokenIndex
   );
 
   struct TokenDetails {
@@ -277,9 +278,12 @@ contract InvoiceUnpaidNFT is Initializable, UserMintableERC721 {
       documentRoot_
     );
 
+    uint tokenIndex = totalSupply() - 1;
+
     emit InvoiceUnpaidMinted(
       to,
-      tokenId
+      tokenId,
+      tokenIndex
     );
   }
 
