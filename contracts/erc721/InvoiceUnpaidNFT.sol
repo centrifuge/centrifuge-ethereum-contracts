@@ -278,12 +278,10 @@ contract InvoiceUnpaidNFT is Initializable, UserMintableERC721 {
       documentRoot_
     );
 
-    uint tokenIndex = totalSupply() - 1;
-
     emit InvoiceUnpaidMinted(
       to,
       tokenId,
-      tokenIndex
+      currentIndexOfToken(tokenId)
     );
   }
 
