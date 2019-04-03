@@ -4,13 +4,14 @@ pragma experimental ABIEncoderV2;
 import "zos-lib/contracts/Initializable.sol";
 import "openzeppelin-eth/contracts/token/ERC721/ERC721Metadata.sol";
 import "openzeppelin-eth/contracts/token/ERC721/ERC721.sol";
-import "openzeppelin-eth/contracts/token/ERC721/ERC721Enumerable.sol";
+import "contracts/erc721/ERC721Enumerable.sol";
 import "contracts/AnchorRepository.sol";
 import "contracts/Identity.sol";
 import "contracts/IdentityFactory.sol";
 import "contracts/lib/MerkleProof.sol";
 import "contracts/lib/Utilities.sol";
 import "openzeppelin-eth/contracts/cryptography/ECDSA.sol";
+
 
 
 /**
@@ -285,7 +286,7 @@ contract UserMintableERC721 is Initializable, ERC721, ERC721Enumerable, ERC721Me
   {
     require(
       MerkleProof.verifySha256(
-        proof, 
+        proof,
         signingRoot,
         sha256(
           abi.encodePacked(
