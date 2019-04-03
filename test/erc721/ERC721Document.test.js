@@ -499,7 +499,37 @@ contract("UserMintableERC721", function (accounts) {
             )
 
             let tokenUri = await this.registry.tokenURI(tokenId);
+            // Validate the tokenURi
             assert.equal(tokenUri.toLowerCase(),`${tokenUriBase}${this.registry.address}/${tokenId}`.toLowerCase());
+            const firstTokenIndex = await this.registry.currentIndexOfToken(tokenId);
+
+            // Mint a second nft
+            const newtokenId = 999999;
+            await this.registry.mintAnchor(
+                accounts[2],
+                newtokenId,
+                documentIdentifier,
+                validRootHash,
+                [
+                    grossAmount.value,
+                    currency.value
+                ],
+                [
+                    grossAmount.salt,
+                    currency.salt
+                ],
+                [
+                    grossAmount.sorted_hashes,
+                    currency.sorted_hashes
+                ]
+            )
+
+            const secondTokenIndex = await this.registry.currentIndexOfToken(newtokenId);
+            const totalSupply = await this.registry.totalSupply();
+
+            assert.equal(firstTokenIndex.toNumber(),0);
+            assert.equal(secondTokenIndex.toNumber(),1);
+            assert.equal(totalSupply.toNumber(),2);
 
         });
 

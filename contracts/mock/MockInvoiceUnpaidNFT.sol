@@ -67,5 +67,18 @@ contract MockInvoiceUnpaidNFT is  InvoiceUnpaidNFT {
     return Identity(_identity);
   }
 
+  function superMint(
+    address to,
+    uint256 tokenId
+  )
+  public
+  {
+    super._mint(to, tokenId);
+  }
+
+
+
+
+
 }
 

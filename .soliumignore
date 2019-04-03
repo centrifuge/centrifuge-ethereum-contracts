@@ -1,2 +1,3 @@
 node_modules
 contracts/Migrations.sol
+contracts/erc721/ERC721Enumerable.sol
