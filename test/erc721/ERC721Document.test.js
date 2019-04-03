@@ -527,11 +527,9 @@ contract("UserMintableERC721", function (accounts) {
             const secondTokenIndex = await this.registry.currentIndexOfToken(newtokenId);
             const totalSupply = await this.registry.totalSupply();
 
-            console.log(firstTokenIndex, secondTokenIndex, totalSupply);
-
-            assert.eq(firstTokenIndex.toNumber(),0);
-            assert.eq(secondTokenIndex.toNumber(),1);
-            assert.eq(totalSupply.toNumber(),2);
+            assert.equal(firstTokenIndex.toNumber(),0);
+            assert.equal(secondTokenIndex.toNumber(),1);
+            assert.equal(totalSupply.toNumber(),2);
 
         });
 
