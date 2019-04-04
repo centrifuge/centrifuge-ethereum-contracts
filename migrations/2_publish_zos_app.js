@@ -9,6 +9,9 @@ async function deploy(options) {
 }
 
 module.exports = function (deployer, networkName, accounts) {
+    // Do dot run migrations in tests because we deploy the contracts we need in tests
+    // Truffle will fail when you use addresses from other migrations
+    if(process.env.NODE_ENV === "test") return;
     deployer.then(async () => {
         const {network, txParams} = await ConfigVariablesInitializer.initNetworkConfiguration({
             network: networkName,
