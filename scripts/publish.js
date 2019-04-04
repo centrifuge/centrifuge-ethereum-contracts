@@ -35,9 +35,9 @@ async function run() {
     let packageRoot = null;
     const projectRoot = path.join(__dirname, '..');
     const currentPackage = require(path.join(projectRoot, 'package.json'));
-    let isPreRelease = argv.prerelease;
-    let version = currentPackage.version;
+    let preReleaseType = argv.prerelease ? 'prerelease' : (argv.premajor ? 'premajor' : null);
 
+    let version = preReleaseType ? semver.inc(currentPackage.version, preReleaseType, argv.toTag) : currentPackage.version;
 
     // Networks must a comma separated list
     if (!argv.networks || !argv.networks.split) {
@@ -69,17 +69,13 @@ async function run() {
         packageRoot = path.join(projectRoot, 'node_modules', '@centrifuge/ethereum-contracts');
 
         // set prerelease version
-        if (isPreRelease) {
+        if (preReleaseType) {
             installedPackage = require(path.join(packageRoot, 'package.json'));
 
             //figure out the next version of the package
-            if (semver.gt(currentPackage.version, semver.coerce(installedPackage.version))) {
-                version = semver.inc(currentPackage.version, 'prerelease', argv.toTag);
-            } else {
-                version = semver.inc(installedPackage.version, 'prerelease', argv.toTag);
+            if (semver.lte(currentPackage.version, semver.coerce(installedPackage.version))) {
+                version = semver.inc(installedPackage.version, preReleaseType, argv.toTag);
             }
-            //save new version
-            await execute(` npm version ${version} --git-tag-version false`)
         }
 
         //copy contract artifacts
@@ -95,6 +91,8 @@ async function run() {
         });
     }
 
+    //update npm version
+    await execute(` npm version ${version} --git-tag-version false --allow-same-version`)
 
     for (let network of networks) {
         console.log(`Migrate to ${network}`);
