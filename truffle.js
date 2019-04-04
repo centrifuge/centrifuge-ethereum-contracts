@@ -36,21 +36,18 @@ module.exports = {
             port: 9545,
             network_id: "4", // rinkeby network ID
             from: account, // 0x44a0579754d6c94e7bb2c26bfa7394311cc50ccb" default address to use for any transaction Truffle makes during migrations
-            gas: 4712388 // Gas limit used for deploys
         },
         kovan: {
             provider: new HDWalletProvider(privateKey, endpoint.replace('rinkeby', 'kovan')),
             port: 8545,
             network_id: "42", // kovan network ID
             from: account,
-            gas: 4712388
         },
         ropsten: {
             provider: new HDWalletProvider(privateKey, endpoint.replace('rinkeby', 'ropsten')),
             port: 8545,
             network_id: "3", // ropsten network ID
             from: account,
-            gas: 4712388
         }
     }
 };
