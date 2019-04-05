@@ -1,0 +1,613 @@
+{
+  "contracts": {
+    "IdentityFactory": {
+      "address": "0x2a61b99f888b4D37DE3cA9e7aaC3D6Ad86E76391",
+      "constructorCode": "608060405234801561001057600080fd5b506115dc806100206000396000f3fe",
+      "bodyBytecodeHash": "a58bec9aaefbd7664395bc1b152127976798ef7eee6f75eac771d229bf9e2639",
+      "localBytecodeHash": "416899128bd9ea146550b3886809b3380cc0c271efd1f27e2eae028a3099e459",
+      "deployedBytecodeHash": "416899128bd9ea146550b3886809b3380cc0c271efd1f27e2eae028a3099e459",
+      "types": {
+        "t_bool": {
+          "id": "t_bool",
+          "kind": "elementary",
+          "label": "bool"
+        },
+        "t_uint256": {
+          "id": "t_uint256",
+          "kind": "elementary",
+          "label": "uint256"
+        },
+        "t_array:50<t_uint256>": {
+          "id": "t_array:50<t_uint256>",
+          "valueType": "t_uint256",
+          "length": "50",
+          "kind": "array",
+          "label": "uint256[50]"
+        },
+        "t_mapping<t_bool>": {
+          "id": "t_mapping<t_bool>",
+          "valueType": "t_bool",
+          "label": "mapping(key => bool)",
+          "kind": "mapping"
+        }
+      },
+      "storage": [
+        {
+          "contract": "Initializable",
+          "path": "zos-lib/contracts/Initializable.sol",
+          "label": "initialized",
+          "astId": 6996,
+          "type": "t_bool",
+          "src": "757:24:35"
+        },
+        {
+          "contract": "Initializable",
+          "path": "zos-lib/contracts/Initializable.sol",
+          "label": "initializing",
+          "astId": 6998,
+          "type": "t_bool",
+          "src": "876:25:35"
+        },
+        {
+          "contract": "Initializable",
+          "path": "zos-lib/contracts/Initializable.sol",
+          "label": "______gap",
+          "astId": 7047,
+          "type": "t_array:50<t_uint256>",
+          "src": "1891:29:35"
+        },
+        {
+          "contract": "IdentityFactory",
+          "path": "contracts/IdentityFactory.sol",
+          "label": "_identities",
+          "astId": 3853,
+          "type": "t_mapping<t_bool>",
+          "src": "516:45:18"
+        }
+      ],
+      "warnings": {
+        "hasConstructor": false,
+        "hasSelfDestruct": false,
+        "hasDelegateCall": false,
+        "hasInitialValuesInDeclarations": false,
+        "uninitializedBaseContracts": []
+      }
+    },
+    "AnchorRepository": {
+      "address": "0x9053BA1e3048264Dc230F1138eD6a270CAF365B1",
+      "constructorCode": "608060405234801561001057600080fd5b506107f5806100206000396000f3fe",
+      "bodyBytecodeHash": "d4e7dff449750f49cdd4b22598cfb707eaef0ad6d183b04ac67aee38d5122788",
+      "localBytecodeHash": "25ff6fec20647a54b09ffc9462fc85f825cd67cfe7129b55be5f1fadbb8630a8",
+      "deployedBytecodeHash": "25ff6fec20647a54b09ffc9462fc85f825cd67cfe7129b55be5f1fadbb8630a8",
+      "types": {
+        "t_bool": {
+          "id": "t_bool",
+          "kind": "elementary",
+          "label": "bool"
+        },
+        "t_uint256": {
+          "id": "t_uint256",
+          "kind": "elementary",
+          "label": "uint256"
+        },
+        "t_array:50<t_uint256>": {
+          "id": "t_array:50<t_uint256>",
+          "valueType": "t_uint256",
+          "length": "50",
+          "kind": "array",
+          "label": "uint256[50]"
+        },
+        "t_struct<AnchorRepository.PreAnchor>": {
+          "id": "t_struct<AnchorRepository.PreAnchor>",
+          "kind": "struct",
+          "label": "AnchorRepository.PreAnchor",
+          "members": [
+            {
+              "label": "signingRoot",
+              "astId": 3473,
+              "type": "t_bytes32",
+              "src": "466:19:16"
+            },
+            {
+              "label": "identity",
+              "astId": 3475,
+              "type": "t_address",
+              "src": "491:16:16"
+            },
+            {
+              "label": "expirationBlock",
+              "astId": 3477,
+              "type": "t_uint32",
+              "src": "513:22:16"
+            }
+          ]
+        },
+        "t_bytes32": {
+          "id": "t_bytes32",
+          "kind": "elementary",
+          "label": "bytes32"
+        },
+        "t_address": {
+          "id": "t_address",
+          "kind": "elementary",
+          "label": "address"
+        },
+        "t_uint32": {
+          "id": "t_uint32",
+          "kind": "elementary",
+          "label": "uint32"
+        },
+        "t_mapping<t_struct<AnchorRepository.PreAnchor>>": {
+          "id": "t_mapping<t_struct<AnchorRepository.PreAnchor>>",
+          "valueType": "t_struct<AnchorRepository.PreAnchor>",
+          "label": "mapping(key => AnchorRepository.PreAnchor)",
+          "kind": "mapping"
+        },
+        "t_struct<AnchorRepository.Anchor>": {
+          "id": "t_struct<AnchorRepository.Anchor>",
+          "kind": "struct",
+          "label": "AnchorRepository.Anchor",
+          "members": [
+            {
+              "label": "docRoot",
+              "astId": 3480,
+              "type": "t_bytes32",
+              "src": "564:15:16"
+            },
+            {
+              "label": "anchoredBlock",
+              "astId": 3482,
+              "type": "t_uint32",
+              "src": "585:20:16"
+            }
+          ]
+        },
+        "t_mapping<t_struct<AnchorRepository.Anchor>>": {
+          "id": "t_mapping<t_struct<AnchorRepository.Anchor>>",
+          "valueType": "t_struct<AnchorRepository.Anchor>",
+          "label": "mapping(key => AnchorRepository.Anchor)",
+          "kind": "mapping"
+        }
+      },
+      "storage": [
+        {
+          "contract": "Initializable",
+          "path": "zos-lib/contracts/Initializable.sol",
+          "label": "initialized",
+          "astId": 6996,
+          "type": "t_bool",
+          "src": "757:24:35"
+        },
+        {
+          "contract": "Initializable",
+          "path": "zos-lib/contracts/Initializable.sol",
+          "label": "initializing",
+          "astId": 6998,
+          "type": "t_bool",
+          "src": "876:25:35"
+        },
+        {
+          "contract": "Initializable",
+          "path": "zos-lib/contracts/Initializable.sol",
+          "label": "______gap",
+          "astId": 7047,
+          "type": "t_array:50<t_uint256>",
+          "src": "1891:29:35"
+        },
+        {
+          "contract": "AnchorRepository",
+          "path": "contracts/AnchorRepository.sol",
+          "label": "_preCommits",
+          "astId": 3487,
+          "type": "t_mapping<t_struct<AnchorRepository.PreAnchor>>",
+          "src": "636:50:16"
+        },
+        {
+          "contract": "AnchorRepository",
+          "path": "contracts/AnchorRepository.sol",
+          "label": "_commits",
+          "astId": 3491,
+          "type": "t_mapping<t_struct<AnchorRepository.Anchor>>",
+          "src": "710:44:16"
+        }
+      ],
+      "warnings": {
+        "hasConstructor": false,
+        "hasSelfDestruct": false,
+        "hasDelegateCall": false,
+        "hasInitialValuesInDeclarations": false,
+        "uninitializedBaseContracts": []
+      }
+    },
+    "InvoiceUnpaidNFT": {
+      "address": "0xDFd8514bAF8039E1420783923D9227747501fB52",
+      "constructorCode": "608060405234801561001057600080fd5b506146e6806100206000396000f3fe",
+      "bodyBytecodeHash": "db5ba201e4d7508841fb463d0d7c03728114a39994aaa85c4a247642e4b284fc",
+      "localBytecodeHash": "afa0cca415dad861fc521f27e0fb2e53bffac344cc76f21bd34b5b06b262f4b2",
+      "deployedBytecodeHash": "afa0cca415dad861fc521f27e0fb2e53bffac344cc76f21bd34b5b06b262f4b2",
+      "types": {
+        "t_bool": {
+          "id": "t_bool",
+          "kind": "elementary",
+          "label": "bool"
+        },
+        "t_uint256": {
+          "id": "t_uint256",
+          "kind": "elementary",
+          "label": "uint256"
+        },
+        "t_array:50<t_uint256>": {
+          "id": "t_array:50<t_uint256>",
+          "valueType": "t_uint256",
+          "length": "50",
+          "kind": "array",
+          "label": "uint256[50]"
+        },
+        "t_mapping<t_bool>": {
+          "id": "t_mapping<t_bool>",
+          "valueType": "t_bool",
+          "label": "mapping(key => bool)",
+          "kind": "mapping"
+        },
+        "t_address": {
+          "id": "t_address",
+          "kind": "elementary",
+          "label": "address"
+        },
+        "t_mapping<t_address>": {
+          "id": "t_mapping<t_address>",
+          "valueType": "t_address",
+          "label": "mapping(key => address)",
+          "kind": "mapping"
+        },
+        "t_mapping<t_uint256>": {
+          "id": "t_mapping<t_uint256>",
+          "valueType": "t_uint256",
+          "label": "mapping(key => uint256)",
+          "kind": "mapping"
+        },
+        "t_array:dyn<t_uint256>": {
+          "id": "t_array:dyn<t_uint256>",
+          "valueType": "t_uint256",
+          "length": "dyn",
+          "kind": "array",
+          "label": "uint256[]"
+        },
+        "t_mapping<t_array:dyn<t_uint256>>": {
+          "id": "t_mapping<t_array:dyn<t_uint256>>",
+          "valueType": "t_array:dyn<t_uint256>",
+          "label": "mapping(key => uint256[])",
+          "kind": "mapping"
+        },
+        "t_string": {
+          "id": "t_string",
+          "kind": "elementary",
+          "label": "string"
+        },
+        "t_mapping<t_string>": {
+          "id": "t_mapping<t_string>",
+          "valueType": "t_string",
+          "label": "mapping(key => string)",
+          "kind": "mapping"
+        },
+        "t_bytes": {
+          "id": "t_bytes",
+          "kind": "elementary",
+          "label": "bytes"
+        },
+        "t_array:dyn<t_bytes>": {
+          "id": "t_array:dyn<t_bytes>",
+          "valueType": "t_bytes",
+          "length": "dyn",
+          "kind": "array",
+          "label": "bytes[]"
+        },
+        "t_struct<InvoiceUnpaidNFT.TokenDetails>": {
+          "id": "t_struct<InvoiceUnpaidNFT.TokenDetails>",
+          "kind": "struct",
+          "label": "InvoiceUnpaidNFT.TokenDetails",
+          "members": [
+            {
+              "label": "invoiceSender",
+              "astId": 1358,
+              "type": "t_address",
+              "src": "379:21:6"
+            },
+            {
+              "label": "grossAmount",
+              "astId": 1360,
+              "type": "t_bytes",
+              "src": "406:17:6"
+            },
+            {
+              "label": "currency",
+              "astId": 1362,
+              "type": "t_bytes",
+              "src": "429:14:6"
+            },
+            {
+              "label": "dueDate",
+              "astId": 1364,
+              "type": "t_bytes",
+              "src": "449:13:6"
+            },
+            {
+              "label": "anchorId",
+              "astId": 1366,
+              "type": "t_uint256",
+              "src": "468:16:6"
+            },
+            {
+              "label": "nextAnchorId",
+              "astId": 1368,
+              "type": "t_uint256",
+              "src": "490:20:6"
+            },
+            {
+              "label": "documentRoot",
+              "astId": 1370,
+              "type": "t_bytes32",
+              "src": "516:20:6"
+            }
+          ]
+        },
+        "t_bytes32": {
+          "id": "t_bytes32",
+          "kind": "elementary",
+          "label": "bytes32"
+        },
+        "t_mapping<t_struct<InvoiceUnpaidNFT.TokenDetails>>": {
+          "id": "t_mapping<t_struct<InvoiceUnpaidNFT.TokenDetails>>",
+          "valueType": "t_struct<InvoiceUnpaidNFT.TokenDetails>",
+          "label": "mapping(key => InvoiceUnpaidNFT.TokenDetails)",
+          "kind": "mapping"
+        }
+      },
+      "storage": [
+        {
+          "contract": "Initializable",
+          "path": "zos-lib/contracts/Initializable.sol",
+          "label": "initialized",
+          "astId": 6996,
+          "type": "t_bool",
+          "src": "757:24:35"
+        },
+        {
+          "contract": "Initializable",
+          "path": "zos-lib/contracts/Initializable.sol",
+          "label": "initializing",
+          "astId": 6998,
+          "type": "t_bool",
+          "src": "876:25:35"
+        },
+        {
+          "contract": "Initializable",
+          "path": "zos-lib/contracts/Initializable.sol",
+          "label": "______gap",
+          "astId": 7047,
+          "type": "t_array:50<t_uint256>",
+          "src": "1891:29:35"
+        },
+        {
+          "contract": "ERC165",
+          "path": "openzeppelin-eth/contracts/introspection/ERC165.sol",
+          "label": "_supportedInterfaces",
+          "astId": 5877,
+          "type": "t_mapping<t_bool>",
+          "src": "497:52:25"
+        },
+        {
+          "contract": "ERC165",
+          "path": "openzeppelin-eth/contracts/introspection/ERC165.sol",
+          "label": "______gap",
+          "astId": 5921,
+          "type": "t_array:50<t_uint256>",
+          "src": "1230:29:25"
+        },
+        {
+          "contract": "ERC721",
+          "path": "openzeppelin-eth/contracts/token/ERC721/ERC721.sol",
+          "label": "_tokenOwner",
+          "astId": 6087,
+          "type": "t_mapping<t_address>",
+          "src": "774:48:28"
+        },
+        {
+          "contract": "ERC721",
+          "path": "openzeppelin-eth/contracts/token/ERC721/ERC721.sol",
+          "label": "_tokenApprovals",
+          "astId": 6091,
+          "type": "t_mapping<t_address>",
+          "src": "878:52:28"
+        },
+        {
+          "contract": "ERC721",
+          "path": "openzeppelin-eth/contracts/token/ERC721/ERC721.sol",
+          "label": "_ownedTokensCount",
+          "astId": 6095,
+          "type": "t_mapping<t_uint256>",
+          "src": "988:54:28"
+        },
+        {
+          "contract": "ERC721",
+          "path": "openzeppelin-eth/contracts/token/ERC721/ERC721.sol",
+          "label": "_operatorApprovals",
+          "astId": 6101,
+          "type": "t_mapping<t_bool>",
+          "src": "1097:73:28"
+        },
+        {
+          "contract": "ERC721",
+          "path": "openzeppelin-eth/contracts/token/ERC721/ERC721.sol",
+          "label": "______gap",
+          "astId": 6642,
+          "type": "t_array:50<t_uint256>",
+          "src": "11668:29:28"
+        },
+        {
+          "contract": "ERC721Enumerable",
+          "path": "contracts/erc721/ERC721Enumerable.sol",
+          "label": "_ownedTokens",
+          "astId": 4369,
+          "type": "t_mapping<t_array:dyn<t_uint256>>",
+          "src": "642:50:20"
+        },
+        {
+          "contract": "ERC721Enumerable",
+          "path": "contracts/erc721/ERC721Enumerable.sol",
+          "label": "_ownedTokensIndex",
+          "astId": 4373,
+          "type": "t_mapping<t_uint256>",
+          "src": "762:53:20"
+        },
+        {
+          "contract": "ERC721Enumerable",
+          "path": "contracts/erc721/ERC721Enumerable.sol",
+          "label": "_allTokens",
+          "astId": 4376,
+          "type": "t_array:dyn<t_uint256>",
+          "src": "876:28:20"
+        },
+        {
+          "contract": "ERC721Enumerable",
+          "path": "contracts/erc721/ERC721Enumerable.sol",
+          "label": "_allTokensIndex",
+          "astId": 4380,
+          "type": "t_mapping<t_uint256>",
+          "src": "975:51:20"
+        },
+        {
+          "contract": "ERC721Enumerable",
+          "path": "contracts/erc721/ERC721Enumerable.sol",
+          "label": "______gap",
+          "astId": 4727,
+          "type": "t_array:50<t_uint256>",
+          "src": "9402:29:20"
+        },
+        {
+          "contract": "ERC721Metadata",
+          "path": "openzeppelin-eth/contracts/token/ERC721/ERC721Metadata.sol",
+          "label": "_name",
+          "astId": 6659,
+          "type": "t_string",
+          "src": "266:20:29"
+        },
+        {
+          "contract": "ERC721Metadata",
+          "path": "openzeppelin-eth/contracts/token/ERC721/ERC721Metadata.sol",
+          "label": "_symbol",
+          "astId": 6661,
+          "type": "t_string",
+          "src": "313:22:29"
+        },
+        {
+          "contract": "ERC721Metadata",
+          "path": "openzeppelin-eth/contracts/token/ERC721/ERC721Metadata.sol",
+          "label": "_tokenURIs",
+          "astId": 6665,
+          "type": "t_mapping<t_string>",
+          "src": "381:45:29"
+        },
+        {
+          "contract": "ERC721Metadata",
+          "path": "openzeppelin-eth/contracts/token/ERC721/ERC721Metadata.sol",
+          "label": "______gap",
+          "astId": 6794,
+          "type": "t_array:50<t_uint256>",
+          "src": "2824:29:29"
+        },
+        {
+          "contract": "UserMintableERC721",
+          "path": "contracts/erc721/UserMintableERC721.sol",
+          "label": "_anchorRegistry",
+          "astId": 4754,
+          "type": "t_address",
+          "src": "1167:32:21"
+        },
+        {
+          "contract": "UserMintableERC721",
+          "path": "contracts/erc721/UserMintableERC721.sol",
+          "label": "_identityFactory",
+          "astId": 4756,
+          "type": "t_address",
+          "src": "1225:33:21"
+        },
+        {
+          "contract": "UserMintableERC721",
+          "path": "contracts/erc721/UserMintableERC721.sol",
+          "label": "_mandatoryFields",
+          "astId": 4759,
+          "type": "t_array:dyn<t_bytes>",
+          "src": "1354:33:21"
+        },
+        {
+          "contract": "UserMintableERC721",
+          "path": "contracts/erc721/UserMintableERC721.sol",
+          "label": "_tokenUriBase",
+          "astId": 4761,
+          "type": "t_string",
+          "src": "1701:20:21"
+        },
+        {
+          "contract": "InvoiceUnpaidNFT",
+          "path": "contracts/erc721/InvoiceUnpaidNFT.sol",
+          "label": "_tokenDetails",
+          "astId": 1411,
+          "type": "t_mapping<t_struct<InvoiceUnpaidNFT.TokenDetails>>",
+          "src": "1190:55:6"
+        }
+      ],
+      "warnings": {
+        "hasConstructor": false,
+        "hasSelfDestruct": false,
+        "hasDelegateCall": false,
+        "hasInitialValuesInDeclarations": false,
+        "uninitializedBaseContracts": []
+      }
+    }
+  },
+  "solidityLibs": {},
+  "proxies": {
+    "@centrifuge/ethereum-contracts/IdentityFactory": [
+      {
+        "address": "0xf880b860103bd45a523574AeeC07C492031f4781",
+        "version": "1.0.0",
+        "implementation": "0x2a61b99f888b4D37DE3cA9e7aaC3D6Ad86E76391"
+      }
+    ],
+    "@centrifuge/ethereum-contracts/AnchorRepository": [
+      {
+        "address": "0x92AD44BB8F23D5d129eB82a50d3868bB4b1ceF1F",
+        "version": "1.0.0",
+        "implementation": "0x9053BA1e3048264Dc230F1138eD6a270CAF365B1"
+      }
+    ],
+    "@centrifuge/ethereum-contracts/InvoiceUnpaidNFT": [
+      {
+        "address": "0x994547FE60c1012263b4EadE1c7041276B1B0fDF",
+        "version": "1.0.0",
+        "implementation": "0xDFd8514bAF8039E1420783923D9227747501fB52"
+      }
+    ]
+  },
+  "zosversion": "2.2",
+  "version": "1.0.0",
+  "app": {
+    "address": "0x1EBA8b9d13a9fD8DCb49087E6c0942b3c1a31B7a"
+  },
+  "package": {
+    "address": "0x672A50f0A0c2C9d9Bd84FE7447365520e072AFE6"
+  },
+  "provider": {
+    "address": "0xf7989b253b4e2104EAec1e9ee6898640D17a5948"
+  },
+  "dependencies": {
+    "openzeppelin-eth": {
+      "package": "0xa44bb80b290de8a465d17b14269df53cf0b9bf4f",
+      "version": "2.1.3"
+    }
+  },
+  "proxyAdmin": {
+    "address": "0x3877dB0D016840E1ff0f7AA9873a540E09f1A416"
+  }
+}

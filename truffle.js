@@ -48,6 +48,13 @@ module.exports = {
             port: 8545,
             network_id: "3", // ropsten network ID
             from: account,
+        },
+        mainnet: {
+            provider: new HDWalletProvider(privateKey, endpoint.replace('rinkeby', 'mainnet')),
+            port: 8545,
+            network_id: "1", // mainnet network ID
+            from: account,
+            gas: 8000000
         }
     }
 };
