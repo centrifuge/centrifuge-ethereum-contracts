@@ -220,11 +220,11 @@
       }
     },
     "InvoiceUnpaidNFT": {
-      "address": "0xDFd8514bAF8039E1420783923D9227747501fB52",
+      "address": "0x8e4031d12EA16A1C82bC4ADe0c07dA31C07F6d45",
       "constructorCode": "608060405234801561001057600080fd5b506146e6806100206000396000f3fe",
-      "bodyBytecodeHash": "db5ba201e4d7508841fb463d0d7c03728114a39994aaa85c4a247642e4b284fc",
-      "localBytecodeHash": "afa0cca415dad861fc521f27e0fb2e53bffac344cc76f21bd34b5b06b262f4b2",
-      "deployedBytecodeHash": "afa0cca415dad861fc521f27e0fb2e53bffac344cc76f21bd34b5b06b262f4b2",
+      "bodyBytecodeHash": "9dfc402b0721db4d0ec76c1ce6249dfc31898c776f93254bf807e1aa25de4faa",
+      "localBytecodeHash": "6147a87681700d079810a8c946def32b099d1f54493f53667250639ee8e0699b",
+      "deployedBytecodeHash": "6147a87681700d079810a8c946def32b099d1f54493f53667250639ee8e0699b",
       "types": {
         "t_bool": {
           "id": "t_bool",
@@ -562,7 +562,18 @@
         "hasSelfDestruct": false,
         "hasDelegateCall": false,
         "hasInitialValuesInDeclarations": false,
-        "uninitializedBaseContracts": []
+        "uninitializedBaseContracts": [],
+        "storageUncheckedVars": [
+          {
+            "contract": "InvoiceUnpaidNFT",
+            "path": "contracts/erc721/InvoiceUnpaidNFT.sol",
+            "label": "_tokenDetails",
+            "astId": 1411,
+            "type": "t_mapping<t_struct<InvoiceUnpaidNFT.TokenDetails>>",
+            "src": "1190:55:6"
+          }
+        ],
+        "storageDiff": []
       }
     }
   },
@@ -584,9 +595,9 @@
     ],
     "@centrifuge/ethereum-contracts/InvoiceUnpaidNFT": [
       {
-        "address": "0x994547FE60c1012263b4EadE1c7041276B1B0fDF",
+        "address": "0xc4A8eB27fB3Ea2C0955F8a5B1615B26d85FCBe8e",
         "version": "1.0.0",
-        "implementation": "0xDFd8514bAF8039E1420783923D9227747501fB52"
+        "implementation": "0x8e4031d12EA16A1C82bC4ADe0c07dA31C07F6d45"
       }
     ]
   },
