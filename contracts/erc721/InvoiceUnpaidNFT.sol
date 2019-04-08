@@ -127,7 +127,7 @@ contract InvoiceUnpaidNFT is Initializable, UserMintableERC721 {
 
     UserMintableERC721.initialize(
       "Centrifuge Unpaid Invoices",
-      "CENT_INVOICE_UNPAID",
+      "CNT_INV_UNPD",
       tokenUriBase,
       anchorRegistry,
       identityFactory
