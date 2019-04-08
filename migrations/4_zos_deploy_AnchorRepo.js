@@ -8,7 +8,7 @@ async function deploy(options) {
     add({contractsData: [{name: 'AnchorRepository', alias: 'AnchorRepository'}]});
 
     // ZOS libs do not exist on local node so deploy them
-    if (options.network == "dev-99999")
+    if (/dev-\d+/.test(options.network))
         options = {...options, deployDependencies: true};
     // Push implementation contracts to the network
     await push(options);
