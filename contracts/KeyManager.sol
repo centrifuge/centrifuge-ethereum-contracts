@@ -214,6 +214,9 @@ contract KeyManager {
     _;
   }
 
+  /**
+   * @dev Throws if called by any account other than a ACTION key.
+   */
   modifier onlyAction() {
     bytes32 key_ = addressToKey(msg.sender);
     require(
