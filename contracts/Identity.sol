@@ -64,24 +64,20 @@ contract Identity is KeyManager {
     address to,
     uint256 value,
     bytes memory data
-  )
+  ) onlyAction
   public
   returns (bool success)
   {
-
-    bytes32 key_ = addressToKey(msg.sender);
-    require(
-      keyHasPurpose(key_, ACTION) && _keys[key_].revokedAt == 0,
-      "Requester must have an ACTION purpose"
-    );
-
     // solium-disable-next-line security/no-inline-assembly
     assembly {
-      // check if contract to be call exists
+      // check if contract to be called exists
       if iszero(extcodesize(to)) {
         revert(0, 0)
       }
       success := call(gas, to, value, add(data, 0x20), mload(data), 0, 0)
     }
   }
+
+
+
 }
