@@ -220,11 +220,11 @@
       }
     },
     "InvoiceUnpaidNFT": {
-      "address": "0x32a5d6aE1d1602ce0999d96682e30D520B7e13Ec",
+      "address": "0x95d766d6c87cFc637A8efbfb1d01f30474e12007",
       "constructorCode": "608060405234801561001057600080fd5b506146e6806100206000396000f3fe",
-      "bodyBytecodeHash": "9dfc402b0721db4d0ec76c1ce6249dfc31898c776f93254bf807e1aa25de4faa",
-      "localBytecodeHash": "6147a87681700d079810a8c946def32b099d1f54493f53667250639ee8e0699b",
-      "deployedBytecodeHash": "6147a87681700d079810a8c946def32b099d1f54493f53667250639ee8e0699b",
+      "bodyBytecodeHash": "e8f1f0cf1b7325686055a62093aa1d57c5b104a76434112e77ee76d5cab05585",
+      "localBytecodeHash": "7a49c3a0defe343fb00104ee30cea464af91bae6784549bbaaafc13707645932",
+      "deployedBytecodeHash": "7a49c3a0defe343fb00104ee30cea464af91bae6784549bbaaafc13707645932",
       "types": {
         "t_bool": {
           "id": "t_bool",
@@ -583,21 +583,24 @@
       {
         "address": "0x0d391E72325CedC41E48053E77288a89F2E31115",
         "version": "1.0.0",
-        "implementation": "0xEe9Bc13Dcc5DAeDaA363cE776BE74a06Ee09174b"
+        "implementation": "0xEe9Bc13Dcc5DAeDaA363cE776BE74a06Ee09174b",
+        "admin": "0x3c698a632780a60e7c52f8ae5554f6eca5bb58d6"
       }
     ],
     "@centrifuge/ethereum-contracts/AnchorRepository": [
       {
         "address": "0x2C80F1DafDa7aADeb2C175d4B43A858473E11713",
         "version": "1.0.0",
-        "implementation": "0x5B4beD5eeCd4e56B0723EC90437104A12AAaf5bA"
+        "implementation": "0x5B4beD5eeCd4e56B0723EC90437104A12AAaf5bA",
+        "admin": "0x3c698a632780a60e7c52f8ae5554f6eca5bb58d6"
       }
     ],
     "@centrifuge/ethereum-contracts/InvoiceUnpaidNFT": [
       {
-        "address": "0xE73841140Fce93912Ec769dAd8F482Bf5c768DA5",
+        "address": "0x49be9300C36Cf5238bF69E4C49560FF8f7F672E4",
         "version": "1.0.0",
-        "implementation": "0x32a5d6aE1d1602ce0999d96682e30D520B7e13Ec"
+        "implementation": "0x95d766d6c87cFc637A8efbfb1d01f30474e12007",
+        "admin": "0x3c698a632780a60e7c52f8ae5554f6eca5bb58d6"
       }
     ]
   },
