@@ -66,6 +66,7 @@ contract Identity is KeyManager {
     bytes memory data
   ) onlyAction
   public
+  payable
   returns (bool success)
   {
     // solium-disable-next-line security/no-inline-assembly
@@ -90,6 +91,7 @@ contract Identity is KeyManager {
     bytes memory data
   ) onlyAction
   public
+  payable
   returns (bool success)
   {
     // solium-disable-next-line security/no-inline-assembly
