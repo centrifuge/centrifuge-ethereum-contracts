@@ -1,66 +1,104 @@
-const createRandomByte = require('./tools/random').createRandomByte;
-const assertEvent = require('./tools/contractEvents').assertEvent;
+const {ACTION, P2P_SIGNATURE, MANAGEMENT} = require('./constants');
+const shouldRevert = require('./tools/assertTx').shouldRevert
+const {generateAddress, bufferToHex} = require('ethereumjs-util');
 const getEventValue = require('./tools/contractEvents').getEventValue;
-const shouldRevert = require('./tools/assertTx').shouldRevert;
+const addressToBytes32 = require('./tools/utils').addressToBytes32;
 
 let IdentityFactory = artifacts.require("IdentityFactory");
-let IdentityRegistry = artifacts.require("IdentityRegistry");
 let Identity = artifacts.require("Identity");
 
-let identityRegistryContract;
-let identityFactoryContract;
 
 contract("IdentityFactory", function (accounts) {
 
-  before(async function () {
-    identityRegistryContract = await IdentityRegistry.deployed();
-    identityFactoryContract = await IdentityFactory.deployed();
-  });
-
-  describe("Create Identity", async function () {
-    it("should register identity and transfer ownership", async function () {
-      let centrifugeId = createRandomByte(6);
-
-      let createdAddress;
-      await identityFactoryContract.createIdentity(centrifugeId, { from: accounts[1] }).then(function(tx) {
-        assertEvent(tx, "IdentityCreated", {centrifugeId: centrifugeId},{centrifugeId:(value) => web3.toHex(value)});
-        assertEvent(tx, "OwnershipTransferred", {newOwner: accounts[1]});
-        createdAddress = getEventValue(tx, "IdentityCreated", "identity");
-      });
-
-      await identityRegistryContract.getIdentityByCentrifugeId.call(centrifugeId, { from: accounts[1] }).then(function(result){
-        assert.equal(result, createdAddress, "Get Identity should return same as created one");
-      });
-
+    before(async function () {
+        this.identityFactory = await IdentityFactory.new();
     });
 
-    it("should register identity once", async function () {
-      let centrifugeId = createRandomByte(6);
+    describe("Create Identity", async function () {
 
-      let createdAddress;
-      await identityFactoryContract.createIdentity(centrifugeId, { from: accounts[1] }).then(function(tx) {
-        assertEvent(tx, "IdentityCreated", {centrifugeId: centrifugeId},{centrifugeId:(value) => web3.toHex(value)});
-        assertEvent(tx, "OwnershipTransferred", {newOwner: accounts[1]});
-        createdAddress = getEventValue(tx, "IdentityCreated", "identity");
-      });
+        it("should create and register an identity for the sender", async function () {
+            let createdAddress;
+            await this.identityFactory.createIdentity({from: accounts[1]}).then(function (tx) {
+                createdAddress = getEventValue(tx, "IdentityCreated", "identity");
+                assert.notEqual(web3.utils.hexToNumberString(createdAddress), "0");
+                assert.notEqual(web3.utils.hexToNumberString(createdAddress), "undefined");
 
-      await identityRegistryContract.getIdentityByCentrifugeId.call(centrifugeId, { from: accounts[1] }).then(function(result){
-        assert.equal(result, createdAddress, "Get Identity should return same as created one");
-      });
+            });
 
-      await shouldRevert(identityFactoryContract.createIdentity(centrifugeId, { from: accounts[1] }));
+            const hasManagementKey = await Identity.at(createdAddress).then(i => i.keyHasPurpose(addressToBytes32(accounts[1]), MANAGEMENT));
+            assert.equal(hasManagementKey, true);
 
+            const identityAddressStored = await this.identityFactory.createdIdentity(createdAddress);
+            assert.equal(identityAddressStored, true);
+        });
+
+        it("should create and register an identity with the provided address as MANAGEMENT and the sender as ACTION", async function () {
+            let createdAddress;
+            await this.identityFactory.createIdentityFor(accounts[2], [addressToBytes32(accounts[1])], [ACTION], {from: accounts[1]}).then(function (tx) {
+                createdAddress = getEventValue(tx, "IdentityCreated", "identity");
+                assert.notEqual(web3.utils.hexToNumberString(createdAddress), "0");
+                assert.notEqual(web3.utils.hexToNumberString(createdAddress), "undefined");
+            });
+
+            const hasManagementKey = await Identity.at(createdAddress).then(i => i.keyHasPurpose(addressToBytes32(accounts[2]), MANAGEMENT));
+            const hasActionKey = await Identity.at(createdAddress).then(i => i.keyHasPurpose(addressToBytes32(accounts[1]), ACTION));
+
+            assert.equal(hasManagementKey, true);
+            assert.equal(hasActionKey, true);
+            const identityAddressStored = await this.identityFactory.createdIdentity(createdAddress);
+            assert.equal(identityAddressStored, true);
+        });
+
+        it("should not find a registered identity", async function () {
+            const identityAddressStored = await this.identityFactory.createdIdentity(accounts[1]);
+            assert.equal(identityAddressStored, false);
+        });
+
+        it("should not be able to create an identity with it'w own address as a management key", async function () {
+
+            var futureAddress = bufferToHex(
+                generateAddress(
+                    this.identityFactory.address,
+                    await web3.eth.getTransactionCount(this.identityFactory.address)
+                )
+            );
+
+            await shouldRevert(
+                this.identityFactory.createIdentityFor(futureAddress, [addressToBytes32(accounts[1]), addressToBytes32(accounts[1])], [ACTION, P2P_SIGNATURE], {from: accounts[1]}),
+                "Own address can not be a management key",
+            );
+        });
+
+        it("should not find a registered identity", async function () {
+            const identityAddressStored = await this.identityFactory.createdIdentity(accounts[1]);
+            assert.equal(identityAddressStored, false);
+        });
+
+
+        it("should create and register an identity with default values", async function () {
+            let createdAddress;
+            await this.identityFactory.createIdentityFor(accounts[2], [addressToBytes32(accounts[1]), addressToBytes32(accounts[1])], [ACTION, P2P_SIGNATURE], {from: accounts[1]}).then(function (tx) {
+                createdAddress = getEventValue(tx, "IdentityCreated", "identity");
+                assert.notEqual(web3.utils.hexToNumberString(createdAddress), "0");
+                assert.notEqual(web3.utils.hexToNumberString(createdAddress), "undefined");
+            });
+
+            const hasManagementKey = await Identity.at(createdAddress).then(i => i.keyHasPurpose(addressToBytes32(accounts[2]), MANAGEMENT));
+            const hasActionKey = await Identity.at(createdAddress).then(i => i.keyHasPurpose(addressToBytes32(accounts[1]), ACTION));
+            const hasP2PKey = await Identity.at(createdAddress).then(i => i.keyHasPurpose(addressToBytes32(accounts[1]), P2P_SIGNATURE));
+
+            assert.equal(hasManagementKey, true);
+            assert.equal(hasActionKey, true);
+            assert.equal(hasP2PKey, true);
+            const identityAddressStored = await this.identityFactory.createdIdentity(createdAddress);
+            assert.equal(identityAddressStored, true);
+        });
+
+        it("should not find a registered identity", async function () {
+            const identityAddressStored = await this.identityFactory.createdIdentity(accounts[1]);
+            assert.equal(identityAddressStored, false);
+        });
     });
 
-    it("should not register identity if arguments malformed", async function () {
-      let centrifugeId = "";
-
-      await shouldRevert(identityFactoryContract.createIdentity(centrifugeId));
-
-      centrifugeId = 0x0;
-      await shouldRevert(identityFactoryContract.createIdentity(centrifugeId));
-    });
-
-  });
 
 });

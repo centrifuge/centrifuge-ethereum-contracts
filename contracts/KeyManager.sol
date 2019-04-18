@@ -1,114 +1,225 @@
-pragma solidity ^0.4.24;
-
-import 'openzeppelin-solidity/contracts/ownership/Ownable.sol';
-
-contract KeyManager is Ownable {
-
-    event KeyAdded(bytes32 indexed key, uint256 indexed purpose);
-    event KeyRevoked(bytes32 indexed key, uint256 indexed revokedAt);
+pragma solidity ^0.5.3;
 
 
-    // used for identifying a node
-    // key is bytes32 and must not be hashed because this is used for DHT
-    uint256 constant internal P2P_IDENTITY = 1;
-    // used to verify that the signatures on the p2p layer belong to an identity
-    // key can be bytes32 or a address of a bytes64. It depends on the implementation.
-    uint256 constant internal P2P_SIGNATURE = 2;
-    // used for validating the author of a transaction
-    // Eth uses a bytes64 public key and this should be the corresponding address( the last 20 bytes from a  keccak256 of the key)
-    // this has to mirror ETH key pairs in order to validate signatures with ecrecover
-    uint256 constant internal ETH_MESSAGE_AUTH = 3;
+contract KeyManager {
 
-    // Because we use different types of key pairs, bytes32 public or bytes64 public, a key can not have all 3 purposes
-    // at the same time. You can only do [P2P_IDENTITY, P2P_SIGNATURE] or [P2P_SIGNATURE, ETH_MESSAGE_AUTH].
-    // This is not enforced in the contract and it is up to client implementing the logic to handle this.
-    struct Key {
-        uint256[] purposes; // e.g., P2P_KEY = 1, SIGNING_KEY = 2, etc, MANAGEMENT_KEY = 3,
-        uint256 revokedAt; // Block where key was revoked
+  event KeyAdded(
+    bytes32 indexed key,
+    uint256 indexed purpose,
+    uint256 indexed keyType
+  );
+
+  event KeyRevoked(
+    bytes32 indexed key,
+    uint32 indexed revokedAt,
+    uint256 indexed keyType
+  );
+
+  uint256 constant internal MANAGEMENT = 1;
+  uint256 constant internal ACTION = 2;
+
+  struct Key {
+    // e.g., Array of the key types, like 1 = MANAGEMENT, 2 = ACTION, 3 = CLAIM, 4 = ENCRYPTION
+    uint256[] purposes;
+    // e.g. 1 = ECDSA, 2 = RSA, etc.
+    uint256 keyType;
+    // Block where key was revoked
+    uint32 revokedAt;
+  }
+
+  mapping(bytes32 => Key) internal _keys;
+
+  mapping(uint256 => bytes32[]) internal _keysByPurpose;
+
+  /**
+   * @param key bytes32 public key
+   * @param purpose uint representing the purpose for the public key
+   * @param keyType uint representing the type for the public key
+   */
+  function addKey(
+    bytes32 key,
+    uint256 purpose,
+    uint256 keyType
+  )
+  public
+  onlyManagement
+  {
+
+    // Can not add purpose to revoked keys
+    require(
+      _keys[key].revokedAt == 0,
+      "Key is revoked"
+    );
+
+    require(
+      !(key == addressToKey(address(this)) && purpose == MANAGEMENT),
+      "Own address can not be a management key"
+    );
+    require(
+      !keyHasPurpose(key, purpose),
+      "Key already has the given purpose"
+    );
+
+    // set the key type only the first type
+    if (_keys[key].purposes.length == 0) {
+      _keys[key].keyType = keyType;
     }
+    _keys[key].purposes.push(purpose);
+    _keysByPurpose[purpose].push(key);
+    emit KeyAdded(key, purpose, keyType);
 
-    mapping(bytes32 => Key) keys;
+  }
 
-    mapping(uint256 => bytes32[]) keysByPurpose;
-
-    // @param _key bytes32 public key or keccak256 hash of the public key to be added
-    // @param _purpose Uint representing the purpose for the public key. Must be greater than 0
-    function addKey(bytes32 _key, uint256 _purpose) onlyOwner public {
-        // key must have a value
-        require(_key != 0x0);
-        // purpose must not be greater than 0
-        require(_purpose > 0);
-        // Can not add purpose to revoked keys
-        require(keys[_key].revokedAt == 0);
-
-        if (!keyHasPurpose(_key, _purpose)) {
-            keys[_key].purposes.push(_purpose);
-            keysByPurpose[_purpose].push(_key);
-            emit KeyAdded(_key, _purpose);
-        }
+  /**
+  * @param key bytes32 public key
+  * @param purposes Array of purposes for the public key.
+  * @param keyType uint representing the type for the public key
+  */
+  function addMultiPurposeKey(
+    bytes32 key,
+    uint256[] calldata purposes,
+    uint256 keyType
+  )
+  external
+  onlyManagement
+  {
+    // key must have at least one purpose
+    require(
+      purposes.length > 0,
+      "Key must have at least a purpose"
+    );
+    for (uint i = 0; i < purposes.length; i++) {
+      addKey(key, purposes[i], keyType);
     }
+  }
 
-    // @param _key bytes32 public key or keccak256 hash of the public key
-    // @param _purposes Array of purposes for the public key. The array must not contain 0
-    function addMultiPurposeKey(bytes32 _key, uint256[] _purposes) onlyOwner public {
-        // key must have at least one purpose
-        require(_purposes.length > 0);
-        for (uint i = 0; i < _purposes.length; i++) {
-            addKey(_key, _purposes[i]);
-        }
+  /**
+   * @dev Revokes a key
+   * @param key Hash of the public key to be revoked
+   */
+  function revokeKey(bytes32 key)
+  external
+  onlyManagement
+  notSelf(key)
+  {
+    // check if key exists
+    require(
+      _keys[key].purposes.length > 0,
+      "Key does not exist"
+    );
+
+    // Do not allow revocation for revoked keys
+    require(
+      _keys[key].revokedAt == 0,
+      "Key is revoked"
+    );
+
+    _keys[key].revokedAt = uint32(block.number);
+    emit KeyRevoked(
+      key,
+      _keys[key].revokedAt,
+      _keys[key].keyType
+    );
+  }
+
+  /**
+   * @dev Retrieve details about a key
+   * @param value the public key
+   * @return Struct with hash of the key, purposes and revokedAt
+   */
+  function getKey(bytes32 value)
+  public
+  view
+  returns (
+    bytes32 key,
+    uint256[] memory purposes,
+    uint32 revokedAt
+  )
+  {
+    return (
+    value,
+    _keys[value].purposes,
+    _keys[value].revokedAt
+    );
+  }
+
+  /**
+   * @param key bytes32 public key
+   * @param purpose Uint representing the purpose of the key
+   * @return 'true' if the key is found and has the proper purpose
+   */
+  function keyHasPurpose(
+    bytes32 key,
+    uint256 purpose
+  )
+  public
+  view
+  returns (bool found)
+  {
+
+    Key memory key_ = _keys[key];
+    if (key_.purposes.length == 0) {
+      return false;
     }
-
-    // Revokes a key
-    //@param _key Hash of the public key to be revoked
-    function revokeKey(bytes32 _key) onlyOwner public {
-        // check if key exists
-        require(keys[_key].purposes.length > 0);
-
-        keys[_key].revokedAt = block.number;
-        emit KeyRevoked(_key, keys[_key].revokedAt);
+    for (uint i = 0; i < key_.purposes.length; i++) {
+      if (key_.purposes[i] == purpose) {
+        return true;
+      }
     }
+  }
 
-    // Retrive details about a key
-    // @param key the public key
-    // return Struct with hash of the key, purposes and revokedAt
-    function getKey(bytes32 _key) public view returns (bytes32 key, uint256[] purposes, uint256 revokedAt) {
-        //if key does not exit retur  0x0 for the key
-        if (keys[_key].purposes.length == 0) {
-            return (
-            0,
-            keys[_key].purposes,
-            keys[_key].revokedAt
-            );
-        }
+  /**
+   * @param purpose uint256 representing the purpose of the the key
+   * @return keysByPurpose array of hashes containing all the keys for the provided purpose
+   * @return keyTypes array of uint containing the types for the keys
+   * @return keysRevokedAt array of uint containing the revocation blocks for the keys
+   */
+  function getKeysByPurpose(uint256 purpose)
+  external
+  view
+  returns (bytes32[] memory keysByPurpose,uint256[] memory keyTypes, uint32[] memory keysRevokedAt)
+  {
+    keysByPurpose = _keysByPurpose[purpose];
+    keysRevokedAt = new uint32[](keysByPurpose.length);
+    keyTypes = new uint256[](keysByPurpose.length);
 
-        return (
-        _key,
-        keys[_key].purposes,
-        keys[_key].revokedAt
-        );
+    for (uint i = 0; i < keysByPurpose.length; i++) {
+      keysRevokedAt[i] = _keys[keysByPurpose[i]].revokedAt;
+      keyTypes[i] = _keys[keysByPurpose[i]].keyType;
     }
+  }
 
-    // @param _key bytes32 public key or keccak256 hash of the public key
-    // @param _purpose Uint representing the purpose of the key
-    // @return 'true' if the key is found and has the proper purpose
-    function keyHasPurpose(bytes32 _key, uint256 _purpose) public view returns (bool found) {
+  /**
+   * @dev Convert an Ethereum address (20 bytes) to an ERC725 key (32 bytes)
+   * @param addr address 20 bytes eth address
+   * @return bytes32 converted address
+   */
+  function addressToKey(address addr)
+  public
+  pure
+  returns (bytes32)
+  {
+    return bytes32(uint256(addr));
+  }
 
-        Key memory k = keys[_key];
-        if (k.purposes.length == 0) {
-            return false;
-        }
-        for (uint i = 0; i < k.purposes.length; i++) {
-            if (k.purposes[i] == _purpose) {
-                found = true;
-                return;
-            }
-        }
-    }
+  /**
+   * @dev Throws if called by any account other than a MANAGEMENT key.
+   */
+  modifier onlyManagement() {
+    bytes32 key_ = addressToKey(msg.sender);
+    require(
+      keyHasPurpose(key_, MANAGEMENT) && _keys[key_].revokedAt == 0,
+      "No management right"
+    );
+    _;
+  }
 
-    // @param purpose Uint representing the purpose of the the key
-    // @return array of hashes containing all the keys for the provided purpose
-    function getKeysByPurpose(uint256 _purpose) public view returns (bytes32[]) {
-        return keysByPurpose[_purpose];
-    }
+  modifier notSelf(bytes32 key) {
+    require(
+      key != addressToKey(msg.sender),
+      "Can not perform action on own key"
+    );
+    _;
+  }
 
 }

@@ -1,29 +1,62 @@
-pragma solidity ^0.4.24;
+pragma solidity ^0.5.3;
 
-import './Identity.sol';
-import './IdentityRegistry.sol';
+import "zos-lib/contracts/Initializable.sol";
+import "contracts/Identity.sol";
 
-contract IdentityFactory {
-  event IdentityCreated(uint48 indexed centrifugeId, address identity);
 
-  address registry;
+contract IdentityFactory is Initializable {
 
-  constructor(address _registry) public {
-    registry = _registry;
+  event IdentityCreated(address indexed identity);
+
+  /**
+  * @dev Keep track or identities created with the factory contract
+  * This is necessary because there is no way to tell on chain
+  * if the identity interface is implemented in a certain way and
+  * the Centrifuge Protocol requires on chain key history. A key
+  * should be revoked and not removed
+  */
+  mapping(address => bool) internal _identities;
+
+  /**
+  * Deploys a new identity and transfers the ownership to the sender
+  */
+  function createIdentity()
+  external
+  {
+    createIdentityFor(msg.sender, new bytes32[](0), new uint256[](0));
   }
 
-  function createIdentity(uint48 _centrifugeId) public {
-    require(_centrifugeId != 0x0);
-    IdentityRegistry identityRegistry = IdentityRegistry(registry);
-    // Require that the centrifugeId is not already registered in the IdentityRegistry
-    require(identityRegistry.getIdentityByCentrifugeId(_centrifugeId) == 0x0);
-
-    Identity identity = new Identity(_centrifugeId);
-    identity.transferOwnership(msg.sender);
-
-    identityRegistry.registerIdentity(_centrifugeId, identity);
-
-    emit IdentityCreated(_centrifugeId, identity);
+  /**
+  * Deploys a new identity with the provided address as a MANAGEMENT key
+  * and the msg.sender as an ACTION key
+  * @param manager string address owner of the new identity
+  * @param keys bytes32[] keys to be added to the identity
+  * @param purposes uint256[] purposes to be added to the identity
+  */
+  function createIdentityFor(
+    address manager,
+    bytes32[] memory keys,
+    uint256[] memory purposes
+  )
+  public
+  {
+    Identity identity_ = new Identity(manager, keys, purposes);
+    address identityAddr_ = address(identity_);
+    _identities[identityAddr_] = true;
+    emit IdentityCreated(address(identityAddr_));
   }
 
+  /**
+  * @dev Checks if the given address was created by this factory
+  * @param identityAddr address the contract address to check
+  */
+  function createdIdentity(
+    address identityAddr
+  )
+  external
+  view
+  returns (bool valid)
+  {
+    return _identities[identityAddr];
+  }
 }

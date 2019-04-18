@@ -8,11 +8,13 @@ module.exports = {
                     if(keyTransformers && keyTransformers[key]) {
                         assert.equal(keyTransformers[key](value), keys[key], "Keys should match");
                     } else {
-                        assert.equal(value, keys[key], "Keys should match");
+                        assert.equal(value.toLowerCase(), keys[key].toLowerCase(), "Keys should match");
                     }
 
                 }
                 break;
+            } else {
+                assert.fail('Did not find event')
             }
         }
     },
