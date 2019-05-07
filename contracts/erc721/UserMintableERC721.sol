@@ -70,6 +70,8 @@ contract UserMintableERC721 is Initializable, ERC721, ERC721Enumerable, ERC721Me
   bytes constant internal SIGNATURE_TREE_SIGNATURES = hex"0300000000000001";
   // compact prop for "signature" for a signature tree signature
   bytes constant internal SIGNATURE_TREE_SIGNATURES_SIGNATURE = hex"00000004";
+  // compact prop for "signature_transition" for a signature tree signature transition
+  bytes constant internal SIGNATURE_TREE_SIGNATURES_SIGNATURE_TRANSITION = hex"00000005";
 
   // Constants used as values
   // Value for a Read Action. 1 means is has Read Access
@@ -547,7 +549,10 @@ contract UserMintableERC721 is Initializable, ERC721, ERC721Enumerable, ERC721Me
     bytes32[] memory singingRootProof,
     bytes memory signature,
     bytes32 salt,
-    bytes32[] memory proof
+    bytes32[] memory proof,
+    bytes memory transitionValidated,
+    bytes32 transitionValidatedSalt,
+    bytes32[] memory transitionValidatedProof
   )
   internal
   view
@@ -567,10 +572,29 @@ contract UserMintableERC721 is Initializable, ERC721, ERC721Enumerable, ERC721Me
     );
 
     // Extract the public key from the signature
+    bytes32 payload_ = sha256(abi.encodePacked(signingRoot, transitionValidated));
     bytes32 pbKey_ = bytes32(
       uint256(
-        signingRoot.toEthSignedMessageHash().recover(signature)
+        payload_.toEthSignedMessageHash().recover(signature)
       )
+    );
+
+    // Reconstruct the compact property
+    bytes memory transitionProperty_ = abi.encodePacked(
+      SIGNATURE_TREE_SIGNATURES,
+      identity,
+      pbKey_,
+      SIGNATURE_TREE_SIGNATURES_SIGNATURE_TRANSITION
+    );
+
+    // Check transition validated proof
+    require(
+      MerkleProof.verifySha256(
+        transitionValidatedProof,
+        documentRoot,
+        sha256(abi.encodePacked(transitionProperty_, transitionValidated, transitionValidatedSalt))
+      ),
+      "Signature Transition is not valid"
     );
 
     // Reconstruct the precise proof property based on the provided identity

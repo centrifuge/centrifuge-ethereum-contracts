@@ -33,11 +33,12 @@ contract InvoiceUnpaidNFT is Initializable, UserMintableERC721 {
   uint8 constant internal STATUS_IDX = 4;
   uint8 constant internal SIGNING_ROOT_IDX = 5;
   uint8 constant internal SIGNATURE_IDX = 6;
-  uint8 constant internal NEXT_VERSION_IDX = 7;
-  uint8 constant internal NFT_UNIQUE_IDX = 8;
-  uint8 constant internal READ_ROLE_IDX = 9;
-  uint8 constant internal READ_ROLE_ACTION_IDX = 10;
-  uint8 constant internal TOKEN_ROLE_IDX = 11;
+  uint8 constant internal SIGNATURE_TRANSITION_IDX = 7;
+  uint8 constant internal NEXT_VERSION_IDX = 8;
+  uint8 constant internal NFT_UNIQUE_IDX = 9;
+  uint8 constant internal READ_ROLE_IDX = 10;
+  uint8 constant internal READ_ROLE_ACTION_IDX = 11;
+  uint8 constant internal TOKEN_ROLE_IDX = 12;
 
   // Token details, specific field values
   mapping(uint256 => TokenDetails) internal _tokenDetails;
@@ -210,7 +211,10 @@ contract InvoiceUnpaidNFT is Initializable, UserMintableERC721 {
       proofs[SIGNING_ROOT_IDX],
       values[SIGNATURE_IDX],
       salts[SIGNATURE_IDX],
-      proofs[SIGNATURE_IDX]
+      proofs[SIGNATURE_IDX],
+      values[SIGNATURE_TRANSITION_IDX],
+      salts[SIGNATURE_TRANSITION_IDX],
+      proofs[SIGNATURE_TRANSITION_IDX]
     );
 
     // Enforce that there is not a newer version of the document on chain
