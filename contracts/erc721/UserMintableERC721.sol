@@ -82,6 +82,12 @@ contract UserMintableERC721 is Initializable, ERC721, ERC721Enumerable, ERC721Me
   // solium-disable-next-line
   uint256 constant internal SIGNING_PURPOSE = 0x774a43710604e3ce8db630136980a6ba5a65b5e6686ee51009ed5f3fded6ea7e;
 
+  struct ProofsDetails {
+    bytes[] properties;
+    bytes[] values;
+    bytes32[] salts;
+    bytes32[][] proofs;
+  }
 
   /**
    * @dev Gets the anchor registry's address that is backing this token
@@ -527,29 +533,10 @@ contract UserMintableERC721 is Initializable, ERC721, ERC721Enumerable, ERC721Me
     );
   }
 
-  /**
-   * @dev Checks that provided document is signed by the given identity
-   * and validates and checks if the public key used is a valid SIGNING_KEY
-   * @param documentRoot bytes32 the anchored document root
-   * @param anchoredBlock uint32 block number for when the document root was anchored
-   * @param identity address Identity that signed the document
-   * @param signingRoot bytes32 hash of all invoice fields which is signed
-   * @param singingRootProof bytes32[] proofs for signing root
-   * @param signature bytes The signature
-   * used to contract the property for precise proofs
-   * @param salt bytes32 salt for leaf construction
-   * @param proof bytes32[] proofs for leaf construction
-   */
-
-  function _requireSignedByIdentity(
+  function _requireValidSignatureTransitionProof(
     bytes32 documentRoot,
-    uint32 anchoredBlock,
     address identity,
-    bytes32 signingRoot,
-    bytes32[] memory singingRootProof,
-    bytes memory signature,
-    bytes32 salt,
-    bytes32[] memory proof,
+    bytes32 pbKey,
     bytes memory transitionValidated,
     bytes32 transitionValidatedSalt,
     bytes32[] memory transitionValidatedProof
@@ -557,33 +544,11 @@ contract UserMintableERC721 is Initializable, ERC721, ERC721Enumerable, ERC721Me
   internal
   view
   {
-    require(
-      singingRootProof.length == 1,
-      "SigningRoot can have only one sibling"
-    );
-
-    require(
-      MerkleProof.verifySha256(
-        singingRootProof[0],
-        documentRoot,
-        signingRoot
-      ),
-      "Signing Root not part of the document"
-    );
-
-    // Extract the public key from the signature
-    bytes32 payload_ = sha256(abi.encodePacked(signingRoot, transitionValidated));
-    bytes32 pbKey_ = bytes32(
-      uint256(
-        payload_.toEthSignedMessageHash().recover(signature)
-      )
-    );
-
     // Reconstruct the compact property
     bytes memory transitionProperty_ = abi.encodePacked(
       SIGNATURE_TREE_SIGNATURES,
       identity,
-      pbKey_,
+      pbKey,
       SIGNATURE_TREE_SIGNATURES_SIGNATURE_TRANSITION
     );
 
@@ -596,13 +561,59 @@ contract UserMintableERC721 is Initializable, ERC721, ERC721Enumerable, ERC721Me
       ),
       "Signature Transition is not valid"
     );
+  }
+
+  /**
+   * @dev Checks that provided document is signed by the given identity
+   * and validates and checks if the public key used is a valid SIGNING_KEY
+   * Max number of variables reached
+   * @param b32Values bytes32[] contains [anchored document root, signingRoot, salt, pbKey]
+   * @param btsValues bytes[] contains [signature, transitionValidated]
+   * @param anchoredBlock uint32 block number for when the document root was anchored
+   * @param identity address Identity that signed the document
+   * @param signatureProof bytes32[] proofs for signature
+   * @param signingRootProof bytes32[] proofs for signing root
+   */
+
+  function _requireSignedByIdentity(
+    bytes32[] memory b32Values,
+    bytes[] memory btsValues,
+    uint32 anchoredBlock,
+    address identity,
+    bytes32[] memory signatureProof,
+    bytes32[] memory signingRootProof
+  )
+  internal
+  view
+  {
+    require(
+      signingRootProof.length == 1,
+      "SigningRoot can have only one sibling"
+    );
+
+    require(
+      MerkleProof.verifySha256(
+        signingRootProof[0],
+        b32Values[0],
+        b32Values[1]
+      ),
+      "Signing Root not part of the document"
+    );
+
+    // Reconstruct the compact property
+//    bytes memory transitionProperty_ = abi.encodePacked(
+//      SIGNATURE_TREE_SIGNATURES,
+//      identity,
+//      pbKey_,
+//      SIGNATURE_TREE_SIGNATURES_SIGNATURE_TRANSITION
+//    );
 
     // Reconstruct the precise proof property based on the provided identity
     // and the extracted public key
     bytes memory property_ = abi.encodePacked(
       SIGNATURE_TREE_SIGNATURES,
       identity,
-      pbKey_,
+      b32Values[3],
       SIGNATURE_TREE_SIGNATURES_SIGNATURE
     );
 
@@ -610,21 +621,21 @@ contract UserMintableERC721 is Initializable, ERC721, ERC721Enumerable, ERC721Me
     // Check with precise proofs if the signature is part of the documentRoot
     require(
       MerkleProof.verifySha256(
-        proof,
-        documentRoot,
-        sha256(abi.encodePacked(property_, signature, salt))
+        signatureProof,
+        b32Values[0],
+        sha256(abi.encodePacked(property_, btsValues[0], b32Values[2]))
       ),
       "Provided signature is not part of the document root"
     );
 
     // Check if the public key has a signature purpose on the provided identity
     require(
-      _getIdentity(identity).keyHasPurpose(pbKey_, SIGNING_PURPOSE),
+      _getIdentity(identity).keyHasPurpose(b32Values[3], SIGNING_PURPOSE),
       "Signature key not valid"
     );
 
     // If key is revoked anchor must be older the the key revocation
-    (, , uint32 revokedAt_) = _getIdentity(identity).getKey(pbKey_);
+    (, , uint32 revokedAt_) = _getIdentity(identity).getKey(b32Values[3]);
     if (revokedAt_ > 0) {
       require(
         anchoredBlock < revokedAt_,

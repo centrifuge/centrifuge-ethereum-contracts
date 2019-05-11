@@ -5,6 +5,7 @@ const MockUserMintableERC721 = artifacts.require("MockUserMintableERC721");
 const Identity = artifacts.require("Identity");
 const proof = require("./proof.js");
 const {P2P_IDENTITY, P2P_SIGNATURE, ACTION} = require('../constants');
+const addressToBytes20 = require('../tools/utils').addressToBytes20;
 
 
 
@@ -346,14 +347,12 @@ contract("UserMintableERC721", function (accounts) {
             await this.registry.setIdentity(this.identity.address);
 
             await shouldRevert(this.registry.requireSignedByIdentity(
-                validRootHash,
+                [validRootHash, signingRoot.value, signature.salt, publicKey],
+                [signature.value],
                 1000,
                 sender.value,
-                signingRoot.value,
-                signingRoot.sorted_hashes,
-                signature.value,
-                signature.salt,
-                signature.sorted_hashes
+                signature.sorted_hashes,
+                signingRoot.sorted_hashes
                 ),
                 "Signing Root not part of the document"
             );
@@ -364,14 +363,12 @@ contract("UserMintableERC721", function (accounts) {
             await this.registry.setIdentity(this.identity.address);
 
             await shouldRevert(this.registry.requireSignedByIdentity(
-                validRootHash,
+                [validRootHash, signingRoot.value, signature.salt, publicKey],
+                [signature.value],
                 1000,
                 sender.value,
-                signingRoot.value,
-                [...signingRoot.sorted_hashes,documentIdentifier],
-                signature.value,
-                signature.salt,
-                signature.sorted_hashes
+                signature.sorted_hashes,
+                [...signingRoot.sorted_hashes,documentIdentifier]
                 ),
                 "SigningRoot can have only one sibling"
             );
@@ -383,14 +380,12 @@ contract("UserMintableERC721", function (accounts) {
             await this.registry.setIdentity(this.identity.address);
 
             await shouldRevert(this.registry.requireSignedByIdentity(
-                validRootHash,
+                [validRootHash, signingRoot.hash, signature.salt, publicKey],
+                [signature.hash],
                 1000,
                 sender.value,
-                signingRoot.hash,
-                signingRoot.sorted_hashes,
-                signature.hash,
-                signature.salt,
-                signature.sorted_hashes
+                signature.sorted_hashes,
+                signingRoot.sorted_hashes
                 ),
                 "Provided signature is not part of the document root"
             );
@@ -403,14 +398,12 @@ contract("UserMintableERC721", function (accounts) {
             await this.registry.setOwnAddress(contractAddress);
 
             await shouldRevert(this.registry.requireSignedByIdentity(
-                validRootHash,
+                [validRootHash, signingRoot.hash, signature.salt, publicKey],
+                [signature.value],
                 1000,
                 sender.value,
-                signingRoot.hash,
-                signingRoot.sorted_hashes,
-                signature.value,
-                signature.salt,
-                signature.sorted_hashes
+                signature.sorted_hashes,
+                signingRoot.sorted_hashes
                 )
             );
         });
@@ -420,14 +413,12 @@ contract("UserMintableERC721", function (accounts) {
             await this.registry.setIdentity(identity.address);
 
             await shouldRevert(this.registry.requireSignedByIdentity(
-                validRootHash,
+                [validRootHash, signingRoot.hash, signature.salt, publicKey],
+                [signature.value],
                 1000,
                 sender.value,
-                signingRoot.hash,
-                signingRoot.sorted_hashes,
-                signature.value,
-                signature.salt,
-                signature.sorted_hashes
+                signature.sorted_hashes,
+                signingRoot.sorted_hashes
                 ),
                 "Signature key not valid"
             );
@@ -440,14 +431,12 @@ contract("UserMintableERC721", function (accounts) {
             await identity.revokeKey(publicKey);
 
             await shouldRevert(this.registry.requireSignedByIdentity(
-                validRootHash,
+                [validRootHash, signingRoot.hash, signature.salt, publicKey],
+                [signature.value],
                 999999,
                 sender.value,
-                signingRoot.hash,
-                signingRoot.sorted_hashes,
-                signature.value,
-                signature.salt,
-                signature.sorted_hashes
+                signature.sorted_hashes,
+                signingRoot.sorted_hashes
                 ),
                 "Document signed with a revoked key"
             );
@@ -458,14 +447,12 @@ contract("UserMintableERC721", function (accounts) {
             await this.registry.setIdentity(this.identity.address);
 
             await this.registry.requireSignedByIdentity(
-                validRootHash,
+                [validRootHash, signingRoot.hash, signature.salt, publicKey],
+                [signature.value],
                 1000,
                 sender.value,
-                signingRoot.hash,
-                signingRoot.sorted_hashes,
-                signature.value,
-                signature.salt,
-                signature.sorted_hashes
+                signature.sorted_hashes,
+                signingRoot.sorted_hashes
             )
         })
 
@@ -500,7 +487,7 @@ contract("UserMintableERC721", function (accounts) {
 
             let tokenUri = await this.registry.tokenURI(tokenId);
             // Validate the tokenURi
-            assert.equal(tokenUri.toLowerCase(),`${tokenUriBase}${this.registry.address}/${tokenId}`.toLowerCase());
+            assert.equal(tokenUri.toLowerCase(),`${tokenUriBase}${addressToBytes20(this.registry.address)}/${tokenId}`.toLowerCase());
             const firstTokenIndex = await this.registry.currentIndexOfToken(tokenId);
 
             // Mint a second nft

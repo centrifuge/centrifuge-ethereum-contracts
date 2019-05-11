@@ -157,34 +157,24 @@ contract MockUserMintableERC721 is UserMintableERC721 {
   }
 
   function requireSignedByIdentity(
-    bytes32 documentRoot,
-    uint32 anchoredAt,
+    bytes32[] memory b32Values,
+    bytes[] memory btsValues,
+    uint32 anchoredBlock,
     address identity,
-    bytes32 signingRoot,
-    bytes32[] calldata singingRootProof,
-    bytes calldata signature,
-    bytes32 salt,
-    bytes32[] calldata proof,
-    bytes calldata transitionValidated,
-    bytes32 transitionValidatedSalt,
-    bytes32[] calldata transitionValidatedProof
+    bytes32[] memory signatureProof,
+    bytes32[] memory signingRootProof
   )
-  external
+  public
   view
   {
 
     return super._requireSignedByIdentity(
-      documentRoot,
-      anchoredAt,
+      b32Values,
+      btsValues,
+      anchoredBlock,
       identity,
-      signingRoot,
-      singingRootProof,
-      signature,
-      salt,
-      proof,
-      transitionValidated,
-      transitionValidatedSalt,
-      transitionValidatedProof
+      signatureProof,
+      signingRootProof
     );
   }
 
