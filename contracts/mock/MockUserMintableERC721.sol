@@ -156,6 +156,27 @@ contract MockUserMintableERC721 is UserMintableERC721 {
     );
   }
 
+  function requireValidSignatureTransitionProof(
+    bytes32 documentRoot,
+    address identity,
+    bytes32 pbKey,
+    bytes memory transitionValidated,
+    bytes32 transitionValidatedSalt,
+    bytes32[] memory transitionValidatedProof
+  )
+  public
+  view
+  {
+    return super._requireValidSignatureTransitionProof(
+      documentRoot,
+      identity,
+      pbKey,
+      transitionValidated,
+      transitionValidatedSalt,
+      transitionValidatedProof
+    );
+  }
+
   function requireSignedByIdentity(
     bytes32[] memory b32Values,
     bytes[] memory btsValues,

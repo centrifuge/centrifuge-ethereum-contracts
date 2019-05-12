@@ -117,6 +117,15 @@ contract("Utilities", function (accounts) {
 
         });
 
+        // This is a bug in the Utilities.sol uintToHexStr function
+        it('it should return the address without leading zero [BUG]', async function () {
+            const payload = "0x04048d5cc923ce97f9265dcf70f2fea47319c600";
+            const expected = "0x4048d5cc923ce97f9265dcf70f2fea47319c600";
+            const result = await this.utilities.uintToHexStr(payload);
+            assert.equal("0x" + result.toLowerCase(), expected)
+
+        });
+
     });
 
 

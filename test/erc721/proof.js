@@ -33,6 +33,7 @@ module.exports = {
     status,
     signingRoot,
     signature,
+    signatureTransition,
     nextVersion,
     nftUnique,
     readRole,

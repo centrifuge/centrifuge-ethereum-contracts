@@ -135,10 +135,6 @@ contract InvoiceUnpaidNFT is Initializable, UserMintableERC721 {
     );
   }
 
-  function getLength(uint256 len) internal view returns (uint256) {
-    return len;
-  }
-
   function _mint(
     address to,
     uint256 tokenId,
@@ -204,9 +200,8 @@ contract InvoiceUnpaidNFT is Initializable, UserMintableERC721 {
     b32Values[2] = pd.salts[SIGNATURE_IDX];
     b32Values[3] = pbKey_;
 
-    bytes[] memory btsValues = new bytes[](2);
+    bytes[] memory btsValues = new bytes[](1);
     btsValues[0] = pd.values[SIGNATURE_IDX];
-    btsValues[1] = pd.values[SIGNATURE_TRANSITION_IDX];
 
     // Make sure that the sender signed the document
     super._requireSignedByIdentity(

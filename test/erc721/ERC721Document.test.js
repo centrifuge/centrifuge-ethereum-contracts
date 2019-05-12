@@ -5,7 +5,6 @@ const MockUserMintableERC721 = artifacts.require("MockUserMintableERC721");
 const Identity = artifacts.require("Identity");
 const proof = require("./proof.js");
 const {P2P_IDENTITY, P2P_SIGNATURE, ACTION} = require('../constants');
-const addressToBytes20 = require('../tools/utils').addressToBytes20;
 
 
 
@@ -17,6 +16,7 @@ contract("UserMintableERC721", function (accounts) {
         sender,
         signingRoot,
         signature,
+        signatureTransition,
         nextVersion,
         nftUnique,
         readRole,
@@ -338,9 +338,68 @@ contract("UserMintableERC721", function (accounts) {
 
     });
 
+    describe("_requireValidSignatureTransitionProof", async function () {
+
+        it("Should fail when wrong property provided", async function () {
+            await shouldRevert(
+              this.registry.requireValidSignatureTransitionProof(
+                validRootHash,
+                accounts[1],
+                publicKey,
+                signatureTransition.value,
+                signatureTransition.salt,
+                signatureTransition.sorted_hashes
+              ),
+              "Signature Transition is not valid"
+            );
+        })
+
+        it("Should fail when signatureTransition is not part of the document root", async function () {
+            await shouldRevert(
+              this.registry.requireValidSignatureTransitionProof(
+                validRootHash,
+                sender.value,
+                publicKey,
+                signatureTransition.value,
+                signatureTransition.salt,
+                [...signatureTransition.sorted_hashes, validRootHash]
+              ),
+              "Signature Transition is not valid"
+            );
+        })
+
+        it("Should pass with a valid signatureTransition proof", async function () {
+
+            await this.registry.requireValidSignatureTransitionProof(
+              validRootHash,
+              sender.value,
+              publicKey,
+              signatureTransition.value,
+              signatureTransition.salt,
+              signatureTransition.sorted_hashes
+            )
+
+        })
+
+    });
 
     describe("_requireSignedByIdentity", async function () {
 
+        it("Should fail when not all array values are provided ", async function () {
+            await this.registry.setOwnAddress(contractAddress);
+            await this.registry.setIdentity(this.identity.address);
+
+            await shouldRevert(this.registry.requireSignedByIdentity(
+              [validRootHash, signingRoot.value, signature.salt],
+              [signature.value],
+              1000,
+              sender.value,
+              signature.sorted_hashes,
+              signingRoot.sorted_hashes
+              ),
+              "b32Values length should be 4 and btsValues 1"
+            );
+        })
 
         it("Should fail when the singingRoot is not part of the document ", async function () {
             await this.registry.setOwnAddress(contractAddress);
@@ -487,7 +546,7 @@ contract("UserMintableERC721", function (accounts) {
 
             let tokenUri = await this.registry.tokenURI(tokenId);
             // Validate the tokenURi
-            assert.equal(tokenUri.toLowerCase(),`${tokenUriBase}${addressToBytes20(this.registry.address)}/${tokenId}`.toLowerCase());
+            assert.equal(tokenUri.toLowerCase(),`${tokenUriBase}${this.registry.address}/${tokenId}`.toLowerCase());
             const firstTokenIndex = await this.registry.currentIndexOfToken(tokenId);
 
             // Mint a second nft

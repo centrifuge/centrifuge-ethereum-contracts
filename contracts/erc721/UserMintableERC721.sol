@@ -586,6 +586,12 @@ contract UserMintableERC721 is Initializable, ERC721, ERC721Enumerable, ERC721Me
   internal
   view
   {
+
+    require(
+      (b32Values.length == 4) && (btsValues.length == 1),
+      "b32Values length should be 4 and btsValues 1"
+    );
+
     require(
       signingRootProof.length == 1,
       "SigningRoot can have only one sibling"
@@ -599,14 +605,6 @@ contract UserMintableERC721 is Initializable, ERC721, ERC721Enumerable, ERC721Me
       ),
       "Signing Root not part of the document"
     );
-
-    // Reconstruct the compact property
-//    bytes memory transitionProperty_ = abi.encodePacked(
-//      SIGNATURE_TREE_SIGNATURES,
-//      identity,
-//      pbKey_,
-//      SIGNATURE_TREE_SIGNATURES_SIGNATURE_TRANSITION
-//    );
 
     // Reconstruct the precise proof property based on the provided identity
     // and the extracted public key

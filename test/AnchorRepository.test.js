@@ -6,6 +6,7 @@ const shouldSucceed = require('./tools/assertTx').shouldSucceed;
 const {keccak, bufferToHex, sha256, toUnsigned} = require('ethereumjs-util');
 const AnchorRepository = artifacts.require("AnchorRepository");
 const Identity = artifacts.require("Identity");
+const addressToBytes32 = require('./tools/utils').addressToBytes32;
 
 
 
@@ -131,7 +132,7 @@ contract("AnchorRepository", function (accounts) {
             await shouldSucceed(this.anchorRepository.commit(anchorId, documentRoot, proof, callOptions));
 
             let response = await this.anchorRepository.getAnchorById.call(hashedAnchorId, callOptions);
-            assert.equal(bufferToHex(hashedAnchorId), web3.utils.toHex(response[0]));
+            assert.equal(bufferToHex(hashedAnchorId), addressToBytes32(web3.utils.toHex(response[0])));
             assert.equal(documentRoot, response[1]);
 
             let blckNoResponse = await this.anchorRepository.getAnchorById.call(hashedAnchorId, callOptions);
