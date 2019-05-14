@@ -1,5 +1,4 @@
 const UtilitiesWrapper = artifacts.require("UtilitiesWrapper");
-const addressToBytes32 = require('./tools/utils').addressToBytes32;
 const bytesToBytesN = require('./tools/utils').bytesToBytesN;
 
 contract("Utilities", function (accounts) {
@@ -64,7 +63,7 @@ contract("Utilities", function (accounts) {
 
         });
 
-        it('should bla bla', async function () {
+        it('should honor the leading 0', async function () {
            const payload = "0x04048d5cc923ce97f9265dcf70f2fea47319c600954f04306a231561712b4693";
            const result = await this.utilities.bytesToUint(payload);
            console.log(bytesToBytesN(result, 32));
