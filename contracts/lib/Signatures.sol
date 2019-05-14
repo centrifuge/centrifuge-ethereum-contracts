@@ -3,6 +3,11 @@ pragma solidity ^0.5.3;
 
 library Signatures {
 
+  /**
+   * consensusSignatureToEthSignedMessageHash
+   * @dev prefix a bytes32(signingRoot) value and bytes1(transitionFlag) with "\x19Ethereum Signed Message:" with length 33
+   * and hash the result
+   */
   function consensusSignatureToEthSignedMessageHash(
     bytes32 signingRoot,
     bytes1 transitionFlag
