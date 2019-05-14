@@ -46,12 +46,14 @@ library Utilities {
   }
 
   /**
-   * @dev Parses a uint and returns the hex string
-   * @param payload uint
-   * @return string the corresponding hex string
+   * @dev Parses a uint to Hex String padding with leading 0s to the desired length
+   * @param payload uint of data
+   * @param size desired string length
+   * @return hex string result
    */
-  function uintToHexStr(
-    uint payload
+  function uintToHexStrPadded(
+    uint payload,
+    uint size
   )
   internal
   pure
@@ -60,7 +62,7 @@ library Utilities {
   )
   {
     if (payload == 0)
-      return "0";
+      return "00";
     // calculate string length
     uint i = payload;
     uint length;
@@ -69,11 +71,16 @@ library Utilities {
       length++;
       i = i >> 4;
     }
+
+    if (length > (size*2)) {
+      return "00";
+    }
+
+    bytes memory result = new bytes(size*2);
     // parse byte by byte and construct the string
     i = payload;
     uint mask = 15;
-    bytes memory result = new bytes(length);
-    uint k = length - 1;
+    uint k = (size*2) - 1;
 
     while (i != 0) {
       uint curr = (i & mask);
@@ -81,6 +88,12 @@ library Utilities {
       i = i >> 4;
     }
 
+    uint j;
+    while (j < ((size*2)-length)) {
+      result[j++] = byte(uint8(48));
+    }
+
     return string(result);
   }
+
 }

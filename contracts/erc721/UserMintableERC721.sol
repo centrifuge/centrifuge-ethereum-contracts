@@ -134,9 +134,9 @@ contract UserMintableERC721 is Initializable, ERC721, ERC721Enumerable, ERC721Me
       abi.encodePacked(
         _tokenUriBase,
         "0x",
-        Utilities.uintToHexStr(uint256(_getOwnAddress())),
+        Utilities.uintToHexStrPadded(uint256(_getOwnAddress()), 20),
         "/0x",
-        Utilities.uintToHexStr(tokenId)
+        Utilities.uintToHexStrPadded(tokenId, 32)
       )
     );
   }

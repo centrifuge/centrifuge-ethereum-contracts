@@ -35,9 +35,9 @@ contract UtilitiesWrapper {
     );
   }
 
-
-  function uintToHexStr(
-    uint payload
+  function uintToHexStrPadded(
+    uint payload,
+    uint size
   )
   public
   view
@@ -45,8 +45,10 @@ contract UtilitiesWrapper {
     string memory
   )
   {
-    return Utilities.uintToHexStr(
-      payload
+    return Utilities.uintToHexStrPadded(
+      payload,
+      size
     );
   }
+
 }

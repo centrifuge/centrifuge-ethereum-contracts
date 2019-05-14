@@ -4,6 +4,7 @@ pragma experimental ABIEncoderV2;
 import "zos-lib/contracts/Initializable.sol";
 import "contracts/erc721/UserMintableERC721.sol";
 import "contracts/Identity.sol";
+import "contracts/lib/Signatures.sol";
 
 
 contract InvoiceUnpaidNFT is Initializable, UserMintableERC721 {
@@ -182,7 +183,7 @@ contract InvoiceUnpaidNFT is Initializable, UserMintableERC721 {
     // Extract the public key from the signature
     bytes32 pbKey_ = bytes32(
       uint256(
-        sha256(abi.encodePacked(signingRoot_, pd.values[SIGNATURE_TRANSITION_IDX])).toEthSignedMessageHash().recover(pd.values[SIGNATURE_IDX]))
+        Signatures.consensusSignatureToEthSignedMessageHash(signingRoot_, pd.values[SIGNATURE_TRANSITION_IDX][0]).recover(pd.values[SIGNATURE_IDX]))
     );
 
     super._requireValidSignatureTransitionProof(
