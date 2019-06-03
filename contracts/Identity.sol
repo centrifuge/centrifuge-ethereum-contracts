@@ -64,24 +64,46 @@ contract Identity is KeyManager {
     address to,
     uint256 value,
     bytes memory data
-  )
+  ) onlyAction
   public
+  payable
   returns (bool success)
   {
-
-    bytes32 key_ = addressToKey(msg.sender);
-    require(
-      keyHasPurpose(key_, ACTION) && _keys[key_].revokedAt == 0,
-      "Requester must have an ACTION purpose"
-    );
-
     // solium-disable-next-line security/no-inline-assembly
     assembly {
-      // check if contract to be call exists
+      // check if contract to be called exists
       if iszero(extcodesize(to)) {
         revert(0, 0)
       }
       success := call(gas, to, value, add(data, 0x20), mload(data), 0, 0)
     }
   }
+  /**
+   * @dev Transfer eth
+   * @param to address of account where to transfer eth.
+   * it can not be a contract. Use execute method in that case
+   * @param value uint256 wei supply for proxy execution
+   * @param data bytes ABI encoded call data
+   */
+  function transferEth(
+    address to,
+    uint256 value,
+    bytes memory data
+  ) onlyAction
+  public
+  payable
+  returns (bool success)
+  {
+    // solium-disable-next-line security/no-inline-assembly
+    assembly {
+    // Make sure the address is not a contract
+      if gt(extcodesize(to),0) {
+        revert(0, 0)
+      }
+      success := call(gas, to, value, add(data, 0x20), mload(data), 0, 0)
+    }
+  }
+
+
+
 }

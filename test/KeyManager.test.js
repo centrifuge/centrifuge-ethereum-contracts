@@ -40,7 +40,7 @@ contract("KeyManager", function (accounts) {
             await this.identity.revokeKey(addressToBytes32(accounts[1]));
             await shouldRevert(
                 this.identity.addKey(key, P2P_IDENTITY, 1, {from: accounts[1]}),
-                "No management right"
+                "Sender must have MANAGEMENT purpose"
             );
         })
 

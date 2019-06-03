@@ -209,7 +209,19 @@ contract KeyManager {
     bytes32 key_ = addressToKey(msg.sender);
     require(
       keyHasPurpose(key_, MANAGEMENT) && _keys[key_].revokedAt == 0,
-      "No management right"
+      "Sender must have MANAGEMENT purpose"
+    );
+    _;
+  }
+
+  /**
+   * @dev Throws if called by any account other than a ACTION key.
+   */
+  modifier onlyAction() {
+    bytes32 key_ = addressToKey(msg.sender);
+    require(
+      keyHasPurpose(key_, ACTION) && _keys[key_].revokedAt == 0,
+      "Sender must have ACTION purpose"
     );
     _;
   }

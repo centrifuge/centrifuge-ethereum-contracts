@@ -99,7 +99,7 @@ contract("Gas costs", function (accounts) {
     describe("Check the gas cost for preCommit and commit with the identity proxy for ACTION key", async function () {
 
         const preCommitMaxGas = 95000;
-        const commitMaxGas = 85000;
+        const commitMaxGas = 175000;
         it(`should have preCommit gas cost less then ${preCommitMaxGas} `, async function () {
             const {anchorId, signingRoot, callOptions} = await getBasicTestNeeds(accounts);
 
@@ -193,7 +193,7 @@ contract("Gas costs", function (accounts) {
     });
 
     describe("check the gas cost for mint with the identity proxy for ACTION key", async function () {
-        const mintMaxGas = 833819;
+        const mintMaxGas = 862480;
         it(`should have mint gas cost less then ${mintMaxGas} `, async function () {
             await this.anchorRepository.commit(
                 docIdPreImage,
@@ -223,3 +223,9 @@ contract("Gas costs", function (accounts) {
     });
 });
 
+/*
+*
+*
+ACOUNTS 91582220760000000000
+ACOUNTS 100000000000000000000
+ACOUNTS 100000000000000000000*/

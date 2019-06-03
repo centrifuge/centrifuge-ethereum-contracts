@@ -37,26 +37,46 @@ contract("Identity", function (accounts) {
             const data = this.testProxy.contract.methods.callMe().encodeABI();
             await shouldRevert(
                 this.identity.execute(this.testProxy.address, 0, data),
-                "Requester must have an ACTION purpose"
+                "Sender must have ACTION purpose"
             );
-        })
-
+        });
 
         it('should execute contract method for identity ACTION key', async function () {
             const data = this.testProxy.contract.methods.callMe().encodeABI();
             await this.identity.addKey(addressToBytes32(accounts[1]), ACTION, 1);
-            shouldSucceed(await this.identity.execute(this.testProxy.address, 0, data, {from: accounts[1]}));
+            await shouldSucceed(this.identity.execute(this.testProxy.address, 0, data, {from: accounts[1]}));
             const numOfCalls = await this.testProxy.getCallsFrom(this.identity.address);
             assert.equal(1, numOfCalls.toNumber());
         })
 
+        it('should execute a payable contract method for identity ACTION key', async function () {
+            const data = this.testProxy.contract.methods.callMeWithMoney().encodeABI();
+            await this.identity.addKey(addressToBytes32(accounts[1]), ACTION, 1);
+            const value = web3.utils.toWei("1", 'ether');
+            await shouldSucceed(this.identity.execute(this.testProxy.address, value, data, {from: accounts[1], value}));
+            const numOfCalls = await this.testProxy.getPayedCallsFrom(this.identity.address);
+            assert.equal(1, numOfCalls.toNumber());
+            assert.equal(value, await web3.eth.getBalance(this.testProxy.address));
+        })
 
+
+        it('should transferEth using the a identity ACTION key', async function () {
+            await this.identity.addKey(addressToBytes32(accounts[2]), ACTION, 1);
+            const balanceBefore = await web3.eth.getBalance(accounts[1]);
+            const value = web3.utils.toWei("5", 'ether');
+            await shouldSucceed(this.identity.transferEth(accounts[1], value, "0x1234", {from: accounts[2], value}));
+
+            const newBalance = (new web3.utils.BN(balanceBefore)).add(new web3.utils.BN(value));
+
+            assert.equal(newBalance, await web3.eth.getBalance(accounts[1]))
+
+        })
 
         it('should revert execute for non ACTION keys ', async function () {
             const data = this.testProxy.contract.methods.callMe().encodeABI();
             await shouldRevert(
                 this.identity.execute(this.testProxy.address, 0, data, {from: accounts[2]}),
-                "Requester must have an ACTION purpose"
+                "Sender must have ACTION purpose"
             );
         })
 
@@ -64,9 +84,14 @@ contract("Identity", function (accounts) {
             const data = this.testProxy.contract.methods.callMe().encodeABI();
             await this.identity.addKey(addressToBytes32(accounts[1]), ACTION, 1);
             await shouldRevert(
-                this.identity.execute(this.testProxy.address, 0, data, {from: accounts[2]})
+                this.identity.execute(accounts[1], 0, data, {from: accounts[1]})
             );
         });
+
+        it('should fail to transferEth if the address is a contract', async function () {
+            await this.identity.addKey(addressToBytes32(accounts[1]), ACTION, 1);
+            await shouldRevert(this.identity.transferEth(this.testProxy.address, 1, "0x444", {from: accounts[1]}));
+        })
     })
 
 });

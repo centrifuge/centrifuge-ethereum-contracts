@@ -49,7 +49,6 @@ contract("Utilities", function (accounts) {
         it('it should return the same hex', async function () {
             const payload = web3.utils.randomHex(32);
             const result = await this.utilities.bytesToUint(payload);
-            console.log(web3.utils.toHex(result));
             assert.equal(web3.utils.toHex(result), payload)
 
         });
@@ -84,7 +83,6 @@ contract("Utilities", function (accounts) {
         it('it should return the same byte32 hex', async function () {
             const payload = web3.utils.randomHex(32);
             const result = await this.utilities.uintToHexStr(payload);
-            console.log(result);
             assert.equal("0x" + result.toLowerCase(), payload)
 
         });
@@ -92,7 +90,6 @@ contract("Utilities", function (accounts) {
         it('it should return the same 0x65', async function () {
             const payload = 101;
             const result = await this.utilities.uintToHexStr(payload);
-            console.log(result);
             assert.equal("0x" + result.toLowerCase(), web3.utils.toHex(payload))
 
         });
