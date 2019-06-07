@@ -4,8 +4,6 @@ pragma experimental ABIEncoderV2;
 import "zos-lib/contracts/Initializable.sol";
 import "contracts/erc721/UserMintableERC721.sol";
 import "contracts/Identity.sol";
-import "contracts/lib/Signatures.sol";
-
 
 contract InvoiceUnpaidNFT is Initializable, UserMintableERC721 {
 
