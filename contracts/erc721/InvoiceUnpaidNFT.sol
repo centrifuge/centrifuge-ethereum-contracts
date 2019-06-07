@@ -32,14 +32,13 @@ contract InvoiceUnpaidNFT is Initializable, UserMintableERC721 {
   uint8 constant internal DUE_DATE_IDX = 2;
   uint8 constant internal SENDER_IDX = 3;
   uint8 constant internal STATUS_IDX = 4;
-  uint8 constant internal SIGNING_ROOT_IDX = 5;
+  uint8 constant internal DOC_DATA_ROOT_IDX = 5;
   uint8 constant internal SIGNATURE_IDX = 6;
-  uint8 constant internal SIGNATURE_TRANSITION_IDX = 7;
-  uint8 constant internal NEXT_VERSION_IDX = 8;
-  uint8 constant internal NFT_UNIQUE_IDX = 9;
-  uint8 constant internal READ_ROLE_IDX = 10;
-  uint8 constant internal READ_ROLE_ACTION_IDX = 11;
-  uint8 constant internal TOKEN_ROLE_IDX = 12;
+  uint8 constant internal NEXT_VERSION_IDX = 7;
+  uint8 constant internal NFT_UNIQUE_IDX = 8;
+  uint8 constant internal READ_ROLE_IDX = 9;
+  uint8 constant internal READ_ROLE_ACTION_IDX = 10;
+  uint8 constant internal TOKEN_ROLE_IDX = 11;
 
   // Token details, specific field values
   mapping(uint256 => TokenDetails) internal _tokenDetails;
@@ -152,14 +151,17 @@ contract InvoiceUnpaidNFT is Initializable, UserMintableERC721 {
 
     // Get the document root from AnchorRepository
     (bytes32 documentRoot_, uint32 anchoredBlock_) = super._getDocumentRoot(anchorId);
-    bytes32 signingRoot_ = bytes32(Utilities.bytesToUint(pd.values[SIGNING_ROOT_IDX]));
+    bytes32 docDataRoot_ = bytes32(Utilities.bytesToUint(pd.values[DOC_DATA_ROOT_IDX]));
     uint256 nextAnchorId_ = Utilities.bytesToUint(pd.values[NEXT_VERSION_IDX]);
+    bytes signatureOnly = pd.values[SIGNATURE_IDX];
+    delete signatureOnly[signatureOnly.length-1];
+    signatureOnly.length--;
 
     // Check if status of invoice is unpaid
     require(
       MerkleProof.verifySha256(
         pd.proofs[STATUS_IDX],
-        signingRoot_,
+        docDataRoot_,
         sha256(
           abi.encodePacked(
             INVOICE_STATUS, // compact property for  invoice.status, invoice = 1, status = 2
@@ -173,7 +175,7 @@ contract InvoiceUnpaidNFT is Initializable, UserMintableERC721 {
 
     // Check if sender is a registered identity
     super._requireValidIdentity(
-      signingRoot_,
+      docDataRoot_,
       INVOICE_SENDER,
       _getSender(),
       pd.salts[SENDER_IDX],
@@ -183,21 +185,13 @@ contract InvoiceUnpaidNFT is Initializable, UserMintableERC721 {
     // Extract the public key from the signature
     bytes32 pbKey_ = bytes32(
       uint256(
-        Signatures.consensusSignatureToEthSignedMessageHash(signingRoot_, pd.values[SIGNATURE_TRANSITION_IDX][0]).recover(pd.values[SIGNATURE_IDX]))
-    );
-
-    super._requireValidSignatureTransitionProof(
-      documentRoot_,
-      _getSender(),
-      pbKey_,
-      pd.values[SIGNATURE_TRANSITION_IDX],
-      pd.salts[SIGNATURE_TRANSITION_IDX],
-      pd.proofs[SIGNATURE_TRANSITION_IDX]
+        docDataRoot_.toEthSignedMessageHash().recover(signatureOnly)
+      )
     );
 
     bytes32[] memory b32Values = new bytes32[](4);
     b32Values[0] = documentRoot_;
-    b32Values[1] = signingRoot_;
+    b32Values[1] = docDataRoot_;
     b32Values[2] = pd.salts[SIGNATURE_IDX];
     b32Values[3] = pbKey_;
 
@@ -211,12 +205,12 @@ contract InvoiceUnpaidNFT is Initializable, UserMintableERC721 {
       anchoredBlock_,
       _getSender(),
       pd.proofs[SIGNATURE_IDX],
-      pd.proofs[SIGNING_ROOT_IDX]
+      pd.proofs[DOC_DATA_ROOT_IDX]
     );
 
     // Enforce that there is not a newer version of the document on chain
     super._requireIsLatestDocumentVersion(
-      signingRoot_,
+      docDataRoot_,
       nextAnchorId_,
       pd.salts[NEXT_VERSION_IDX],
       pd.proofs[NEXT_VERSION_IDX]
@@ -224,7 +218,7 @@ contract InvoiceUnpaidNFT is Initializable, UserMintableERC721 {
 
     // Verify that only one token per document/registry is minted
     super._requireOneTokenPerDocument(
-      signingRoot_,
+      docDataRoot_,
       tokenId,
       pd.salts[NFT_UNIQUE_IDX],
       pd.proofs[NFT_UNIQUE_IDX]
@@ -232,7 +226,7 @@ contract InvoiceUnpaidNFT is Initializable, UserMintableERC721 {
 
     // Check if document has a read rule defined
     bytes8 readRoleIndex = super._requireReadRole(
-      signingRoot_,
+      docDataRoot_,
       pd.properties[READ_ROLE_IDX],
       pd.values[READ_ROLE_IDX],
       pd.salts[READ_ROLE_IDX],
@@ -241,7 +235,7 @@ contract InvoiceUnpaidNFT is Initializable, UserMintableERC721 {
 
     // Check if the read rule has a read action
     super._requireReadAction(
-      signingRoot_,
+      docDataRoot_,
       readRoleIndex,
       pd.salts[READ_ROLE_ACTION_IDX],
       pd.proofs[READ_ROLE_ACTION_IDX]
@@ -249,7 +243,7 @@ contract InvoiceUnpaidNFT is Initializable, UserMintableERC721 {
 
     // Check if the token has the read role assigned to it
     super._requireTokenHasRole(
-      signingRoot_,
+      docDataRoot_,
       tokenId,
       pd.properties[TOKEN_ROLE_IDX],
       pd.values[READ_ROLE_IDX], // the value from read role proof
@@ -262,7 +256,7 @@ contract InvoiceUnpaidNFT is Initializable, UserMintableERC721 {
       to,
       tokenId,
       anchorId,
-      signingRoot_,
+      docDataRoot_,
       pd.values,
       pd.salts,
       pd.proofs

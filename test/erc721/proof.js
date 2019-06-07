@@ -10,12 +10,11 @@ let sender = proof.field_proofs[3];
 let status = proof.field_proofs[4];
 let signingRoot = proof.field_proofs[5];
 let signature = proof.field_proofs[6];
-let signatureTransition = proof.field_proofs[7];
-let nextVersion = proof.field_proofs[8];
-let nftUnique = proof.field_proofs[9];
-let readRole = proof.field_proofs[10];
-let readRoleAction = proof.field_proofs[11];
-let tokenRole = proof.field_proofs[12];
+let nextVersion = proof.field_proofs[7];
+let nftUnique = proof.field_proofs[8];
+let readRole = proof.field_proofs[9];
+let readRoleAction = proof.field_proofs[10];
+let tokenRole = proof.field_proofs[11];
 
 
 let tokenId = nftUnique.value.match(/^0x0/) ? nftUnique.value.replace(/^0x0/,'0x') : nftUnique.value;
@@ -33,7 +32,6 @@ module.exports = {
     status,
     signingRoot,
     signature,
-    signatureTransition,
     nextVersion,
     nftUnique,
     readRole,
@@ -55,7 +53,6 @@ module.exports = {
             status.property,
             signingRoot.property,
             signature.property,
-            signatureTransition.property,
             nextVersion.property,
             nftUnique.property,
             readRole.property,
@@ -70,7 +67,6 @@ module.exports = {
             status.value,
             signingRoot.hash,
             signature.value,
-            signatureTransition.value,
             nextVersion.value,
             nftUnique.value,
             readRole.value,
@@ -85,7 +81,6 @@ module.exports = {
             status.salt,
             signingRoot.salt,
             signature.salt,
-            signatureTransition.salt,
             nextVersion.salt,
             nftUnique.salt,
             readRole.salt,
@@ -106,7 +101,6 @@ module.exports = {
             status.sorted_hashes.slice(0,-1),
             signingRoot.sorted_hashes,
             signature.sorted_hashes,
-            signatureTransition.sorted_hashes,
             nextVersion.sorted_hashes.slice(0,-1),
             nftUnique.sorted_hashes.slice(0,-1),
             readRole.sorted_hashes.slice(0,-1),
