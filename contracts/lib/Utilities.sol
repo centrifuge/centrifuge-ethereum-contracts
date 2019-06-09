@@ -3,6 +3,7 @@ pragma solidity ^0.5.3;
 import "openzeppelin-eth/contracts/cryptography/ECDSA.sol";
 import "contracts/lib/Signatures.sol";
 
+
 library Utilities {
   using ECDSA for bytes32;
   /**
@@ -111,9 +112,10 @@ library Utilities {
   pure
   returns (
     bytes memory
-  ) {
+  )
+  {
     bytes memory output = new bytes(payload.length-1);
-    for (uint i = 0; i<payload.length-1; i++){
+    for (uint i = 0; i<payload.length-1; i++) {
       output[i] = payload[i];
     }
     return output;

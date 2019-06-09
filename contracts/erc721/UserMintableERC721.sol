@@ -569,6 +569,7 @@ contract UserMintableERC721 is Initializable, ERC721, ERC721Enumerable, ERC721Me
     );
 
     (bytes32 pbKey_, bool result) = Utilities.recoverPublicKeyFromConsensusSignature(btsValues[0], b32Values[1]);
+
     if (!result) {
       revert();
     }
