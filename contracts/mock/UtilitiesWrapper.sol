@@ -51,4 +51,31 @@ contract UtilitiesWrapper {
     );
   }
 
+  function removeLastElement(
+    bytes memory array
+  )
+  public
+  view
+  returns (
+    bytes memory
+  )
+  {
+    return Utilities.removeLastElement(array);
+  }
+
+
+  function recoverPublicKeyFromConsensusSignature(
+    bytes memory signature,
+    bytes32 docDataRoot
+  )
+  public
+  view
+  returns (
+    bytes32,
+    bool
+  )
+  {
+    return Utilities.recoverPublicKeyFromConsensusSignature(signature, docDataRoot);
+  }
+
 }

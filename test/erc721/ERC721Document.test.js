@@ -1,4 +1,4 @@
-const shouldRevert = require('../tools/assertTx').shouldRevert
+const shouldRevert = require('../tools/assertTx').shouldRevert;
 const MockAnchorRegistry = artifacts.require("MockAnchorRepository");
 const MockIdentityFactory = artifacts.require("MockIdentityFactory");
 const MockUserMintableERC721 = artifacts.require("MockUserMintableERC721");
@@ -14,9 +14,8 @@ contract("UserMintableERC721", function (accounts) {
         grossAmount,
         currency,
         sender,
-        signingRoot,
+        docDataRoot,
         signature,
-        signatureTransition,
         nextVersion,
         nftUnique,
         readRole,
@@ -338,51 +337,6 @@ contract("UserMintableERC721", function (accounts) {
 
     });
 
-    describe("_requireValidSignatureTransitionProof", async function () {
-
-        it("Should fail when wrong property provided", async function () {
-            await shouldRevert(
-              this.registry.requireValidSignatureTransitionProof(
-                validRootHash,
-                accounts[1],
-                publicKey,
-                signatureTransition.value,
-                signatureTransition.salt,
-                signatureTransition.sorted_hashes
-              ),
-              "Signature Transition is not valid"
-            );
-        })
-
-        it("Should fail when signatureTransition is not part of the document root", async function () {
-            await shouldRevert(
-              this.registry.requireValidSignatureTransitionProof(
-                validRootHash,
-                sender.value,
-                publicKey,
-                signatureTransition.value,
-                signatureTransition.salt,
-                [...signatureTransition.sorted_hashes, validRootHash]
-              ),
-              "Signature Transition is not valid"
-            );
-        })
-
-        it("Should pass with a valid signatureTransition proof", async function () {
-
-            await this.registry.requireValidSignatureTransitionProof(
-              validRootHash,
-              sender.value,
-              publicKey,
-              signatureTransition.value,
-              signatureTransition.salt,
-              signatureTransition.sorted_hashes
-            )
-
-        })
-
-    });
-
     describe("_requireSignedByIdentity", async function () {
 
         it("Should fail when not all array values are provided ", async function () {
@@ -390,46 +344,46 @@ contract("UserMintableERC721", function (accounts) {
             await this.registry.setIdentity(this.identity.address);
 
             await shouldRevert(this.registry.requireSignedByIdentity(
-              [validRootHash, signingRoot.value, signature.salt],
+              [validRootHash, docDataRoot.value],
               [signature.value],
               1000,
               sender.value,
               signature.sorted_hashes,
-              signingRoot.sorted_hashes
+              docDataRoot.sorted_hashes
               ),
-              "b32Values length should be 4 and btsValues 1"
+              "b32Values length should be 3 and btsValues 1"
             );
         })
 
-        it("Should fail when the singingRoot is not part of the document ", async function () {
+        it("Should fail when the docDataRoot is not part of the document ", async function () {
             await this.registry.setOwnAddress(contractAddress);
             await this.registry.setIdentity(this.identity.address);
 
             await shouldRevert(this.registry.requireSignedByIdentity(
-                [validRootHash, signingRoot.value, signature.salt, publicKey],
+                [validRootHash, docDataRoot.value, signature.salt],
                 [signature.value],
                 1000,
                 sender.value,
                 signature.sorted_hashes,
-                signingRoot.sorted_hashes
+                docDataRoot.sorted_hashes
                 ),
-                "Signing Root not part of the document"
+                "Document Data Root not part of the document"
             );
         })
 
-        it("Should fail when the singingRoot is not part of the document ", async function () {
+        it("Should fail when the docDataRoot is not part of the document ", async function () {
             await this.registry.setOwnAddress(contractAddress);
             await this.registry.setIdentity(this.identity.address);
 
             await shouldRevert(this.registry.requireSignedByIdentity(
-                [validRootHash, signingRoot.value, signature.salt, publicKey],
+                [validRootHash, docDataRoot.value, signature.salt],
                 [signature.value],
                 1000,
                 sender.value,
                 signature.sorted_hashes,
-                [...signingRoot.sorted_hashes,documentIdentifier]
+                [...docDataRoot.sorted_hashes,documentIdentifier]
                 ),
-                "SigningRoot can have only one sibling"
+                "Document Data Root can have only one sibling"
             );
         })
 
@@ -439,30 +393,28 @@ contract("UserMintableERC721", function (accounts) {
             await this.registry.setIdentity(this.identity.address);
 
             await shouldRevert(this.registry.requireSignedByIdentity(
-                [validRootHash, signingRoot.hash, signature.salt, publicKey],
-                [signature.hash],
+                [validRootHash, docDataRoot.hash, signature.hash],
+                [signature.value],
                 1000,
                 sender.value,
                 signature.sorted_hashes,
-                signingRoot.sorted_hashes
+                docDataRoot.sorted_hashes
                 ),
                 "Provided signature is not part of the document root"
             );
         })
 
 
-
-
         it("Should fail when it can not find the identity contract ", async function () {
             await this.registry.setOwnAddress(contractAddress);
 
             await shouldRevert(this.registry.requireSignedByIdentity(
-                [validRootHash, signingRoot.hash, signature.salt, publicKey],
+                [validRootHash, docDataRoot.hash, signature.salt],
                 [signature.value],
                 1000,
                 sender.value,
                 signature.sorted_hashes,
-                signingRoot.sorted_hashes
+                docDataRoot.sorted_hashes
                 )
             );
         });
@@ -472,12 +424,12 @@ contract("UserMintableERC721", function (accounts) {
             await this.registry.setIdentity(identity.address);
 
             await shouldRevert(this.registry.requireSignedByIdentity(
-                [validRootHash, signingRoot.hash, signature.salt, publicKey],
+                [validRootHash, docDataRoot.hash, signature.salt],
                 [signature.value],
                 1000,
                 sender.value,
                 signature.sorted_hashes,
-                signingRoot.sorted_hashes
+                docDataRoot.sorted_hashes
                 ),
                 "Signature key not valid"
             );
@@ -490,12 +442,12 @@ contract("UserMintableERC721", function (accounts) {
             await identity.revokeKey(publicKey);
 
             await shouldRevert(this.registry.requireSignedByIdentity(
-                [validRootHash, signingRoot.hash, signature.salt, publicKey],
+                [validRootHash, docDataRoot.hash, signature.salt],
                 [signature.value],
                 999999,
                 sender.value,
                 signature.sorted_hashes,
-                signingRoot.sorted_hashes
+                docDataRoot.sorted_hashes
                 ),
                 "Document signed with a revoked key"
             );
@@ -506,12 +458,12 @@ contract("UserMintableERC721", function (accounts) {
             await this.registry.setIdentity(this.identity.address);
 
             await this.registry.requireSignedByIdentity(
-                [validRootHash, signingRoot.hash, signature.salt, publicKey],
+                [validRootHash, docDataRoot.hash, signature.salt],
                 [signature.value],
                 1000,
                 sender.value,
                 signature.sorted_hashes,
-                signingRoot.sorted_hashes
+                docDataRoot.sorted_hashes
             )
         })
 

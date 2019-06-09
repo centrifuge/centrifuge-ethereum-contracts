@@ -1,7 +1,10 @@
 pragma solidity ^0.5.3;
 
+import "openzeppelin-eth/contracts/cryptography/ECDSA.sol";
+import "contracts/lib/Signatures.sol";
 
 library Utilities {
+  using ECDSA for bytes32;
   /**
  * @dev Parses bytes and extracts a bytes8 value from
  * the given starting point
@@ -94,6 +97,58 @@ library Utilities {
     }
 
     return string(result);
+  }
+
+  /**
+   * @dev Removes the last element of byte array
+   * @param payload bytes of data
+   * @return byte array without last element
+   */
+  function removeLastElement(
+    bytes memory payload
+  )
+  internal
+  pure
+  returns (
+    bytes memory
+  ) {
+    bytes memory output = new bytes(payload.length-1);
+    for (uint i = 0; i<payload.length-1; i++){
+      output[i] = payload[i];
+    }
+    return output;
+  }
+
+  /**
+ * @dev Extracts public key from signature and payload for consensus signing (signature+transitionValidation)
+ * @param signature bytes of signature
+ * @param docDataRoot bytes32 of signed data
+ * @return byte32 of public key
+ * @return bool true if success, false otherwise
+ */
+  function recoverPublicKeyFromConsensusSignature(
+    bytes memory signature,
+    bytes32 docDataRoot
+  )
+  internal
+  pure
+  returns (
+    bytes32,
+    bool
+  )
+  {
+    if (signature.length != 66) {
+      return (0, false);
+    }
+
+    bytes memory signatureOnly = removeLastElement(signature);
+
+    // Extract the public key from the signature
+    return (bytes32(
+      uint256(
+        Signatures.consensusSignatureToEthSignedMessageHash(docDataRoot, signature[signature.length-1]).recover(signatureOnly)
+      )
+    ), true);
   }
 
 }

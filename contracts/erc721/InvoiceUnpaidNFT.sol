@@ -5,6 +5,7 @@ import "zos-lib/contracts/Initializable.sol";
 import "contracts/erc721/UserMintableERC721.sol";
 import "contracts/Identity.sol";
 
+
 contract InvoiceUnpaidNFT is Initializable, UserMintableERC721 {
 
   event InvoiceUnpaidMinted(
@@ -151,9 +152,6 @@ contract InvoiceUnpaidNFT is Initializable, UserMintableERC721 {
     (bytes32 documentRoot_, uint32 anchoredBlock_) = super._getDocumentRoot(anchorId);
     bytes32 docDataRoot_ = bytes32(Utilities.bytesToUint(pd.values[DOC_DATA_ROOT_IDX]));
     uint256 nextAnchorId_ = Utilities.bytesToUint(pd.values[NEXT_VERSION_IDX]);
-    bytes signatureOnly = pd.values[SIGNATURE_IDX];
-    delete signatureOnly[signatureOnly.length-1];
-    signatureOnly.length--;
 
     // Check if status of invoice is unpaid
     require(
@@ -180,18 +178,10 @@ contract InvoiceUnpaidNFT is Initializable, UserMintableERC721 {
       pd.proofs[SENDER_IDX]
     );
 
-    // Extract the public key from the signature
-    bytes32 pbKey_ = bytes32(
-      uint256(
-        docDataRoot_.toEthSignedMessageHash().recover(signatureOnly)
-      )
-    );
-
-    bytes32[] memory b32Values = new bytes32[](4);
+    bytes32[] memory b32Values = new bytes32[](3);
     b32Values[0] = documentRoot_;
     b32Values[1] = docDataRoot_;
     b32Values[2] = pd.salts[SIGNATURE_IDX];
-    b32Values[3] = pbKey_;
 
     bytes[] memory btsValues = new bytes[](1);
     btsValues[0] = pd.values[SIGNATURE_IDX];

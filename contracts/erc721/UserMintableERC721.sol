@@ -10,7 +10,6 @@ import "contracts/Identity.sol";
 import "contracts/IdentityFactory.sol";
 import "contracts/lib/MerkleProof.sol";
 import "contracts/lib/Utilities.sol";
-import "openzeppelin-eth/contracts/cryptography/ECDSA.sol";
 
 
 
@@ -23,9 +22,6 @@ import "openzeppelin-eth/contracts/cryptography/ECDSA.sol";
  * The precise proofs validation expects proof generation with compact properties  https://github.com/centrifuge/centrifuge-protobufs
  */
 contract UserMintableERC721 is Initializable, ERC721, ERC721Enumerable, ERC721Metadata {
-
-  using ECDSA for bytes32;
-
 
   // anchor registry
   address internal _anchorRegistry;
@@ -73,7 +69,7 @@ contract UserMintableERC721 is Initializable, ERC721, ERC721Enumerable, ERC721Me
   // Value for a Read Action. 1 means is has Read Access
   bytes constant internal READ_ACTION_VALUE = hex"0000000000000002";
   // Value for invoice status. bytes for 'unpaid'
-  bytes constant internal INVOICE_STATUS_UNPAID = hex"756e70616964";
+  bytes constant internal INVOICE_STATUS_UNPAID = hex"756e706169640000000000000000000000000000000000000000000000000000";
   // Value of the Signature purpose for an identity. sha256('CENTRIFUGE@SIGNING')
   // solium-disable-next-line
   uint256 constant internal SIGNING_PURPOSE = 0x774a43710604e3ce8db630136980a6ba5a65b5e6686ee51009ed5f3fded6ea7e;
@@ -533,7 +529,7 @@ contract UserMintableERC721 is Initializable, ERC721, ERC721Enumerable, ERC721Me
    * @dev Checks that provided document is signed by the given identity
    * and validates and checks if the public key used is a valid SIGNING_KEY
    * Max number of variables reached
-   * @param b32Values bytes32[] contains [anchored document root, docDataRoot, salt, pbKey]
+   * @param b32Values bytes32[] contains [anchored document root, docDataRoot, salt]
    * @param btsValues bytes[] contains [signature]
    * @param anchoredBlock uint32 block number for when the document root was anchored
    * @param identity address Identity that signed the document
@@ -554,13 +550,13 @@ contract UserMintableERC721 is Initializable, ERC721, ERC721Enumerable, ERC721Me
   {
 
     require(
-      (b32Values.length == 4) && (btsValues.length == 1),
-      "b32Values length should be 4 and btsValues 1"
+      (b32Values.length == 3) && (btsValues.length == 1),
+      "b32Values length should be 3 and btsValues 1"
     );
 
     require(
       docDataRootProof.length == 1,
-      "docDataRoot can have only one sibling"
+      "Document Data Root can have only one sibling"
     );
 
     require(
@@ -572,14 +568,18 @@ contract UserMintableERC721 is Initializable, ERC721, ERC721Enumerable, ERC721Me
       "Document Data Root not part of the document"
     );
 
+    (bytes32 pbKey_, bool result) = Utilities.recoverPublicKeyFromConsensusSignature(btsValues[0], b32Values[1]);
+    if (!result) {
+      revert();
+    }
+
     // Reconstruct the precise proof property based on the provided identity
     // and the extracted public key
     bytes memory property_ = abi.encodePacked(
       SIGNATURE_TREE_SIGNATURES,
       identity,
-      b32Values[3]
+      pbKey_
     );
-
 
     // Check with precise proofs if the signature is part of the documentRoot
     require(
@@ -593,12 +593,12 @@ contract UserMintableERC721 is Initializable, ERC721, ERC721Enumerable, ERC721Me
 
     // Check if the public key has a signature purpose on the provided identity
     require(
-      _getIdentity(identity).keyHasPurpose(b32Values[3], SIGNING_PURPOSE),
+      _getIdentity(identity).keyHasPurpose(pbKey_, SIGNING_PURPOSE),
       "Signature key not valid"
     );
 
     // If key is revoked anchor must be older the the key revocation
-    (, , uint32 revokedAt_) = _getIdentity(identity).getKey(b32Values[3]);
+    (, , uint32 revokedAt_) = _getIdentity(identity).getKey(pbKey_);
     if (revokedAt_ > 0) {
       require(
         anchoredBlock < revokedAt_,

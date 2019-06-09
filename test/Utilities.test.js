@@ -1,7 +1,15 @@
+const shouldRevert = require('./tools/assertTx').shouldRevert;
 const UtilitiesWrapper = artifacts.require("UtilitiesWrapper");
 const bytesToBytesN = require('./tools/utils').bytesToBytesN;
+const proof = require("./erc721/proof.js");
 
 contract("Utilities", function (accounts) {
+
+    let {
+        docDataRoot,
+        signature,
+        publicKey
+    } = proof;
 
     beforeEach(async function () {
         this.utilities = await UtilitiesWrapper.new();
@@ -133,6 +141,40 @@ contract("Utilities", function (accounts) {
 
         });
 
+    });
+
+    describe("removeLastElement", async function () {
+        it('should return the same byte array minus last element', async function () {
+            const payload = web3.utils.randomHex(33);
+            const result = await this.utilities.removeLastElement(payload);
+            assert.equal(result.toLowerCase(), payload.substr(0,payload.length-2))
+
+        });
+    });
+
+    describe("removeLastElementFromProof", async function () {
+        it('should return the same byte array minus last element on proof', async function () {
+            const payload = signature.value;
+            const result = await this.utilities.removeLastElement(payload);
+            assert.equal(result.toLowerCase(), payload.substr(0,payload.length-2))
+
+        });
+    });
+
+    describe("recoverPublicKeyFromPayload", async function () {
+
+        it('should fail when signature length is not 66 bytes', async function() {
+            const signature = web3.utils.randomHex(65);
+            const res = await this.utilities.recoverPublicKeyFromConsensusSignature(signature, docDataRoot.hash);
+            assert.equal(res[1], false);
+        });
+
+        it('should return the same public key used for signing', async function () {
+            const res = await this.utilities.recoverPublicKeyFromConsensusSignature(signature.value, docDataRoot.hash);
+            assert.equal(res[1], true);
+            assert.equal(res[0], publicKey);
+
+        });
     });
 
 
