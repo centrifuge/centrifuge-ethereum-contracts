@@ -69,6 +69,7 @@ contract UserMintableERC721 is Initializable, ERC721, ERC721Enumerable, ERC721Me
   // Value for a Read Action. 1 means is has Read Access
   bytes constant internal READ_ACTION_VALUE = hex"0000000000000002";
   // Value for invoice status. bytes for 'unpaid'
+  // solium-disable-next-line max-len
   bytes constant internal INVOICE_STATUS_UNPAID = hex"756e706169640000000000000000000000000000000000000000000000000000";
   // Value of the Signature purpose for an identity. sha256('CENTRIFUGE@SIGNING')
   // solium-disable-next-line
@@ -568,6 +569,7 @@ contract UserMintableERC721 is Initializable, ERC721, ERC721Enumerable, ERC721Me
       "Document Data Root not part of the document"
     );
 
+    // solium-disable-next-line max-len
     (bytes32 pbKey_, bool result) = Utilities.recoverPublicKeyFromConsensusSignature(btsValues[0], b32Values[1]);
 
     if (!result) {
