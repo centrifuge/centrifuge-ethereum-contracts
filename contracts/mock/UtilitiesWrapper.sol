@@ -71,8 +71,7 @@ contract UtilitiesWrapper {
   public
   view
   returns (
-    bytes32,
-    bool
+    bytes32
   )
   {
     return Utilities.recoverPublicKeyFromConsensusSignature(signature, docDataRoot);

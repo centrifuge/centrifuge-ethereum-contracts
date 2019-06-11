@@ -165,14 +165,13 @@ contract("Utilities", function (accounts) {
 
         it('should fail when signature length is not 66 bytes', async function() {
             const signature = web3.utils.randomHex(65);
-            const res = await this.utilities.recoverPublicKeyFromConsensusSignature(signature, docDataRoot.hash);
-            assert.equal(res[1], false);
+            const pk = await this.utilities.recoverPublicKeyFromConsensusSignature(signature, docDataRoot.hash);
+            assert.equal(pk, "0x0000000000000000000000000000000000000000000000000000000000000000");
         });
 
         it('should return the same public key used for signing', async function () {
-            const res = await this.utilities.recoverPublicKeyFromConsensusSignature(signature.value, docDataRoot.hash);
-            assert.equal(res[1], true);
-            assert.equal(res[0], publicKey);
+            const pk = await this.utilities.recoverPublicKeyFromConsensusSignature(signature.value, docDataRoot.hash);
+            assert.equal(pk, publicKey);
 
         });
     });

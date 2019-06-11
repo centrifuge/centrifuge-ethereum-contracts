@@ -404,6 +404,21 @@ contract("UserMintableERC721", function (accounts) {
             );
         })
 
+        it("Should fail when signature provided has wrong length ", async function () {
+            await this.registry.setOwnAddress(contractAddress);
+            await this.registry.setIdentity(this.identity.address);
+
+            await shouldRevert(this.registry.requireSignedByIdentity(
+                [validRootHash, docDataRoot.hash, signature.salt],
+                [signature.value+"0f"],
+                1000,
+                sender.value,
+                signature.sorted_hashes,
+                docDataRoot.sorted_hashes
+              ),
+              "wrong recovered public key"
+            );
+        })
 
         it("Should fail when it can not find the identity contract ", async function () {
             await this.registry.setOwnAddress(contractAddress);

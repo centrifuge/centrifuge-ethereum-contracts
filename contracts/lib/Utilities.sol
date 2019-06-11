@@ -135,22 +135,21 @@ library Utilities {
   internal
   pure
   returns (
-    bytes32,
-    bool
+    bytes32
   )
   {
     if (signature.length != 66) {
-      return (0, false);
+      return 0;
     }
 
     bytes memory signatureOnly = removeLastElement(signature);
 
     // Extract the public key from the signature
-    return (bytes32(
+    return bytes32(
       uint256(
         Signatures.consensusSignatureToEthSignedMessageHash(docDataRoot, signature[signature.length-1]).recover(signatureOnly)
       )
-    ), true);
+    );
   }
 
 }

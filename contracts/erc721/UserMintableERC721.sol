@@ -569,12 +569,8 @@ contract UserMintableERC721 is Initializable, ERC721, ERC721Enumerable, ERC721Me
       "Document Data Root not part of the document"
     );
 
-    // solium-disable-next-line max-len
-    (bytes32 pbKey_, bool result) = Utilities.recoverPublicKeyFromConsensusSignature(btsValues[0], b32Values[1]);
-
-    if (!result) {
-      revert();
-    }
+    bytes32 pbKey_ = Utilities.recoverPublicKeyFromConsensusSignature(btsValues[0], b32Values[1]);
+    require(pbKey_ != 0, "wrong recovered public key");
 
     // Reconstruct the precise proof property based on the provided identity
     // and the extracted public key
