@@ -4,6 +4,7 @@ import "openzeppelin-eth/contracts/cryptography/ECDSA.sol";
 import "contracts/lib/Signatures.sol";
 import "solidity-bytes-utils/contracts/BytesLib.sol";
 
+
 library Utilities {
   using ECDSA for bytes32;
   /**
@@ -98,27 +99,6 @@ library Utilities {
     }
 
     return string(result);
-  }
-
-  /**
-   * @dev Removes the last element of byte array
-   * @param payload bytes of data
-   * @return byte array without last element
-   */
-  function removeLastElement(
-    bytes memory payload
-  )
-  internal
-  pure
-  returns (
-    bytes memory
-  )
-  {
-    bytes memory output = new bytes(payload.length-1);
-    for (uint i = 0; i<payload.length-1; i++) {
-      output[i] = payload[i];
-    }
-    return output;
   }
 
   /**

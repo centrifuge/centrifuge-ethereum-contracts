@@ -143,24 +143,6 @@ contract("Utilities", function (accounts) {
 
     });
 
-    describe("removeLastElement", async function () {
-        it('should return the same byte array minus last element', async function () {
-            const payload = web3.utils.randomHex(33);
-            const result = await this.utilities.removeLastElement(payload);
-            assert.equal(result.toLowerCase(), payload.substr(0,payload.length-2))
-
-        });
-    });
-
-    describe("removeLastElementFromProof", async function () {
-        it('should return the same byte array minus last element on proof', async function () {
-            const payload = signature.value;
-            const result = await this.utilities.removeLastElement(payload);
-            assert.equal(result.toLowerCase(), payload.substr(0,payload.length-2))
-
-        });
-    });
-
     describe("recoverPublicKeyFromPayload", async function () {
 
         it('should fail when signature length is not 66 bytes', async function() {
