@@ -10,7 +10,6 @@ import "contracts/Identity.sol";
 import "contracts/IdentityFactory.sol";
 import "contracts/lib/MerkleProof.sol";
 import "contracts/lib/Utilities.sol";
-import "openzeppelin-eth/contracts/cryptography/ECDSA.sol";
 
 
 
@@ -23,9 +22,6 @@ import "openzeppelin-eth/contracts/cryptography/ECDSA.sol";
  * The precise proofs validation expects proof generation with compact properties  https://github.com/centrifuge/centrifuge-protobufs
  */
 contract UserMintableERC721 is Initializable, ERC721, ERC721Enumerable, ERC721Metadata {
-
-  using ECDSA for bytes32;
-
 
   // anchor registry
   address internal _anchorRegistry;
@@ -68,18 +64,23 @@ contract UserMintableERC721 is Initializable, ERC721, ERC721Enumerable, ERC721Me
   bytes constant internal ROLES_NFTS = hex"00000004";
   // compact prop for "signatures_tree.signatures"
   bytes constant internal SIGNATURE_TREE_SIGNATURES = hex"0300000000000001";
-  // compact prop for "signature" for a signature tree signature
-  bytes constant internal SIGNATURE_TREE_SIGNATURES_SIGNATURE = hex"00000004";
 
   // Constants used as values
   // Value for a Read Action. 1 means is has Read Access
   bytes constant internal READ_ACTION_VALUE = hex"0000000000000002";
   // Value for invoice status. bytes for 'unpaid'
-  bytes constant internal INVOICE_STATUS_UNPAID = hex"756e70616964";
+  // solium-disable-next-line max-len
+  bytes constant internal INVOICE_STATUS_UNPAID = hex"756e706169640000000000000000000000000000000000000000000000000000";
   // Value of the Signature purpose for an identity. sha256('CENTRIFUGE@SIGNING')
   // solium-disable-next-line
   uint256 constant internal SIGNING_PURPOSE = 0x774a43710604e3ce8db630136980a6ba5a65b5e6686ee51009ed5f3fded6ea7e;
 
+  struct ProofsDetails {
+    bytes[] properties;
+    bytes[] values;
+    bytes32[] salts;
+    bytes32[][] proofs;
+  }
 
   /**
    * @dev Gets the anchor registry's address that is backing this token
@@ -126,9 +127,9 @@ contract UserMintableERC721 is Initializable, ERC721, ERC721Enumerable, ERC721Me
       abi.encodePacked(
         _tokenUriBase,
         "0x",
-        Utilities.uintToHexStr(uint256(_getOwnAddress())),
+        Utilities.uintToHexStrPadded(uint256(_getOwnAddress()), 20),
         "/0x",
-        Utilities.uintToHexStr(tokenId)
+        Utilities.uintToHexStrPadded(tokenId, 32)
       )
     );
   }
@@ -268,14 +269,14 @@ contract UserMintableERC721 is Initializable, ERC721, ERC721Enumerable, ERC721Me
   /**
    * @dev Checks if the provided proof is part of the document root
    * and checks if it was created using the linked identity factory
-   * @param signingRoot bytes32 hash of all invoice fields which is signed
+   * @param docDataRoot bytes32 hash of all invoice fields which is signed
    * @param property bytes property for leaf construction
    * @param identity address Identity Contract used as a value for leaf construction
    * @param salt bytes32 salt for leaf construction
    * @param proof bytes32[] proofs for leaf construction
    */
   function _requireValidIdentity(
-    bytes32 signingRoot,
+    bytes32 docDataRoot,
     bytes memory property,
     address identity,
     bytes32 salt,
@@ -287,7 +288,7 @@ contract UserMintableERC721 is Initializable, ERC721, ERC721Enumerable, ERC721Me
     require(
       MerkleProof.verifySha256(
         proof,
-        signingRoot,
+        docDataRoot,
         sha256(
           abi.encodePacked(
             property,
@@ -312,13 +313,13 @@ contract UserMintableERC721 is Initializable, ERC721, ERC721Enumerable, ERC721Me
    * @dev Checks if the provided next id is part of the
    * document root using precise-proofs and it's not anchored
    * in the registry
-   * @param signingRoot bytes32 hash of all invoice fields which is signed
+   * @param docDataRoot bytes32 hash of all invoice fields which is signed
    * @param nextAnchorId uint256 the next id to be anchored
    * @param salt bytes32 salt for leaf construction
    * @param proof bytes32[] proofs for leaf construction
    */
   function _requireIsLatestDocumentVersion(
-    bytes32 signingRoot,
+    bytes32 docDataRoot,
     uint256 nextAnchorId,
     bytes32 salt,
     bytes32[] memory proof
@@ -337,7 +338,7 @@ contract UserMintableERC721 is Initializable, ERC721, ERC721Enumerable, ERC721Me
     require(
       MerkleProof.verifySha256(
         proof,
-        signingRoot,
+        docDataRoot,
         sha256(
           abi.encodePacked(
             NEXT_VERSION,
@@ -353,13 +354,13 @@ contract UserMintableERC721 is Initializable, ERC721, ERC721Enumerable, ERC721Me
   /**
    * @dev Checks that the document has no other token
    * minted in this registry for the provided document
-   * @param signingRoot bytes32 hash of all invoice fields which is signed
+   * @param docDataRoot bytes32 hash of all invoice fields which is signed
    * @param tokenId uint256 The ID for the token to be minted
    * @param salt bytes32 salt for leaf construction
    * @param proof bytes32[] proofs for leaf construction
    */
   function _requireOneTokenPerDocument(
-    bytes32 signingRoot,
+    bytes32 docDataRoot,
     uint256 tokenId,
     bytes32 salt,
     bytes32[] memory proof
@@ -377,7 +378,7 @@ contract UserMintableERC721 is Initializable, ERC721, ERC721Enumerable, ERC721Me
     require(
       MerkleProof.verifySha256(
         proof,
-        signingRoot,
+        docDataRoot,
         sha256(abi.encodePacked(property_, tokenId, salt))
       ),
       "Token uniqueness proof is not valid"
@@ -388,7 +389,7 @@ contract UserMintableERC721 is Initializable, ERC721, ERC721Enumerable, ERC721Me
   /**
    * @dev Checks that the document has a read rule set
    * using precise proofs and extract the index of the role
-   * @param signingRoot bytes32 hash of all invoice fields which is signed
+   * @param docDataRoot bytes32 hash of all invoice fields which is signed
    * @param property bytes property for leaf construction
    * @param value bytes value for leaf construction
    * @param salt bytes32 salt for leaf construction
@@ -396,7 +397,7 @@ contract UserMintableERC721 is Initializable, ERC721, ERC721Enumerable, ERC721Me
    * @return bytes8 the index of the read rule
    */
   function _requireReadRole(
-    bytes32 signingRoot,
+    bytes32 docDataRoot,
     bytes memory property,
     bytes memory value,
     bytes32 salt,
@@ -421,7 +422,7 @@ contract UserMintableERC721 is Initializable, ERC721, ERC721Enumerable, ERC721Me
     require(
       MerkleProof.verifySha256(
         proof,
-        signingRoot,
+        docDataRoot,
         sha256(
           abi.encodePacked(
             property_,
@@ -439,13 +440,13 @@ contract UserMintableERC721 is Initializable, ERC721, ERC721Enumerable, ERC721Me
   /**
    * @dev Checks that the document has a read action set
    * to the read role using precise proofs
-   * @param signingRoot bytes32 hash of all invoice fields which is signed
+   * @param docDataRoot bytes32 hash of all invoice fields which is signed
    * @param readRuleIndex bytes8 read rule index used for leaf construction
    * @param salt bytes32 salt for leaf construction
    * @param proof bytes32[] proofs for leaf construction
    */
   function _requireReadAction(
-    bytes32 signingRoot,
+    bytes32 docDataRoot,
     bytes8 readRuleIndex,
     bytes32 salt,
     bytes32[] memory proof
@@ -464,7 +465,7 @@ contract UserMintableERC721 is Initializable, ERC721, ERC721Enumerable, ERC721Me
     require(
       MerkleProof.verifySha256(
         proof,
-        signingRoot,
+        docDataRoot,
         sha256(
           abi.encodePacked(
             property_,
@@ -480,7 +481,7 @@ contract UserMintableERC721 is Initializable, ERC721, ERC721Enumerable, ERC721Me
   /**
    * @dev Checks that provided document read role is assigned to the
    * token to me minted
-   * @param signingRoot bytes32 hash of all invoice fields which is signed
+   * @param docDataRoot bytes32 hash of all invoice fields which is signed
    * @param tokenId uint256 The ID for the minted token
    * @param property bytes property for leaf construction
    * @param roleIndex bytes the value of the defined read role
@@ -489,7 +490,7 @@ contract UserMintableERC721 is Initializable, ERC721, ERC721Enumerable, ERC721Me
    * @param proof bytes32[] proofs for leaf construction
    */
   function _requireTokenHasRole(
-    bytes32 signingRoot,
+    bytes32 docDataRoot,
     uint256 tokenId,
     bytes memory property,
     bytes memory roleIndex,
@@ -518,7 +519,7 @@ contract UserMintableERC721 is Initializable, ERC721, ERC721Enumerable, ERC721Me
     require(
       MerkleProof.verifySha256(
         proof,
-        signingRoot,
+        docDataRoot,
         sha256(abi.encodePacked(property_, value_, salt))
       ),
       "Token Role not valid"
@@ -528,67 +529,63 @@ contract UserMintableERC721 is Initializable, ERC721, ERC721Enumerable, ERC721Me
   /**
    * @dev Checks that provided document is signed by the given identity
    * and validates and checks if the public key used is a valid SIGNING_KEY
-   * @param documentRoot bytes32 the anchored document root
+   * Max number of variables reached
+   * @param b32Values bytes32[] contains [anchored document root, docDataRoot, salt]
+   * @param btsValues bytes[] contains [signature]
    * @param anchoredBlock uint32 block number for when the document root was anchored
    * @param identity address Identity that signed the document
-   * @param signingRoot bytes32 hash of all invoice fields which is signed
-   * @param singingRootProof bytes32[] proofs for signing root
-   * @param signature bytes The signature
-   * used to contract the property for precise proofs
-   * @param salt bytes32 salt for leaf construction
-   * @param proof bytes32[] proofs for leaf construction
+   * @param signatureProof bytes32[] proofs for signature
+   * @param docDataRootProof bytes32[] proofs for document data root
    */
 
   function _requireSignedByIdentity(
-    bytes32 documentRoot,
+    bytes32[] memory b32Values,
+    bytes[] memory btsValues,
     uint32 anchoredBlock,
     address identity,
-    bytes32 signingRoot,
-    bytes32[] memory singingRootProof,
-    bytes memory signature,
-    bytes32 salt,
-    bytes32[] memory proof
+    bytes32[] memory signatureProof,
+    bytes32[] memory docDataRootProof
   )
   internal
   view
   {
+
     require(
-      singingRootProof.length == 1,
-      "SigningRoot can have only one sibling"
+      (b32Values.length == 3) && (btsValues.length == 1),
+      "b32Values length should be 3 and btsValues 1"
+    );
+
+    require(
+      docDataRootProof.length == 1,
+      "Document Data Root can have only one sibling"
     );
 
     require(
       MerkleProof.verifySha256(
-        singingRootProof[0],
-        documentRoot,
-        signingRoot
+        docDataRootProof[0],
+        b32Values[0],
+        b32Values[1]
       ),
-      "Signing Root not part of the document"
+      "Document Data Root not part of the document"
     );
 
-    // Extract the public key from the signature
-    bytes32 pbKey_ = bytes32(
-      uint256(
-        signingRoot.toEthSignedMessageHash().recover(signature)
-      )
-    );
+    bytes32 pbKey_ = Utilities.recoverPublicKeyFromConsensusSignature(btsValues[0], b32Values[1]);
+    require(pbKey_ != 0, "wrong recovered public key");
 
     // Reconstruct the precise proof property based on the provided identity
     // and the extracted public key
     bytes memory property_ = abi.encodePacked(
       SIGNATURE_TREE_SIGNATURES,
       identity,
-      pbKey_,
-      SIGNATURE_TREE_SIGNATURES_SIGNATURE
+      pbKey_
     );
-
 
     // Check with precise proofs if the signature is part of the documentRoot
     require(
       MerkleProof.verifySha256(
-        proof,
-        documentRoot,
-        sha256(abi.encodePacked(property_, signature, salt))
+        signatureProof,
+        b32Values[0],
+        sha256(abi.encodePacked(property_, btsValues[0], b32Values[2]))
       ),
       "Provided signature is not part of the document root"
     );

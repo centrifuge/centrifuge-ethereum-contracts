@@ -31,7 +31,7 @@ contract InvoiceUnpaidNFT is Initializable, UserMintableERC721 {
   uint8 constant internal DUE_DATE_IDX = 2;
   uint8 constant internal SENDER_IDX = 3;
   uint8 constant internal STATUS_IDX = 4;
-  uint8 constant internal SIGNING_ROOT_IDX = 5;
+  uint8 constant internal DOC_DATA_ROOT_IDX = 5;
   uint8 constant internal SIGNATURE_IDX = 6;
   uint8 constant internal NEXT_VERSION_IDX = 7;
   uint8 constant internal NFT_UNIQUE_IDX = 8;
@@ -134,22 +134,149 @@ contract InvoiceUnpaidNFT is Initializable, UserMintableERC721 {
     );
   }
 
+  function _mint(
+    address to,
+    uint256 tokenId,
+    uint256 anchorId,
+    ProofsDetails memory pd
+  )
+  internal
+  {
+    // First check if the tokenId exists
+    require(
+      !_exists(tokenId),
+      "Token exists"
+    );
+
+    // Get the document root from AnchorRepository
+    (bytes32 documentRoot_, uint32 anchoredBlock_) = super._getDocumentRoot(anchorId);
+    bytes32 docDataRoot_ = bytes32(Utilities.bytesToUint(pd.values[DOC_DATA_ROOT_IDX]));
+    uint256 nextAnchorId_ = Utilities.bytesToUint(pd.values[NEXT_VERSION_IDX]);
+
+    // Check if status of invoice is unpaid
+    require(
+      MerkleProof.verifySha256(
+        pd.proofs[STATUS_IDX],
+        docDataRoot_,
+        sha256(
+          abi.encodePacked(
+            INVOICE_STATUS, // compact property for  invoice.status, invoice = 1, status = 2
+            INVOICE_STATUS_UNPAID, // bytes value for "unpaid"
+            pd.salts[STATUS_IDX]
+          )
+        )
+      ),
+      "Invoice status is not unpaid"
+    );
+
+    // Check if sender is a registered identity
+    super._requireValidIdentity(
+      docDataRoot_,
+      INVOICE_SENDER,
+      _getSender(),
+      pd.salts[SENDER_IDX],
+      pd.proofs[SENDER_IDX]
+    );
+
+    bytes32[] memory b32Values = new bytes32[](3);
+    b32Values[0] = documentRoot_;
+    b32Values[1] = docDataRoot_;
+    b32Values[2] = pd.salts[SIGNATURE_IDX];
+
+    bytes[] memory btsValues = new bytes[](1);
+    btsValues[0] = pd.values[SIGNATURE_IDX];
+
+    // Make sure that the sender signed the document
+    super._requireSignedByIdentity(
+      b32Values,
+      btsValues,
+      anchoredBlock_,
+      _getSender(),
+      pd.proofs[SIGNATURE_IDX],
+      pd.proofs[DOC_DATA_ROOT_IDX]
+    );
+
+    // Enforce that there is not a newer version of the document on chain
+    super._requireIsLatestDocumentVersion(
+      docDataRoot_,
+      nextAnchorId_,
+      pd.salts[NEXT_VERSION_IDX],
+      pd.proofs[NEXT_VERSION_IDX]
+    );
+
+    // Verify that only one token per document/registry is minted
+    super._requireOneTokenPerDocument(
+      docDataRoot_,
+      tokenId,
+      pd.salts[NFT_UNIQUE_IDX],
+      pd.proofs[NFT_UNIQUE_IDX]
+    );
+
+    // Check if document has a read rule defined
+    bytes8 readRoleIndex = super._requireReadRole(
+      docDataRoot_,
+      pd.properties[READ_ROLE_IDX],
+      pd.values[READ_ROLE_IDX],
+      pd.salts[READ_ROLE_IDX],
+      pd.proofs[READ_ROLE_IDX]
+    );
+
+    // Check if the read rule has a read action
+    super._requireReadAction(
+      docDataRoot_,
+      readRoleIndex,
+      pd.salts[READ_ROLE_ACTION_IDX],
+      pd.proofs[READ_ROLE_ACTION_IDX]
+    );
+
+    // Check if the token has the read role assigned to it
+    super._requireTokenHasRole(
+      docDataRoot_,
+      tokenId,
+      pd.properties[TOKEN_ROLE_IDX],
+      pd.values[READ_ROLE_IDX], // the value from read role proof
+      pd.salts[TOKEN_ROLE_IDX],
+      pd.proofs[TOKEN_ROLE_IDX]
+    );
+
+    //mint the token
+    super._mintAnchor(
+      to,
+      tokenId,
+      anchorId,
+      docDataRoot_,
+      pd.values,
+      pd.salts,
+      pd.proofs
+    );
+
+    // Store the token details
+    _tokenDetails[tokenId] = TokenDetails(
+      _getSender(),
+      pd.values[GROSS_AMOUNT_IDX],
+      pd.values[CURRENCY_IDX],
+      pd.values[DUE_DATE_IDX],
+      anchorId,
+      nextAnchorId_,
+      documentRoot_
+    );
+
+    emit InvoiceUnpaidMinted(
+      to,
+      tokenId,
+      currentIndexOfToken(tokenId)
+    );
+  }
+
   /**
    * @dev Mints a token after validating the given merkle proofs
    * and comparing it to the anchor registry's stored hash/doc ID.
+   * Only one more variable allowed
    * @param to address The recipient of the minted token
    * @param tokenId uint256 The ID for the minted token
    * @param anchorId uint256 The ID of the document as identified
    * by the set up anchorRegistry.
-   * @param properties bytes[] The properties of the leafs that are being proved
    * using precise-proofs
-   * @param values bytes[] The values of the leafs that are being proved
-   * using precise-proofs
-   * @param salts bytes32[] The salts for the field that is being proved
-   * Will be concatenated for proof verification as outlined in
-   * precise-proofs library.
-   * @param proofs bytes32[][] Documents proofs that are needed
-   * for proof verification as outlined in precise-proofs library.
    */
   function mint(
     address to,
@@ -162,128 +289,10 @@ contract InvoiceUnpaidNFT is Initializable, UserMintableERC721 {
   )
   public
   {
-    // First check if the tokenId exists
-    require(
-      !_exists(tokenId),
-      "Token exists"
-    );
-
-    // Get the document root from AnchorRepository
-    (bytes32 documentRoot_, uint32 anchoredBlock_) = super._getDocumentRoot(
-      anchorId
-    );
-    bytes32 signingRoot_ = bytes32(Utilities.bytesToUint(values[SIGNING_ROOT_IDX]));
-    uint256 nextAnchorId_ = Utilities.bytesToUint(values[NEXT_VERSION_IDX]);
-
-    // Check if status of invoice is unpaid
-    require(
-      MerkleProof.verifySha256(
-        proofs[STATUS_IDX],
-        signingRoot_,
-        sha256(
-          abi.encodePacked(
-            INVOICE_STATUS, // compact property for  invoice.status, invoice = 1, status = 2
-            INVOICE_STATUS_UNPAID, // bytes value for "unpaid"
-            salts[STATUS_IDX]
-          )
-        )
-      ),
-      "Invoice status is not unpaid"
-    );
-
-    // Check if sender is a registered identity
-    super._requireValidIdentity(
-      signingRoot_,
-      INVOICE_SENDER,
-      _getSender(),
-      salts[SENDER_IDX],
-      proofs[SENDER_IDX]
-    );
-
-
-    // Make sure that the sender signed the document
-    super._requireSignedByIdentity(
-      documentRoot_,
-      anchoredBlock_,
-      _getSender(),
-      signingRoot_,
-      proofs[SIGNING_ROOT_IDX],
-      values[SIGNATURE_IDX],
-      salts[SIGNATURE_IDX],
-      proofs[SIGNATURE_IDX]
-    );
-
-    // Enforce that there is not a newer version of the document on chain
-    super._requireIsLatestDocumentVersion(
-      signingRoot_,
-      nextAnchorId_,
-      salts[NEXT_VERSION_IDX],
-      proofs[NEXT_VERSION_IDX]
-    );
-
-    // Verify that only one token per document/registry is minted
-    super._requireOneTokenPerDocument(
-      signingRoot_,
-      tokenId,
-      salts[NFT_UNIQUE_IDX],
-      proofs[NFT_UNIQUE_IDX]
-    );
-
-    // Check if document has a read rule defined
-    bytes8 readRoleIndex = super._requireReadRole(
-      signingRoot_,
-      properties[READ_ROLE_IDX],
-      values[READ_ROLE_IDX],
-      salts[READ_ROLE_IDX],
-      proofs[READ_ROLE_IDX]
-    );
-
-    // Check if the read rule has a read action
-    super._requireReadAction(
-      signingRoot_,
-      readRoleIndex,
-      salts[READ_ROLE_ACTION_IDX],
-      proofs[READ_ROLE_ACTION_IDX]
-    );
-
-    // Check if the token has the read role assigned to it
-    super._requireTokenHasRole(
-      signingRoot_,
-      tokenId,
-      properties[TOKEN_ROLE_IDX],
-      values[READ_ROLE_IDX], // the value from read role proof
-      salts[TOKEN_ROLE_IDX],
-      proofs[TOKEN_ROLE_IDX]
-    );
-
-    //mint the token
-    super._mintAnchor(
-      to,
-      tokenId,
-      anchorId,
-      signingRoot_,
-      values,
-      salts,
-      proofs
-    );
-
-    // Store the token details
-    _tokenDetails[tokenId] = TokenDetails(
-      _getSender(),
-      values[GROSS_AMOUNT_IDX],
-      values[CURRENCY_IDX],
-      values[DUE_DATE_IDX],
-      anchorId,
-      nextAnchorId_,
-      documentRoot_
-    );
-
-    emit InvoiceUnpaidMinted(
-      to,
-      tokenId,
-      currentIndexOfToken(tokenId)
-    );
+    ProofsDetails memory pd_ = ProofsDetails(properties, values, salts, proofs);
+    _mint(to, tokenId, anchorId, pd_);
   }
+
 
 }
 

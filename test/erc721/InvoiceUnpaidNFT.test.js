@@ -6,6 +6,7 @@ const MockAnchorRegistry = artifacts.require("MockAnchorRepository");
 const MockIdentityFactory = artifacts.require("MockIdentityFactory");
 const Identity = artifacts.require("Identity");
 const proof = require("./proof.js");
+const addressToBytes32 = require('../tools/utils').addressToBytes32;
 
 contract("InvoiceUnpaidNFT", function (accounts) {
 
@@ -196,8 +197,9 @@ contract("InvoiceUnpaidNFT", function (accounts) {
             assert.equal(tokenDetails[1], grossAmount.value)
             assert.equal(tokenDetails[2], currency.value)
             assert.equal(tokenDetails[3], due_date.value)
-            assert.equal(web3.utils.toHex(tokenDetails[4]), documentIdentifier)
-            assert.equal(web3.utils.toHex(tokenDetails[5]), nextVersion.value)
+            // any attribute that was converted from intX to hex is subject to not have leading 0s, fix that for the comparison
+            assert.equal(addressToBytes32(web3.utils.toHex(tokenDetails[4])), documentIdentifier)
+            assert.equal(addressToBytes32(web3.utils.toHex(tokenDetails[5])), nextVersion.value)
             assert.equal(tokenDetails[6], validRootHash);
 
             //check token uri

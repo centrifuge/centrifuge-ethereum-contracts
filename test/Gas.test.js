@@ -68,7 +68,7 @@ contract("Gas costs", function (accounts) {
 
         const preCommitMaxGas = 95000;
         const commitMaxGas = 80000;
-        it(`should have preCommit gas cost less then ${preCommitMaxGas} `, async function () {
+        it(`should have preCommit gas cost less than ${preCommitMaxGas} `, async function () {
             const {anchorId, signingRoot, callOptions} = await getBasicTestNeeds(accounts);
             const preCommitGas = await this.anchorRepository.preCommit.estimateGas(anchorId, signingRoot, callOptions);
 
@@ -77,7 +77,7 @@ contract("Gas costs", function (accounts) {
         });
 
 
-        it(`should have commit with no precommit gas cost less then  ${commitMaxGas}`, async function () {
+        it(`should have commit with no precommit gas cost less than  ${commitMaxGas}`, async function () {
             const {anchorId, documentRoot, proof, callOptions} = await getBasicTestNeeds(accounts);
             const commitGas = await this.anchorRepository.commit.estimateGas(anchorId, documentRoot, proof, callOptions);
 
@@ -85,7 +85,7 @@ contract("Gas costs", function (accounts) {
             assert.isBelow(commitGas, commitMaxGas, 'Gas Price for commit must not exceed 80k');
         });
 
-        it(`should have commit gas cost less then  ${commitMaxGas}`, async function () {
+        it(`should have commit gas cost less than  ${commitMaxGas}`, async function () {
             const {anchorId, signingRoot, documentRoot, proof, callOptions} = await getBasicTestNeeds(accounts);
             await shouldSucceed(this.anchorRepository.preCommit(anchorId, signingRoot, callOptions));
             const commitGas = await this.anchorRepository.commit.estimateGas(anchorId, documentRoot, proof, callOptions);
@@ -100,7 +100,7 @@ contract("Gas costs", function (accounts) {
 
         const preCommitMaxGas = 95000;
         const commitMaxGas = 85000;
-        it(`should have preCommit gas cost less then ${preCommitMaxGas} `, async function () {
+        it(`should have preCommit gas cost less than ${preCommitMaxGas} `, async function () {
             const {anchorId, signingRoot, callOptions} = await getBasicTestNeeds(accounts);
 
             const data = await this.anchorRepository.contract.methods.preCommit(anchorId, signingRoot).encodeABI();
@@ -109,7 +109,7 @@ contract("Gas costs", function (accounts) {
             assert.isBelow(preCommitGas, preCommitMaxGas, `Gas Price for preCommit is to high`)
         });
 
-        it(`should have commit with no precommit gas cost less then  ${commitMaxGas}`, async function () {
+        it(`should have commit with no precommit gas cost less than  ${commitMaxGas}`, async function () {
             const {anchorId, documentRoot, proof, callOptions} = await getBasicTestNeeds(accounts);
             const data = await this.anchorRepository.contract.methods.commit(anchorId, documentRoot, proof).encodeABI();
             const commitGas = await this.identity.execute.estimateGas(this.anchorRepository.address, 0, data, {from: accounts[1]});
@@ -123,7 +123,7 @@ contract("Gas costs", function (accounts) {
 
     describe("Check the gas cost for identity creation", async function () {
         const maxGas = 1200000;
-        it(`should have preCommit gas cost less then ${maxGas} `, async function () {
+        it(`should have preCommit gas cost less than ${maxGas} `, async function () {
             const actualGas = await this.identityFactory.createIdentity.estimateGas({from: accounts[1]});
 
             console.log('Actual identity creation gas cost:', actualGas);
@@ -135,7 +135,7 @@ contract("Gas costs", function (accounts) {
     describe("Check gas for adding keys", async function () {
 
         const maxAddMutipleGas = 250000;
-        it(` Gas cost for adding a key with 3 purposes should be less then ${maxAddMutipleGas} `, async function () {
+        it(` Gas cost for adding a key with 3 purposes should be less than ${maxAddMutipleGas} `, async function () {
             const {key} = await getBasicTestNeeds(accounts);
             const addMultiPurposeKeyGas = await this.identity.addMultiPurposeKey.estimateGas(key, [P2P_IDENTITY, P2P_SIGNATURE], 1);
 
@@ -144,7 +144,7 @@ contract("Gas costs", function (accounts) {
         });
 
         const maxAddGas = 140000;
-        it(` Gas cost for adding a key with one purpose should be less then ${maxAddGas} `, async function () {
+        it(` Gas cost for adding a key with one purpose should be less than ${maxAddGas} `, async function () {
             const {key} = await getBasicTestNeeds(accounts);
             const addKeyGas = await this.identity.addKey.estimateGas(key, P2P_IDENTITY, 1);
 
@@ -153,7 +153,7 @@ contract("Gas costs", function (accounts) {
         });
 
         const maxRevokeGas = 50000;
-        it(` Gas cost for revoking a key should be less then ${maxRevokeGas} `, async function () {
+        it(` Gas cost for revoking a key should be less than ${maxRevokeGas} `, async function () {
             const {key} = await getBasicTestNeeds(accounts);
             await this.identity.addMultiPurposeKey(key, [P2P_IDENTITY], 1);
             const revokeKeyGas = await this.identity.revokeKey.estimateGas(key);
@@ -165,7 +165,7 @@ contract("Gas costs", function (accounts) {
 
     describe("check the gas cost for minting an unpaid Invoice", async function () {
         const mintMaxGas = 833819;
-        it(`should have mint gas cost less then ${mintMaxGas} `, async function () {
+        it(`should have mint gas cost less than ${mintMaxGas} `, async function () {
 
             await this.anchorRepository.commit(
                 docIdPreImage,
@@ -194,7 +194,7 @@ contract("Gas costs", function (accounts) {
 
     describe("check the gas cost for mint with the identity proxy for ACTION key", async function () {
         const mintMaxGas = 833819;
-        it(`should have mint gas cost less then ${mintMaxGas} `, async function () {
+        it(`should have mint gas cost less than ${mintMaxGas} `, async function () {
             await this.anchorRepository.commit(
                 docIdPreImage,
                 validRootHash,

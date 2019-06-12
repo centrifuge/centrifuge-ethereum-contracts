@@ -1,7 +1,12 @@
 pragma solidity ^0.5.3;
 
+import "openzeppelin-eth/contracts/cryptography/ECDSA.sol";
+import "contracts/lib/Signatures.sol";
+import "solidity-bytes-utils/contracts/BytesLib.sol";
+
 
 library Utilities {
+  using ECDSA for bytes32;
   /**
  * @dev Parses bytes and extracts a bytes8 value from
  * the given starting point
@@ -46,12 +51,14 @@ library Utilities {
   }
 
   /**
-   * @dev Parses a uint and returns the hex string
-   * @param payload uint
-   * @return string the corresponding hex string
+   * @dev Parses a uint to Hex String padding with leading 0s to the desired length
+   * @param payload uint of data
+   * @param size desired string length
+   * @return hex string result
    */
-  function uintToHexStr(
-    uint payload
+  function uintToHexStrPadded(
+    uint payload,
+    uint size
   )
   internal
   pure
@@ -60,7 +67,7 @@ library Utilities {
   )
   {
     if (payload == 0)
-      return "0";
+      return "00";
     // calculate string length
     uint i = payload;
     uint length;
@@ -69,11 +76,16 @@ library Utilities {
       length++;
       i = i >> 4;
     }
+
+    if (length > (size*2)) {
+      return "00";
+    }
+
+    bytes memory result = new bytes(size*2);
     // parse byte by byte and construct the string
     i = payload;
     uint mask = 15;
-    bytes memory result = new bytes(length);
-    uint k = length - 1;
+    uint k = (size*2) - 1;
 
     while (i != 0) {
       uint curr = (i & mask);
@@ -81,6 +93,43 @@ library Utilities {
       i = i >> 4;
     }
 
+    uint j;
+    while (j < ((size*2)-length)) {
+      result[j++] = byte(uint8(48));
+    }
+
     return string(result);
   }
+
+  /**
+ * @dev Extracts public key from signature and payload for consensus signing (signature+transitionValidation)
+ * @param signature bytes of signature
+ * @param docDataRoot bytes32 of signed data
+ * @return byte32 of public key
+ * @return bool true if success, false otherwise
+ */
+  function recoverPublicKeyFromConsensusSignature(
+    bytes memory signature,
+    bytes32 docDataRoot
+  )
+  internal
+  pure
+  returns (
+    bytes32
+  )
+  {
+    if (signature.length != 66) {
+      return 0;
+    }
+
+    bytes memory signatureOnly = BytesLib.slice(signature, 0, (signature.length-1));
+
+    // Extract the public key from the signature
+    return bytes32(
+      uint256(
+        Signatures.consensusSignatureToEthSignedMessageHash(docDataRoot, signature[signature.length-1]).recover(signatureOnly)
+      )
+    );
+  }
+
 }

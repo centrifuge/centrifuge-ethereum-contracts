@@ -8,7 +8,7 @@ let currency = proof.field_proofs[1];
 let due_date = proof.field_proofs[2];
 let sender = proof.field_proofs[3];
 let status = proof.field_proofs[4];
-let signingRoot = proof.field_proofs[5];
+let docDataRoot = proof.field_proofs[5];
 let signature = proof.field_proofs[6];
 let nextVersion = proof.field_proofs[7];
 let nftUnique = proof.field_proofs[8];
@@ -21,7 +21,7 @@ let tokenId = nftUnique.value.match(/^0x0/) ? nftUnique.value.replace(/^0x0/,'0x
 let contractAddress = tokenRole.value.substr(0,42);
 let readRuleIndex = "0x" + readRole.property.substr(18, 16);
 let tokenURI = "http://test.com";
-let publicKey = "0x"+signature.property.substr(-72,64);
+let publicKey = "0x"+signature.property.substr(-64,64);
 
 
 module.exports = {
@@ -30,7 +30,7 @@ module.exports = {
     due_date,
     sender,
     status,
-    signingRoot,
+    docDataRoot,
     signature,
     nextVersion,
     nftUnique,
@@ -51,7 +51,7 @@ module.exports = {
             due_date.property,
             sender.property,
             status.property,
-            signingRoot.property,
+            docDataRoot.property,
             signature.property,
             nextVersion.property,
             nftUnique.property,
@@ -65,7 +65,7 @@ module.exports = {
             due_date.value,
             sender.value,
             status.value,
-            signingRoot.hash,
+            docDataRoot.hash,
             signature.value,
             nextVersion.value,
             nftUnique.value,
@@ -79,7 +79,7 @@ module.exports = {
             due_date.salt,
             sender.salt,
             status.salt,
-            signingRoot.salt,
+            docDataRoot.salt,
             signature.salt,
             nextVersion.salt,
             nftUnique.salt,
@@ -87,11 +87,11 @@ module.exports = {
             readRoleAction.salt,
             tokenRole.salt,
         ],
-        /* All fields that are under the signingRoot will use that
+        /* All fields that are under the docDataRoot will use that
         * for the merkle validation. This means that we do not need the last item
         * from the sorted hashses array
         * The merkle validation will fail if the last item is not popped
-        * Only Signatures and SigningRoot will be validated against the documentRoot
+        * Only Signatures and DocumentDataRoot will be validated against the documentRoot
         * */
         proofs:[
             grossAmount.sorted_hashes.slice(0,-1),
@@ -99,7 +99,7 @@ module.exports = {
             due_date.sorted_hashes.slice(0,-1),
             sender.sorted_hashes.slice(0,-1),
             status.sorted_hashes.slice(0,-1),
-            signingRoot.sorted_hashes,
+            docDataRoot.sorted_hashes,
             signature.sorted_hashes,
             nextVersion.sorted_hashes.slice(0,-1),
             nftUnique.sorted_hashes.slice(0,-1),
