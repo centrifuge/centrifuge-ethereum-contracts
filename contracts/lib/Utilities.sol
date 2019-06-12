@@ -2,7 +2,7 @@ pragma solidity ^0.5.3;
 
 import "openzeppelin-eth/contracts/cryptography/ECDSA.sol";
 import "contracts/lib/Signatures.sol";
-
+import "solidity-bytes-utils/contracts/BytesLib.sol";
 
 library Utilities {
   using ECDSA for bytes32;
@@ -142,7 +142,7 @@ library Utilities {
       return 0;
     }
 
-    bytes memory signatureOnly = removeLastElement(signature);
+    bytes memory signatureOnly = BytesLib.slice(signature, 0, (signature.length-1));
 
     // Extract the public key from the signature
     return bytes32(
