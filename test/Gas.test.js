@@ -56,6 +56,9 @@ contract("Gas costs", function (accounts) {
     let docIdPreImage = documentIdentifier;
     documentIdentifier = sha256(docIdPreImage);
 
+
+    const GasBuffer = 2000;
+
     beforeEach(async function () {
         this.anchorRepository = await AnchorRepository.new();
         this.identity = await Identity.new(accounts[0],[publicKey,addressToBytes32(accounts[1])],[P2P_SIGNATURE,ACTION]);
@@ -66,8 +69,8 @@ contract("Gas costs", function (accounts) {
 
     describe("Check the gas cost for preCommit and commit", async function () {
 
-        const preCommitMaxGas = 95000;
-        const commitMaxGas = 80000;
+        const preCommitMaxGas = 68831 + GasBuffer;
+        const commitMaxGas = 72354 + GasBuffer;
         it(`should have preCommit gas cost less then ${preCommitMaxGas} `, async function () {
             const {anchorId, signingRoot, callOptions} = await getBasicTestNeeds(accounts);
             const preCommitGas = await this.anchorRepository.preCommit.estimateGas(anchorId, signingRoot, callOptions);
@@ -98,8 +101,8 @@ contract("Gas costs", function (accounts) {
 
     describe("Check the gas cost for preCommit and commit with the identity proxy for ACTION key", async function () {
 
-        const preCommitMaxGas = 95000;
-        const commitMaxGas = 175000;
+        const preCommitMaxGas = 75788 + GasBuffer;
+        const commitMaxGas = 174100 + GasBuffer;
         it(`should have preCommit gas cost less then ${preCommitMaxGas} `, async function () {
             const {anchorId, signingRoot, callOptions} = await getBasicTestNeeds(accounts);
 
@@ -122,7 +125,7 @@ contract("Gas costs", function (accounts) {
     });
 
     describe("Check the gas cost for identity creation", async function () {
-        const maxGas = 1200000;
+        const maxGas = 899366 + GasBuffer;
         it(`should have preCommit gas cost less then ${maxGas} `, async function () {
             const actualGas = await this.identityFactory.createIdentity.estimateGas({from: accounts[1]});
 
@@ -134,7 +137,7 @@ contract("Gas costs", function (accounts) {
 
     describe("Check gas for adding keys", async function () {
 
-        const maxAddMutipleGas = 250000;
+        const maxAddMutipleGas = 194194 + GasBuffer;
         it(` Gas cost for adding a key with 3 purposes should be less then ${maxAddMutipleGas} `, async function () {
             const {key} = await getBasicTestNeeds(accounts);
             const addMultiPurposeKeyGas = await this.identity.addMultiPurposeKey.estimateGas(key, [P2P_IDENTITY, P2P_SIGNATURE], 1);
@@ -143,7 +146,7 @@ contract("Gas costs", function (accounts) {
             assert.isBelow(addMultiPurposeKeyGas, maxAddMutipleGas, `Gas Price for addMultiPurposeKey is to high`)
         });
 
-        const maxAddGas = 140000;
+        const maxAddGas = 132474 + GasBuffer;
         it(` Gas cost for adding a key with one purpose should be less then ${maxAddGas} `, async function () {
             const {key} = await getBasicTestNeeds(accounts);
             const addKeyGas = await this.identity.addKey.estimateGas(key, P2P_IDENTITY, 1);
@@ -152,7 +155,7 @@ contract("Gas costs", function (accounts) {
             assert.isBelow(addKeyGas, maxAddGas, `Gas Price for addKey is to high`)
         });
 
-        const maxRevokeGas = 50000;
+        const maxRevokeGas = 48671 + GasBuffer;
         it(` Gas cost for revoking a key should be less then ${maxRevokeGas} `, async function () {
             const {key} = await getBasicTestNeeds(accounts);
             await this.identity.addMultiPurposeKey(key, [P2P_IDENTITY], 1);
@@ -164,7 +167,7 @@ contract("Gas costs", function (accounts) {
     });
 
     describe("check the gas cost for minting an unpaid Invoice", async function () {
-        const mintMaxGas = 833819;
+        const mintMaxGas = 755924 + GasBuffer;
         it(`should have mint gas cost less then ${mintMaxGas} `, async function () {
 
             await this.anchorRepository.commit(
@@ -193,7 +196,7 @@ contract("Gas costs", function (accounts) {
     });
 
     describe("check the gas cost for mint with the identity proxy for ACTION key", async function () {
-        const mintMaxGas = 873819;
+        const mintMaxGas = 862432 + GasBuffer;
         it(`should have mint gas cost less then ${mintMaxGas} `, async function () {
             await this.anchorRepository.commit(
                 docIdPreImage,
