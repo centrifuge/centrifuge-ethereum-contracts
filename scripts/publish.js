@@ -69,8 +69,7 @@ async function run() {
         // Clean up .git folders. NPM will fail
         // npm ERR! code EISGIT
         // npm ERR! git /home/travis/build/centrifuge/centrifuge-ethereum-contracts/node_modules/web3-providers-ws/node_modules/websocket: Appears to be a git repo or submodule.
-        await execute(`rm -rf node_modules/**/.git`);
-        await execute(`rm -rf node_modules/**/**/**/.git`);
+        await execute(`find node_modules \\( -name ".git" \\) -exec rm -rf -- {} +`);
 
 
 
