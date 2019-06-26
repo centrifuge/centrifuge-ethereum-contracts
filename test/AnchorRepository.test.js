@@ -3,7 +3,7 @@ const MerkleTree = require('./tools/merkleTree').MerkleTree;
 const mineNBlocks = require('./tools/blockHeight').mineNBlocks;
 const shouldRevert = require('./tools/assertTx').shouldRevert;
 const shouldSucceed = require('./tools/assertTx').shouldSucceed;
-const {keccak, bufferToHex, sha256, toUnsigned} = require('ethereumjs-util');
+const {keccak, bufferToHex, sha256, toUnsigned,unpad} = require('ethereumjs-util');
 const AnchorRepository = artifacts.require("AnchorRepository");
 const Identity = artifacts.require("Identity");
 
@@ -14,7 +14,7 @@ async function getBasicTestNeeds(accounts) {
     const anchorId = web3.utils.randomHex(32);
     const elements = [web3.utils.randomHex(32), web3.utils.randomHex(32)];
     const merkleTree = new MerkleTree(elements, sha256);
-    const documentRoot = merkleTree.getHexRoot();
+    const documentRoot = '0x'+unpad(merkleTree.getHexRoot());
     const proof = merkleTree.getHexProof(elements[0])[0];
     const signingRoot = bufferToHex(sha256(elements[0]));
 

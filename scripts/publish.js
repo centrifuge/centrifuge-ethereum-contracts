@@ -65,6 +65,14 @@ async function run() {
     // If package is based on a previous published version
     if (argv.fromTag) {
 
+
+        // Clean up .git folders. NPM will fail
+        // npm ERR! code EISGIT
+        // npm ERR! git /home/travis/build/centrifuge/centrifuge-ethereum-contracts/node_modules/web3-providers-ws/node_modules/websocket: Appears to be a git repo or submodule.
+        await execute(`find node_modules \\( -name ".git" \\) -exec rm -rf -- {} +`);
+
+
+
         await execute(`npm install @centrifuge/ethereum-contracts@${argv.fromTag} --force --no-save`);
         packageRoot = path.join(projectRoot, 'node_modules', '@centrifuge/ethereum-contracts');
 
