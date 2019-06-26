@@ -1,3 +1,5 @@
+const {unpad} = require('ethereumjs-util');
+
 let proof = require('./proof.json');
 
 let documentIdentifier = proof.header.version_id;
@@ -17,7 +19,7 @@ let readRoleAction = proof.field_proofs[10];
 let tokenRole = proof.field_proofs[11];
 
 
-let tokenId = nftUnique.value.match(/^0x0/) ? nftUnique.value.replace(/^0x0/,'0x') : nftUnique.value;
+let tokenId = '0x'+unpad(nftUnique.value)
 let contractAddress = tokenRole.value.substr(0,42);
 let readRuleIndex = "0x" + readRole.property.substr(18, 16);
 let tokenURI = "http://test.com";
