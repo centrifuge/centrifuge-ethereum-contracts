@@ -77,11 +77,17 @@ contract Identity is KeyManager {
 
     // solium-disable-next-line security/no-inline-assembly
     assembly {
-      // check if contract to be call exists
+      // check if contract to be called exists
       if iszero(extcodesize(to)) {
         revert(0, 0)
       }
       success := call(gas, to, value, add(data, 0x20), mload(data), 0, 0)
+      // revert in case call has an error
+      if iszero(success) {
+        revert(0, 0)
+      }
     }
   }
+
+
 }
