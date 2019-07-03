@@ -15,7 +15,7 @@ contract TextProxyExecution {
   function callMeRevert()
   external
   {
-    require(1 > 2, 'This will revert every time');
+    require(1 > 2, "This will revert every time");
   }
 
   function getCallsFrom(address caller)
