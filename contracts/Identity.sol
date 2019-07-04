@@ -66,7 +66,6 @@ contract Identity is KeyManager {
     bytes memory data
   )
   public
-  returns (bool success)
   {
 
     bytes32 key_ = addressToKey(msg.sender);

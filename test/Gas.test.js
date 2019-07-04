@@ -125,7 +125,7 @@ contract("Gas costs", function (accounts) {
     });
 
     describe("Check the gas cost for identity creation", async function () {
-        const maxGas = 899366 + GasBuffer;
+        const maxGas = 901366 + GasBuffer;
         it(`should have preCommit gas cost less then ${maxGas} `, async function () {
             const actualGas = await this.identityFactory.createIdentity.estimateGas({from: accounts[1]});
 
