@@ -69,6 +69,7 @@ contract Identity is KeyManager {
   {
 
     bytes32 key_ = addressToKey(msg.sender);
+    bool success;
     require(
       keyHasPurpose(key_, ACTION) && _keys[key_].revokedAt == 0,
       "Requester must have an ACTION purpose"
