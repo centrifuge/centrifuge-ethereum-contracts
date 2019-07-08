@@ -12,6 +12,12 @@ contract TextProxyExecution {
     numCalls[msg.sender] += 1;
   }
 
+  function callMeRevert()
+  external
+  {
+    require(1 > 2, "This will revert every time");
+  }
+
   function getCallsFrom(address caller)
   external
   view
